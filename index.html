@@ -1,6 +1,17 @@
 <!doctype html>
 <html lang="tr">
   <head>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2e7d32">
+  <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/1864/1864470.png">
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js');
+      });
+    }
+  </script>
+    
     <meta charset="UTF-8" />
     <meta
       name="viewport"
