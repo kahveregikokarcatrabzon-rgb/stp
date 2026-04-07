@@ -1,6 +1,6 @@
 {
-  "name": "EBA Sistem Sürvey",
-  "short_name": "EBA Sürvey",
+  "name": "Sürvey Takip Programı",
+  "short_name": "STP Sürvey",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
