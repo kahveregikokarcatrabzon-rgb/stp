@@ -122,17 +122,22 @@
       }
 
       .profile-avatar {
-        width: 90px;
-        height: 90px;
-        background: var(--beyaz);
-        border-radius: 50%;
-        margin: 0 auto 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-      }
+    /* Orijinal logonun boyutu neyse (örneğin 60px) onu yazmalıyız */
+      width: 90px; 
+      height: 90px;
+  
+      /* Eğer logo yuvarlaksa yuvarlak kalması için */
+      border-radius: 50%; 
+  
+      /* İşte o "bembeyaz ekran" sihirli dokunuşu */
+      background-color: #ffffff; 
+  
+      /* Bozulmaması için gerekli diğer hizalamalar (muhtemelen zaten vardır) */
+      display: flex; 
+      justify-content: center; 
+      align-items: center;
+      overflow: hidden; /* Taşan bir şey olursa gizlesin */
+    }
 
       .profile-avatar img {
         width: 80%;
@@ -1099,11 +1104,9 @@
 
     <div id="loginEkrani" class="container">
       <div style="text-align: center; margin-bottom: 20px; margin-top: 20px">
-        <img
-          src="https://i.ibb.co/PvBLFm68/logo.png"
-          alt="Logo"
-          style="width: 100px; margin-bottom: 10px"
-        />
+        
+        <div style="height: 100px; margin-bottom: 10px;"></div>
+        
         <h1 style="color: var(--bakanlik-kirmizi); margin: 0; font-size: 36px">
           STP
         </h1>
