@@ -1,6 +1,6 @@
 {
   "name": "Sürvey Takip Programı",
-  "short_name": "STP Sürvey",
+  "short_name": "STP Survey",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#ffffff",
