@@ -6338,6 +6338,11 @@ function loglariExcelIndir() {
   // Eğer uygulama olarak açılmamışsa (tarayıcıdaysa) butonu göster
   if (!isStandalone) {
     installBtn.style.display = 'block';
+    
+    // 30 saniye (30000 ms) sonra butonu otomatik olarak gizle
+    setTimeout(() => {
+      installBtn.style.display = 'none';
+    }, 30000);
   }
 
   // Android Chrome İndirme Yakalayıcı
