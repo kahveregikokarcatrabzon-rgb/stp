@@ -10,6 +10,8 @@
 
   gtag('config', 'G-0GK8SH72NK');
 </script>
+   <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#2e7d32"> 
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#2e7d32">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🌱</text></svg>">
@@ -6315,6 +6317,56 @@ function loglariExcelIndir() {
 }
 
  </script>
+    <button id="pwaInstallBtn" style="display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background-color: #2e7d32; color: white; border: none; padding: 12px 24px; border-radius: 30px; font-size: 16px; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.3); z-index: 9999; cursor: pointer;">
+  📲 Uygulamayı Telefona Kur
+</button>
+
+<script>
+  // 1. Service Worker Kaydı (Android için şart)
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+  }
+
+  const installBtn = document.getElementById('pwaInstallBtn');
+  let deferredPrompt;
+
+  // iOS Tespiti
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  // Uygulama zaten kurulu mu tespiti
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+  // Eğer uygulama olarak açılmamışsa (tarayıcıdaysa) butonu göster
+  if (!isStandalone) {
+    installBtn.style.display = 'block';
+  }
+
+  // Android Chrome İndirme Yakalayıcı
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+  });
+
+  // Butona Tıklanınca Olacaklar
+  installBtn.addEventListener('click', async () => {
+    if (isIOS) {
+      // iOS kullanıcısına uyarı veriyoruz
+      alert("🍏 Apple Kısıtlaması:\n\nUygulamayı kurmak için Safari'nin altındaki 'Paylaş' (Kare içinden çıkan ok) butonuna basın ve listeden 'Ana Ekrana Ekle'yi seçin.");
+    } else if (deferredPrompt) {
+      // Android kullanıcısına direkt indirme ekranı açıyoruz
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        installBtn.style.display = 'none'; // Kurunca butonu gizle
+      }
+      deferredPrompt = null;
+    } else {
+      // Diğer durumlar (PC vb.)
+      alert("Uygulamayı kurmak için tarayıcı menüsünden 'Uygulamayı Yükle' veya 'Ana Ekrana Ekle' seçeneğini kullanabilirsiniz.");
+    }
+  });
+</script>
+
+    
   </body>
 </html>
     
