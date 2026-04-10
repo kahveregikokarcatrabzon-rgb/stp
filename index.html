@@ -1503,8 +1503,8 @@
               <span style="color: red">*</span></label
             ><input type="number" id="sayimBocek" placeholder="Adet girin" />
           </div>
-          <div
-            class="form-group"
+           <div
+            class="form-group hidden"
             style="
               background: #f9f9f9;
               padding: 10px;
@@ -1514,7 +1514,7 @@
           >
             <label>📷 Tuzak Fotoğrafı Çek / Yükle</label
             ><input type="file" id="sayimFoto" accept="image/*" />
-          </div>
+          </div> 
           <div class="form-group">
             <label>Notlar (Opsiyonel)</label
             ><textarea id="sayimNot" rows="2"></textarea>
@@ -2653,6 +2653,46 @@ function haritayaTamEkranEkle(hedefHarita) {
     }
 }
 
+// --- KONUMUMA GİT BUTONU FABRİKASI ---
+L.Control.KonumButonu = L.Control.extend({
+    onAdd: function(map) {
+        var container = L.DomUtil.create('div', 'leaflet-bar leaflet-control leaflet-control-custom konum-butonu');
+        container.style.backgroundColor = 'white';
+        container.style.width = '34px';
+        container.style.height = '34px';
+        container.style.cursor = 'pointer';
+        container.style.display = 'flex';
+        container.style.alignItems = 'center';
+        container.style.justifyContent = 'center';
+        container.style.fontSize = '18px';
+        container.innerHTML = '📍';
+        container.title = 'Şu Anki Konumuma Odaklan';
+
+        container.onclick = function(e){
+            e.stopPropagation();
+            container.innerHTML = '⏳';
+            map.locate({setView: true, maxZoom: 16});
+            map.once('locationfound', function(ev) {
+                container.innerHTML = '📍';
+                if (map.userLocationMarker) map.removeLayer(map.userLocationMarker);
+                map.userLocationMarker = L.circleMarker(ev.latlng, {
+                    radius: 8, fillColor: "#1976d2", color: "#ffffff", weight: 2, opacity: 1, fillOpacity: 0.8
+                }).addTo(map).bindPopup("Şu an buradasınız.").openPopup();
+            });
+            map.once('locationerror', function(ev) {
+                container.innerHTML = '📍';
+                alert("Konum bulunamadı. Cihazınızın GPS servisinin açık olduğundan emin olun.");
+            });
+        }
+        return container;
+    }
+});
+function haritayaKonumButonuEkle(hedefHarita) {
+    if (!hedefHarita) return;
+    let kacTaneVar = hedefHarita.getContainer().querySelectorAll('.konum-butonu').length;
+    if (kacTaneVar === 0) hedefHarita.addControl(new L.Control.KonumButonu({position: 'topright'}));
+}
+
     // --- GLOBAL LİSTELER ---
 let gHastalikList = [];
 let gKonukcuList = [];
@@ -3570,6 +3610,7 @@ function vipBildirim(mesaj, tur = "basarili") {
             
             // DÜZELTİLDİ: Survey haritasına Survey butonu takılıyor!
             haritayaTamEkranEkle(haritaSurvey); 
+            haritayaKonumButonuEkle(haritaSurvey);
             
           } else if (haritaSurvey) {
             haritaSurvey.setView([e, b], 13);
@@ -3607,6 +3648,7 @@ function vipBildirim(mesaj, tur = "basarili") {
               maxZoom: 20,
             }).addTo(haritaTuzak);
             haritayaTamEkranEkle(haritaTuzak);
+            haritayaKonumButonuEkle(haritaTuzak);
           } else if (haritaTuzak) {
             haritaTuzak.setView([e, b], 13);
           }
@@ -3784,6 +3826,7 @@ function vipBildirim(mesaj, tur = "basarili") {
                   { maxZoom: 20 },
                 ).addTo(haritaSurvey);
                 haritayaTamEkranEkle(haritaSurvey);
+                haritayaKonumButonuEkle(haritaSurvey);
               } else if (haritaSurvey) {
                 haritaSurvey.setView([e, b], 18);
               }
@@ -3857,6 +3900,7 @@ function vipBildirim(mesaj, tur = "basarili") {
                   { maxZoom: 20 },
                 ).addTo(haritaTuzak);
                 haritayaTamEkranEkle(haritaTuzak);
+                haritayaKonumButonuEkle(haritaTuzak);
               } else if (haritaTuzak) {
                 haritaTuzak.setView([e, b], 18);
               }
@@ -4176,6 +4220,16 @@ function vipBildirim(mesaj, tur = "basarili") {
           let eskiSayimX = aktifSayim.sonBocek || 0; // Sunucudan gelen en son sayım
           let yeniSayim = parseInt(paket.bocekSayisi) || 0;
 
+          // 1. AYNI GÜN SAYIM GİRİLMİŞ Mİ KONTROLÜ
+          if (aktifSayim.gecenGun === 0) {
+              let mesajGun = "⚠️ DİKKAT!\nBugün bu tuzak için zaten bir sayım girilmiş.\nTekrar sayım girmek istediğinize emin misiniz?";
+              let onayGun = confirm(mesajGun);
+              if (!onayGun) {
+                  return; // Kullanıcı "İptal" derse işlemi durdur
+              }
+          }
+
+          // 2. AŞIRI ARTIŞ KONTROLÜ
           if (eskiSayimX > 9 && yeniSayim >= (3 * eskiSayimX)) {
               let mesaj = "⚠️ DİKKAT!\nGirdiğiniz veri bir önceki sayım verisinden çok fazla.\n(Önceki: " + eskiSayimX + " ➔ Yeni Girdiğiniz: " + yeniSayim + ")\n\nEmin misiniz? Kaydetmek istiyor musunuz?";
               let onay = confirm(mesaj);
@@ -4261,6 +4315,19 @@ function vipBildirim(mesaj, tur = "basarili") {
 
               let sf = document.getElementById("sayimFormAlani");
               if (sf) sf.classList.add("hidden");
+
+              // --- YENİ EKLENEN UX YÖNLENDİRME MOTORU ---
+              // Kullanıcı 1.5 saniye "Kayıt Başarılı" bildirimini görsün, ardından ilgili panele otomatik dönsün
+              setTimeout(() => {
+                  if (paket.islemTipi === "Genel Survey Kaydi") {
+                      modulAc("dashboardSurvey"); // Sürvey ana panosuna dön
+                  } else if (paket.islemTipi === "Tuzak Kaydı" || paket.islemTipi === "Sayım") {
+                      modulAc("dashboardKokarca"); // Kokarca ana panosuna dön
+                  } else {
+                      modulAc("anaMenu"); // Diğer durumlarda genel Ana Menüye dön
+                  }
+              }, 1500); 
+              // ------------------------------------------
             } else {
               alert("❌ Hata: " + data.mesaj);
             }
@@ -4505,6 +4572,7 @@ function vipBildirim(mesaj, tur = "basarili") {
             maxZoom: 20,
           }).addTo(haritaSayim);
           haritayaTamEkranEkle(haritaSayim);
+          haritayaKonumButonuEkle(haritaSayim);
         }
         if (isaretciGrup && haritaSayim) haritaSayim.removeLayer(isaretciGrup);
         isaretciGrup = L.layerGroup().addTo(haritaSayim);
@@ -4537,7 +4605,7 @@ function vipBildirim(mesaj, tur = "basarili") {
                 // 1. MEVCUT SAYIM GİR BUTONU (Kırmızı)
                 "<button onclick=\"sayimFormunuAc('" +
                 safeTuzakId + "','" + safeIlce + "','" +
-                safeMahalle + "','" + safeAda + "','" + safeParsel + "'," + c[0] + "," + c[1] + "," + (t.SonBocek || 0) +
+                safeMahalle + "','" + safeAda + "','" + safeParsel + "'," + c[0] + "," + c[1] + "," + (t.SonBocek || 0) + "," + (t.GecenGun !== undefined ? t.GecenGun : -1) +
                 ")\" style='background:#d32f2f; color:white; border:none; padding:8px 10px; width:100%; margin-top:8px; border-radius:4px; font-weight:bold; font-size:15px; cursor:pointer;'>🐞 Sayım Gir</button>" +
                 
                 // 2. YENİ NAVİGASYON BUTONU (Mavi ve Dolarsız Temiz Link)
@@ -4575,7 +4643,20 @@ function vipBildirim(mesaj, tur = "basarili") {
           }
         }
       }
-      function sayimFormunuAc(id, ilce, mah, ada, par, en, boy, sonBocek = 0) {
+      function sayimFormunuAc(id, ilce, mah, ada, par, en, boy, sonBocek = 0, gecenGun = -1) {
+        // --- TAM EKRAN MODUNDAN OTOMATİK ÇIKIŞ ---
+        let tamEkranHaritalar = document.querySelectorAll('.harita-tam-ekran');
+        tamEkranHaritalar.forEach(haritaDiv => {
+            haritaDiv.classList.remove('harita-tam-ekran');
+            document.body.style.overflow = 'auto';
+            let tamEkranButonu = haritaDiv.querySelector('div[title="Tam Ekrana Geç / Çık"]');
+            if (tamEkranButonu) tamEkranButonu.innerHTML = '🔲';
+        });
+        if (tamEkranHaritalar.length > 0) {
+            setTimeout(() => { if (typeof haritaSayim !== 'undefined' && haritaSayim) haritaSayim.invalidateSize(); }, 300);
+        }
+        // -----------------------------------------
+
         aktifSayim = {
           id: id,
           ilce: ilce,
@@ -4584,7 +4665,8 @@ function vipBildirim(mesaj, tur = "basarili") {
           parsel: par,
           enlem: en,
           boylam: boy,
-          sonBocek: parseInt(sonBocek) || 0
+          sonBocek: parseInt(sonBocek) || 0,
+          gecenGun: parseInt(gecenGun)
         };
         document.getElementById("secilenTuzakBaslik").innerText = id;
         
@@ -4597,7 +4679,9 @@ function vipBildirim(mesaj, tur = "basarili") {
         let sf = document.getElementById("sayimFormAlani");
         if (sf) {
             sf.classList.remove("hidden");
-            sf.scrollIntoView({ behavior: "smooth" });
+            setTimeout(() => {
+                sf.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 50);
         }
       }
 
@@ -4776,6 +4860,10 @@ function vipBildirim(mesaj, tur = "basarili") {
         let yil = new Date().getFullYear();
         data.forEach((s) => {
           if (!s.id) return;
+          
+          // Sadece Tuzak Kaydı ve Sayım verilerini işleme al; Logları ve diğer işlemleri atla.
+          if (s.islem !== "Tuzak Kaydı" && s.islem !== "Sayım") return;
+
           if (!tuzakMap[s.id]) {
             tuzakMap[s.id] = {
               ilce: s.ilce,
@@ -5971,9 +6059,44 @@ function gorevPanosunuCiz(tuzakListesi) {
         return;
     }
 
-    tuzakListesi.sort((a, b) => (b.GecenGun || 0) - (a.GecenGun || 0));
+    // 🛡️ %100 KURŞUN GEÇİRMEZ VİP LİSTE 
+    // (Türkçe harf hatalarını sıfırlamak için hepsini İngilizce harfli ve BÜYÜK yazdık)
+    const gecerliIlceler = [
+        "AKCAABAT", "ARAKLI", "ARSIN", "BESIKDUZU", "CARSIBASI",
+        "CAYKARA", "DERNEKPAZARI", "DUZKOY", "HAYRAT", "KOPRUBASI",
+        "MACKA", "OF", "ORTAHISAR", "SURMENE", "SALPAZARI",
+        "TONYA", "VAKFIKEBIR", "YOMRA"
+    ];
 
-    tuzakListesi.forEach(t => {
+    // Gelen ilçe adını bütün şivelerden, I/İ karmaşasından kurtaran çevirmen
+    function ismiStandartYap(isim) {
+        if (!isim) return "";
+        return String(isim).trim().toUpperCase()
+            .replace(/İ/g, 'I').replace(/I/g, 'I')
+            .replace(/Ğ/g, 'G')
+            .replace(/Ü/g, 'U')
+            .replace(/Ş/g, 'S')
+            .replace(/Ö/g, 'O')
+            .replace(/Ç/g, 'C')
+            .replace(/ı/g, 'I').replace(/i/g, 'I'); // Ekstra güvenlik
+    }
+
+    // Gümrük Memuru: Sadece VİP listedekileri geçirir
+    let gercekTuzaklar = tuzakListesi.filter(t => {
+        if (!t.Ilce) return false; 
+        
+        let islenenIlce = ismiStandartYap(t.Ilce);
+        return gecerliIlceler.includes(islenenIlce);
+    });
+
+    if (gercekTuzaklar.length === 0) {
+        liste.innerHTML = "<div style='color:#388e3c; text-align:center; padding:20px; font-weight:bold;'>🟢 Harika! Bu bölgede bekleyen görev yok.</div>";
+        return;
+    }
+
+    gercekTuzaklar.sort((a, b) => (b.GecenGun || 0) - (a.GecenGun || 0));
+
+    gercekTuzaklar.forEach(t => {
         let gun = t.GecenGun || 0; 
         let durumRenk = ""; let durumIkon = ""; let uyariMetni = "";
 
@@ -5987,10 +6110,9 @@ function gorevPanosunuCiz(tuzakListesi) {
 
         let koordinat = t.Koordinat ? t.Koordinat.split(",") : ["41.0", "39.7"];
         let enlem = parseFloat(koordinat[0]); let boylam = parseFloat(koordinat[1]);
-        // Evrensel Yol Tarifi Linki (Direkt Navigasyon Rota Motoru)
-        let yolTarifiLink = `https://www.google.com/maps/dir/?api=1&destination=${enlem},${boylam}`;
+        
+        let yolTarifiLink = `https://www.google.com/maps/dir/?api=1&destination=$$${enlem},${boylam}`;
 
-        // Kesme işareti (') kaynaklı HTML bozulmalarını önle
         let safeTuzakId = t.Tuzak_ID ? String(t.Tuzak_ID).replace(/'/g, "\\'") : "";
         let safeIlce = t.Ilce ? String(t.Ilce).replace(/'/g, "\\'") : "";
         let safeMahalle = t.Mahalle ? String(t.Mahalle).replace(/'/g, "\\'") : "";
@@ -6007,13 +6129,14 @@ function gorevPanosunuCiz(tuzakListesi) {
                 <div style="font-size: 13px;">🕒 ${uyariMetni}</div>
             </div>
             <div style="display:flex; flex-direction:column; gap:6px; min-width: 90px;">
-            <button onclick="sayimFormunuAc('${safeTuzakId}', '${safeIlce}', '${safeMahalle}', '${safeAda}', '${safeParsel}', '${enlem || ''}', '${boylam || ''}', ${t.SonBocek || 0})" style="background:#d32f2f; color:white; border:none; border-radius:4px; padding:8px 5px; cursor:pointer; font-weight:bold; font-size:12px; box-shadow: 0 2px 2px rgba(0,0,0,0.2);">🐞 Sayım Gir</button>
+            <button onclick="sayimFormunuAc('${safeTuzakId}', '${safeIlce}', '${safeMahalle}', '${safeAda}', '${safeParsel}', '${enlem || ''}', '${boylam || ''}', ${t.SonBocek || 0}, ${t.GecenGun !== undefined ? t.GecenGun : -1})" style="background:#d32f2f; color:white; border:none; border-radius:4px; padding:8px 5px; cursor:pointer; font-weight:bold; font-size:12px; box-shadow: 0 2px 2px rgba(0,0,0,0.2);">🐞 Sayım Gir</button>
                 <a href="${yolTarifiLink}" target="_blank" style="background:#1976d2; color:white; text-decoration:none; border-radius:4px; padding:8px 5px; cursor:pointer; font-weight:bold; font-size:12px; text-align:center; box-shadow: 0 2px 2px rgba(0,0,0,0.2); display:block; box-sizing:border-box;">🗺️ Yol Tarifi</a>
             </div>
         `;
         liste.appendChild(kart);
     });
 }
+
 // =======================================================
 // 📊 1. ANALİZ TABLOSUNU ÇEKME VE ANİMASYON MOTORU (SON SÜRÜM)
 // =======================================================
@@ -6365,15 +6488,20 @@ function loglariExcelIndir() {
       }
       deferredPrompt = null;
     } else {
-      // Diğer durumlar (PC vb.)
+      // Diğer durumlar (PC vb.) 
       alert("Uygulamayı kurmak için tarayıcı menüsünden 'Uygulamayı Yükle' veya 'Ana Ekrana Ekle' seçeneğini kullanabilirsiniz.");
     }
   });
-</script>
+  </script>
 
     
   </body>
 </html>
+    
+    
+   
+
+
     
    
 
