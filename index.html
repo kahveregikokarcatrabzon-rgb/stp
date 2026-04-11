@@ -15,13 +15,6 @@
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#2e7d32">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🌱</text></svg>">
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js');
-      });
-    }
-  </script>
     
     <meta charset="UTF-8" />
     <meta
@@ -566,6 +559,10 @@
       <h2 class="header-title">STP | Survey Takip Sistemi</h2>
     </header>
 
+    <div id="ghostBanner" class="hidden" style="background-color: #52bedf; color: white; text-align: center; padding: 8px; font-size: 14px; font-weight: bold; position: sticky; top: 60px; z-index: 999; border-bottom: 2px solid white; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">
+      👻 HAYALET (GHOST) MODUNDASINIZ: Yaptığınız  işlemler sisteme kaydedilmez.
+    </div>
+
     <div
       id="sidebarOverlay"
       class="sidebar-overlay"
@@ -654,7 +651,7 @@
         </li>
       </ul>
       <div class="footer-imza">
-        © <span id="footerYil">2026</span> STP | Cloud Sürümü<br />Geliştirici:
+        © <span id="footerYil">2026</span> STP | Cloud Sürümü <b id="appVersiyon" style="color:var(--bakanlik-kirmizi);">v12.0</b><br />Geliştirici:
         <a
           href="mailto:mustafa.cavdar@tarimorman.gov.tr"
           style="
@@ -1054,7 +1051,7 @@
             </div>
             <div class="form-group half-width">
               <label>Alan (da)</label>
-              <input type="number" id="g_alan">
+              <input type="text" inputmode="decimal" id="g_alan" oninput="alanFormatla(this)">
             </div>
         </div>
 
@@ -1413,7 +1410,7 @@
               ><input type="number" id="tuzakRakim" placeholder="Örn: 150" />
             </div>
             <div class="form-group half-width">
-              <label>Alan (Dekar)</label><input type="number" id="tuzakAlan" />
+              <label>Alan (Dekar)</label><input type="text" inputmode="decimal" id="tuzakAlan" oninput="alanFormatla(this)" />
             </div>
           </div>
           <div class="form-row">
@@ -1574,6 +1571,14 @@
               style="width: auto; padding: 10px 15px; background: #d32f2f"
             >
               📄 PDF İndir
+            </button>
+            <button
+              id="btnMailAt"
+              onclick="paylasimTetikle('kokarca')"
+              class="action-btn hidden"
+              style="width: auto; padding: 10px 15px; background: #ff9800"
+            >
+              📧 Paylaş / Mail
             </button>
           </div>
         </div>
@@ -2031,7 +2036,7 @@
           </div>
           <div class="form-row">
             <div class="form-group half-width">
-              <label>Alan (da)</label><input type="number" id="surveyAlan" />
+              <label>Alan (da)</label><input type="text" inputmode="decimal" id="surveyAlan" oninput="alanFormatla(this)" />
             </div>
             <div class="form-group half-width">
               <label>Zararlı Durumu</label
@@ -2202,12 +2207,15 @@
 
     </div>
 
-    <div style="display:flex; gap:10px;">
-        <button id="btnVeriCek" onclick="surveyVerileriniGetir()" style="flex:1; background:#1976d2; color:white; border:none; padding:12px; border-radius:5px; font-weight:bold; font-size:15px; cursor:pointer; box-shadow: 0 2px 5px rgba(25,118,210,0.3);">
-            📥 1. Adım: Verileri Sunucudan Çek
+    <div style="display:flex; gap:10px; flex-wrap: wrap;">
+        <button id="btnVeriCek" onclick="surveyVerileriniGetir()" style="flex:1; min-width:200px; background:#1976d2; color:white; border:none; padding:12px; border-radius:5px; font-weight:bold; font-size:14px; cursor:pointer; box-shadow: 0 2px 5px rgba(25,118,210,0.3);">
+            📥 1. Veri Çek
         </button>
-        <button onclick="exportToExcel()" style="flex:1; background:#2e7d32; color:white; border:none; padding:12px; border-radius:5px; font-weight:bold; font-size:15px; cursor:pointer; box-shadow: 0 2px 5px rgba(46,125,50,0.3);">
-            📊 2. Adım: Ekranda Gördüğünü Excel'e Al
+        <button onclick="exportToExcel()" style="flex:1; min-width:150px; background:#2e7d32; color:white; border:none; padding:12px; border-radius:5px; font-weight:bold; font-size:14px; cursor:pointer; box-shadow: 0 2px 5px rgba(46,125,50,0.3);">
+            📥 Excel İndir
+        </button>
+        <button id="btnSurveyPaylas" onclick="paylasimTetikle('survey')" style="flex:1; min-width:150px; background:#ff9800; color:white; border:none; padding:12px; border-radius:5px; font-weight:bold; font-size:14px; cursor:pointer; box-shadow: 0 2px 5px rgba(255,152,0,0.3);">
+            📧 Paylaş / Mail
         </button>
     </div>
   </div>
@@ -2429,24 +2437,6 @@
         <select id="panoFiltreIlce" onchange="panoTuzaklariniGetir()" style="width: 100%; padding: 12px; border-radius: 6px; border: 2px solid #1976d2; font-size: 16px; margin-top: 5px;">
             <option value="">-- İlçe Seçin --</option>
             <option value="Tümü" style="font-weight: bold; color: #d32f2f;">🌍 Tüm Trabzon (İl Geneli)</option>
-            <option value="Ortahisar">Ortahisar</option>
-            <option value="Akçaabat">Akçaabat</option>
-            <option value="Yomra">Yomra</option>
-            <option value="Arsin">Arsin</option>
-            <option value="Araklı">Araklı</option>
-            <option value="Sürmene">Sürmene</option>
-            <option value="Of">Of</option>
-            <option value="Vakfıkebir">Vakfıkebir</option>
-            <option value="Beşikdüzü">Beşikdüzü</option>
-            <option value="Çarşıbaşı">Çarşıbaşı</option>
-            <option value="Maçka">Maçka</option>
-            <option value="Tonya">Tonya</option>
-            <option value="Düzköy">Düzköy</option>
-            <option value="Şalpazarı">Şalpazarı</option>
-            <option value="Hayrat">Hayrat</option>
-            <option value="Köprübaşı">Köprübaşı</option>
-            <option value="Dernekpazarı">Dernekpazarı</option>
-            <option value="Çaykara">Çaykara</option>
             <!-- Javascript ile yetkiye göre otomatik doldurulur -->
         </select>
       </div>
@@ -2463,7 +2453,7 @@
     <script>
       // 1. SİHİRLİ LİNKİMİZ
       const GOOGLE_SCRIPT_URL =
-        "https://script.google.com/macros/s/AKfycbxvKHhdzx14OyAoQxWmavOo5F2E69qRudduL3U_Ac0c4UvZI0K7oNS3QToJikegE1_K/exec";
+        "https://script.google.com/macros/s/AKfycbzhYgkkOhoI3ZG_YpJcHa5OCeMrGczSV1jU7Yi6cD6tVQ8V_-BBSGCcwRtLoFFf-AfKTA/exec";
       /*
     // 2. AKILLI KURYE: Haritalara dokunmaz, sadece bizim veriyi taşır!
     const orijinalFetch = window.fetch;
@@ -2588,6 +2578,7 @@ function sonSayimiBul(secilenTuzakID) {
 function veriTemizle(veri, tip = "metin") {
     if (veri === undefined || veri === null || veri === "undefined" || String(veri).trim() === "") return "";
     
+    let islenmisVeri = veri;
     // Eğer veri tarih olarak istenmişse, metni Gerçek Tarihe çevirip Gün-Ay-Yıl olarak formatla
     if (tip === "tarih") {
         let d = new Date(veri);
@@ -2595,13 +2586,34 @@ function veriTemizle(veri, tip = "metin") {
             let gun = String(d.getDate()).padStart(2, '0');
             let ay = String(d.getMonth() + 1).padStart(2, '0');
             let yil = d.getFullYear();
-            return gun + "-" + ay + "-" + yil; // 01-04-2026 formatı
+            islenmisVeri = gun + "-" + ay + "-" + yil; // 01-04-2026 formatı
         }
-        return veri; // Çevrilemezse orijinali bırak
     }
-    return veri;
+    // 🛡️ XSS KORUMASI: Gelen tüm verileri (özellikle Tabloya ve Excel'e basılanları) sterilize et
+    return guvenliMetin(islenmisVeri); 
 }
 
+
+        // 🧹 ALAN (DEKAR) GİRİŞ FORMATLAYICI (Virgül/Nokta ve Harf Koruması)
+        function alanFormatla(input) {
+            let val = input.value.replace(/[^0-9.,]/g, ''); // Rakam, nokta ve virgül dışındakileri sil
+            val = val.replace(/\./g, ','); // Noktaları virgüle çevir
+            let parts = val.split(','); // Birden fazla virgül varsa engelle
+            if (parts.length > 2) {
+                val = parts[0] + ',' + parts.slice(1).join('');
+            }
+            input.value = val;
+        }
+
+        // 📏 ALAN BÜYÜKLÜK UYARISI (>50 da)
+        function alanBuyuklukKontrolu(alanDegeri) {
+            if (!alanDegeri) return true;
+            let sayisalAlan = parseFloat(alanDegeri.replace(',', '.'));
+            if (sayisalAlan > 50) {
+                return confirm("⚠️ DİKKAT BÜYÜK ALAN GİRİŞİ!\n\nGirdiğiniz alan [" + alanDegeri + "] dekardır.\nPersonel bazen yanlışlıkla metrekare (m²) verisi girmektedir.\nLütfen değerin DEKAR (da) olduğundan emin olun.\n\nBu şekilde kaydetmek istediğinize emin misiniz?");
+            }
+            return true;
+        }
 
         // --- TAM EKRAN BUTONU FABRİKASI ---
 L.Control.TamEkran = L.Control.extend({
@@ -2693,19 +2705,34 @@ function haritayaKonumButonuEkle(hedefHarita) {
     if (kacTaneVar === 0) hedefHarita.addControl(new L.Control.KonumButonu({position: 'topright'}));
 }
 
+// --- 🛡️ GÜVENLİK: TOKEN GEÇERLİLİK KONTROLÜ ---
+function tokenGecerlilikKontrolu(data) {
+    if (!data) return true;
+    if ((data.hata && data.hata.includes("Yetkisiz Erişim")) || (data.mesaj && (data.mesaj.includes("Oturum süresi dolmuş") || data.mesaj.includes("Güvenlik İhlali")))) {
+        alert("Oturum süreniz dolmuştur. Lütfen güvenliğiniz için tekrar giriş yapın.");
+        localStorage.clear();
+        location.reload();
+        return false;
+    }
+    return true;
+}
+
     // --- GLOBAL LİSTELER ---
 let gHastalikList = [];
 let gKonukcuList = [];
+// Global dinleyici birikmesini (Memory Leak) önlemek için bayrak
+window.aramaKapaticiEklendi = false;
 
 // 1. Mutfağa gidip her iki listeyi de cebimize koyalım
 function listeleriYukle() {
     fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
-        body: JSON.stringify({ islemTipi: "Hastalik Listesi" }),
+        body: JSON.stringify({ islemTipi: "Hastalik Listesi", token: localStorage.getItem("kktp_token") }),
         headers: { "Content-Type": "text/plain;charset=utf-8" }
     })
     .then(r => r.json())
     .then(data => {
+        if (!tokenGecerlilikKontrolu(data)) return;
         if (data.durum === "basarili") {
             gHastalikList = data.hastalikListesi;
             gKonukcuList = data.konukcuListesi;
@@ -2738,6 +2765,18 @@ function akilliAramaUygula(inputID, liste) {
     inputField.parentNode.style.position = 'relative';
     inputField.parentNode.appendChild(sonucKutusu);
 
+    // 🧹 MEMORY LEAK (BELLEK SIZINTISI) ÇÖZÜMÜ:
+    // Her modül açıldığında belgeye yeni bir listener eklemek yerine, 
+    // bunu tekil (singleton) bir yapıya dönüştürüyoruz.
+    if (!window.aramaKapaticiEklendi) {
+        document.addEventListener('click', (e) => {
+            document.querySelectorAll('.autocomplete-box').forEach(box => {
+                if (e.target.tagName !== 'INPUT') box.style.display = 'none';
+            });
+        });
+        window.aramaKapaticiEklendi = true;
+    }
+
     inputField.addEventListener('input', function() {
         let ara = this.value.toLocaleLowerCase('tr-TR');
         sonucKutusu.innerHTML = '';
@@ -2750,7 +2789,7 @@ function akilliAramaUygula(inputID, liste) {
             eslesenler.forEach(item => {
                 let d = document.createElement('div');
                 d.style.padding = '12px'; d.style.cursor = 'pointer'; d.style.borderBottom = '1px solid #eee';
-                d.innerHTML = item;
+                d.innerText = item;
                 d.onclick = () => { inputField.value = item; sonucKutusu.style.display = 'none'; };
                 d.onmouseover = () => d.style.backgroundColor = '#f8f9fa';
                 d.onmouseout = () => d.style.backgroundColor = 'white';
@@ -2760,8 +2799,6 @@ function akilliAramaUygula(inputID, liste) {
             sonucKutusu.style.display = 'none';
         }
     });
-
-    document.addEventListener('click', (e) => { if (e.target !== inputField) sonucKutusu.style.display = 'none'; });
 }
 
 // --- SİSTEM LOG MOTORU ---
@@ -2774,14 +2811,13 @@ function sistemeLogYaz(islemTipi, detay) {
             personel: aktifAd,
             islem: islemTipi,
             detay: detay,
-            tarih: new Date().toLocaleString("tr-TR")
+            tarih: new Date().toLocaleString("tr-TR"),
+            token: localStorage.getItem("kktp_token")
         }),
         headers: { "Content-Type": "text/plain;charset=utf-8" }
     }).catch(e => console.log("Log yazılamadı"));
 }
 
-// Sayfa açıldığında motoru çalıştır
-document.addEventListener('DOMContentLoaded', listeleriYukle);
 
            // --- VIP BİLDİRİM MOTORU ---
 function vipBildirim(mesaj, tur = "basarili") {
@@ -3013,7 +3049,8 @@ function vipBildirim(mesaj, tur = "basarili") {
         isaretciSurvey = null,
         anlikKoordinatSurvey = "";
       let haritaYogunluk = null,
-        geoJsonLayer = null;
+        geoJsonLayer = null,
+        katmanYogunlukTuzaklar = null;
       let haritaZamanInterval = null,
         haritaAylarListesi = [],
         haritaAylikKumulatif = {};
@@ -3025,6 +3062,12 @@ function vipBildirim(mesaj, tur = "basarili") {
         return str
           ? String(str).trim().toLocaleLowerCase("tr-TR").replace(/\s+/g, " ")
           : "";
+      }
+      function guvenliMetin(metin) {
+        if (!metin) return "";
+        let div = document.createElement('div');
+        div.innerText = metin; // Zararlı HTML/JS kodlarını (XSS) nötralize eder
+        return div.innerHTML;
       }
       function formatAdSoyad(text) {
         if (!text) return "";
@@ -3119,7 +3162,8 @@ function vipBildirim(mesaj, tur = "basarili") {
         let kayitliAd = localStorage.getItem("kktp_adSoyad");
         let kayitliYetki = localStorage.getItem("kktp_yetki");
         let kayitliIlce = localStorage.getItem("kktp_ilce");
-        if (kayitliAd && kayitliYetki)
+        let kayitliToken = localStorage.getItem("kktp_token");
+        if (kayitliAd && kayitliYetki && kayitliToken)
           sistemiHazirla(formatAdSoyad(kayitliAd), kayitliYetki, kayitliIlce);
       };
 
@@ -3128,6 +3172,15 @@ function vipBildirim(mesaj, tur = "basarili") {
         let sifre = document.getElementById("loginSifre").value.trim();
         let durum = document.getElementById("loginDurum");
         let btn = document.getElementById("btnLogin");
+
+        // --- FRONTEND BRUTE-FORCE KORUMASI (Sunucu trafiğini engeller) ---
+        let kilitBitis = localStorage.getItem("kilit_zamani_" + kulAdi);
+        if (kilitBitis && Date.now() < parseInt(kilitBitis)) {
+            let kalanDakika = Math.ceil((parseInt(kilitBitis) - Date.now()) / 60000);
+            if (durum) durum.innerText = "Hesabınız kilitli. Lütfen " + kalanDakika + " dakika sonra tekrar deneyin.";
+            return;
+        }
+
         if (!kulAdi || !sifre) {
           if (durum) durum.innerText = "Kullanıcı adı ve şifre boş olamaz!";
           return;
@@ -3149,6 +3202,7 @@ function vipBildirim(mesaj, tur = "basarili") {
               localStorage.setItem("kktp_adSoyad", formatAdSoyad(data.adSoyad));
               localStorage.setItem("kktp_yetki", data.yetki);
               localStorage.setItem("kktp_ilce", data.ilce || "");
+              localStorage.setItem("kktp_token", data.token); // 👈 İŞTE UNUTULAN SİHİRLİ SATIR BURASI!
               sistemiHazirla(
                 formatAdSoyad(data.adSoyad),
                 data.yetki,
@@ -3157,6 +3211,9 @@ function vipBildirim(mesaj, tur = "basarili") {
               sistemeLogYaz("Sisteme Giriş", kulAdi + " başarıyla giriş yaptı.");
             } else {
               durum.innerText = data.mesaj;
+              if (data.mesaj.includes("5 dakika")) {
+                localStorage.setItem("kilit_zamani_" + kulAdi, Date.now() + (5 * 60 * 1000));
+              }
               btn.innerText = "Giriş Yap";
               btn.disabled = false;
             }
@@ -3172,18 +3229,29 @@ function vipBildirim(mesaj, tur = "basarili") {
         document.getElementById("loginEkrani").classList.add("hidden");
         document.getElementById("anaMenu").classList.remove("hidden");
         document.getElementById("ustBar").classList.remove("hidden");
-        sidebarKapat();
+        
         personelinIlcesi = formatKelime(String(ilce || ""));
         personelinYetkisi = temizle(String(yetki || ""));
+
+        let gb = document.getElementById("ghostBanner");
+        if (personelinYetkisi === "ghost") {
+            if (gb) gb.classList.remove("hidden");
+        } else {
+            if (gb) gb.classList.add("hidden");
+        }
+
+        sidebarKapat();
         let kucukIlce = temizle(personelinIlcesi);
         let isYonetici = personelinYetkisi === "yönetici";
         let isIlYetkilisi = personelinYetkisi === "il yetkilisi";
         let isIlceMuduru =
           personelinYetkisi === "ilçe müdürü" ||
           personelinYetkisi === "ilce muduru";
+        let isGhost = personelinYetkisi === "ghost";
         let ilceKilidiAcik =
           isYonetici ||
           isIlYetkilisi ||
+          isGhost ||
           kucukIlce === "merkez" ||
           kucukIlce === "il" ||
           kucukIlce === "trabzon" ||
@@ -3199,13 +3267,13 @@ function vipBildirim(mesaj, tur = "basarili") {
           let el = document.getElementById(id);
           if (el) el.classList.remove("hidden");
         };
-        if (isYonetici || isIlYetkilisi || isIlceMuduru) {
+        if (isYonetici || isIlYetkilisi || isIlceMuduru || isGhost) {
           goster("kareKokarcaRapor");
           goster("karePersonel");
           goster("menuKokarcaRapor");
           goster("menuPersonel");
         }
-        if (isYonetici || isIlYetkilisi) {
+        if (isYonetici || isIlYetkilisi || isGhost) {
           goster("kareKokarcaHarita");
           goster("menuKokarcaHarita");
           goster("menuKokarcaYukseklik");
@@ -3228,7 +3296,7 @@ function vipBildirim(mesaj, tur = "basarili") {
         let ytHTML = "";
         if (isYonetici)
           ytHTML =
-            '<option value="">Seçin...</option><option value="Teknik Personel">Teknik Personel</option><option value="İlçe Müdürü">İlçe Müdürü</option><option value="İl Yetkilisi">İl Yetkilisi</option><option value="Yönetici">Yönetici</option>';
+            '<option value="">Seçin...</option><option value="Teknik Personel">Teknik Personel</option><option value="İlçe Müdürü">İlçe Müdürü</option><option value="İl Yetkilisi">İl Yetkilisi</option><option value="Yönetici">Yönetici</option><option value="ghost">Ghost (İzleyici)</option>';
         else if (isIlYetkilisi)
           ytHTML =
             '<option value="">Seçin...</option><option value="Teknik Personel">Teknik Personel</option><option value="İlçe Müdürü">İlçe Müdürü</option>';
@@ -3332,7 +3400,7 @@ function vipBildirim(mesaj, tur = "basarili") {
           }
         });
 
-        fetch(GOOGLE_SCRIPT_URL + "?istek=mahalleler")
+        fetch(GOOGLE_SCRIPT_URL + "?istek=mahalleler&token=" + localStorage.getItem("kktp_token"))
           .then((res) => res.json())
           .then((data) => {
             if (!data.hata) {
@@ -3348,6 +3416,7 @@ function vipBildirim(mesaj, tur = "basarili") {
             }
           })
           .catch((err) => console.log("Mahalle hatası"));
+          listeleriYukle(); // Listeler sadece giriş başarılı olduktan sonra yüklenmeli
       }
 
       function mahalleListesiDoldur(datalistID, secilenIlce) {
@@ -3388,6 +3457,14 @@ function vipBildirim(mesaj, tur = "basarili") {
       function sistemdenCikisYap() {
         if (confirm("Çıkış yapmak istiyor musunuz?")) {
           sistemeLogYaz("Çıkış Yapıldı", "Sistemden güvenli çıkış yapıldı.");
+          
+          // Arka plandaki yetki jetonunu (token) sunucudan imha et
+          fetch(GOOGLE_SCRIPT_URL, {
+            method: 'POST',
+            body: JSON.stringify({ islemTipi: "CikisYap", token: localStorage.getItem("kktp_token") }),
+            headers: { "Content-Type": "text/plain;charset=utf-8" }
+          }).catch(e => console.log(e));
+          
           setTimeout(() => {
             localStorage.clear();
             location.reload();
@@ -3416,7 +3493,7 @@ function vipBildirim(mesaj, tur = "basarili") {
         if (hedefID === "modulKokarcaYeniTuzak" && haritaTuzak)
           setTimeout(() => {
             haritaTuzak.invalidateSize();
-          }, 100);
+          }, 400); // Race Condition önlemi: DOM renderı için süre artırıldı
     if (hedefID === "modulAcilGorevPanosu") {
       duyuruPanosunuYukle();
       
@@ -3429,7 +3506,7 @@ function vipBildirim(mesaj, tur = "basarili") {
         if (hedefID === "modulKokarcaSayim") {
           setTimeout(() => {
             if (haritaSayim) haritaSayim.invalidateSize();
-          }, 100);
+          }, 400);
           let sI = document.getElementById("sayimFiltreIlce");
           if (sI && sI.value) sayimHaritasiDoldur();
         }
@@ -3442,12 +3519,12 @@ function vipBildirim(mesaj, tur = "basarili") {
           setTimeout(() => {
             if (haritaYogunluk) haritaYogunluk.invalidateSize();
             else isiHaritasiniCiz();
-          }, 100);
+          }, 400);
         if (hedefID === "modulKokarcaYukseklik")
           setTimeout(() => {
             if (haritaYukseklik) haritaYukseklik.invalidateSize();
             else yukseklikHaritasiniCiz();
-          }, 100);
+          }, 400);
         if (hedefID === "modulSurveyListe") kayitliSurveylerimiGetir();
     if (hedefID === "modulLoglar") loglariGetir();
       }
@@ -3973,6 +4050,15 @@ function vipBildirim(mesaj, tur = "basarili") {
           return;
         }
 
+        let alanDegeri = document.getElementById("surveyAlan").value;
+        if (!alanBuyuklukKontrolu(alanDegeri)) return;
+
+        let fInp = document.getElementById("surveyFoto");
+        if (fInp && fInp.files.length > 0 && !fInp.files[0].type.startsWith("image/")) {
+            alert("⚠️ Güvenlik Uyarısı: Sadece resim formatında (JPEG/PNG vb.) dosya yükleyebilirsiniz!");
+            return;
+        }
+
         btn.innerText = "⏳ Kaydediliyor...";
         btn.disabled = true;
         let paket = {
@@ -3990,14 +4076,13 @@ function vipBildirim(mesaj, tur = "basarili") {
           tarih: document.getElementById("surveyTarihi").value,
           bitki: document.getElementById("surveyBitki").value,
           fenoloji: document.getElementById("surveyFenoloji").value,
-          alan: document.getElementById("surveyAlan").value,
+          alan: alanDegeri,
           zararliDurumu: document.getElementById("surveyZararliDurumu").value,
           yogunluk: document.getElementById("surveyYogunluk").value,
           islem: document.getElementById("surveyIslem").value,
           faydali: document.getElementById("surveyFaydali").value,
           oneri: document.getElementById("surveyOneri").value,
         };
-        let fInp = document.getElementById("surveyFoto");
         if (fInp && fInp.files.length > 0) {
           fotografSikistir(fInp.files[0], function (b64) {
             paket.fotoData = b64;
@@ -4089,6 +4174,15 @@ function vipBildirim(mesaj, tur = "basarili") {
             if (!hastalik.trim()) { alert("⚠️ Lütfen Zararlı/Hastalık Adını giriniz!"); return; }
             if (!ada || !parsel) { alert("⚠️ Lütfen Ada ve Parsel alanlarını doldurun!"); return; }
 
+            let alanDegeri = document.getElementById("g_alan").value;
+            if (!alanBuyuklukKontrolu(alanDegeri)) return;
+
+            let fInp = document.getElementById("g_foto");
+            if (fInp && fInp.files.length > 0 && !fInp.files[0].type.startsWith("image/")) {
+                alert("⚠️ Güvenlik Uyarısı: Sadece resim formatında (JPEG/PNG vb.) dosya yükleyebilirsiniz!");
+                return;
+            }
+
             btn.innerText = "⏳ Güncelleniyor..."; btn.disabled = true;
             
             let paket = {
@@ -4101,7 +4195,7 @@ function vipBildirim(mesaj, tur = "basarili") {
                 sahibi: document.getElementById("g_sahibi").value,
                 bitki: document.getElementById("g_bitki").value,
                 fenoloji: document.getElementById("g_fenoloji").value,
-                alan: document.getElementById("g_alan").value,
+                alan: alanDegeri,
                 zararliDurumu: document.getElementById("g_durum").value,
                 yogunluk: document.getElementById("g_yogunluk").value,
                 islem: document.getElementById("g_islem").value,
@@ -4109,7 +4203,6 @@ function vipBildirim(mesaj, tur = "basarili") {
                 oneri: document.getElementById("g_oneri").value
             };
 
-            let fInp = document.getElementById("g_foto");
             if (fInp && fInp.files.length > 0) {
                 fotografSikistir(fInp.files[0], function (b64) {
                     paket.fotoData = b64;
@@ -4135,6 +4228,18 @@ function vipBildirim(mesaj, tur = "basarili") {
         }
 
         function guncelleSilIstek(paket, btn, mesajTip) {
+            if (personelinYetkisi === "ghost") {
+                setTimeout(() => {
+                    vipBildirim("👻 [GHOST MOD] Başarıyla " + mesajTip + " simülasyonu!", "basarili");
+                    setTimeout(() => {
+                        document.getElementById('surveyGuncelleModal').classList.remove('show');
+                    }, 1500);
+                    btn.innerText = mesajTip === "Silindi" ? "🗑️ Formu Sil" : "💾 Değişiklikleri Kaydet";
+                    btn.disabled = false;
+                }, 800);
+                return;
+            }
+            paket.token = localStorage.getItem("kktp_token");
             fetch(GOOGLE_SCRIPT_URL, {
                 method: "POST",
                 body: JSON.stringify(paket),
@@ -4172,6 +4277,10 @@ function vipBildirim(mesaj, tur = "basarili") {
         let btn;
         if (tur === "Tuzak Kaydı") {
           btn = document.getElementById("btnTuzakKaydet");
+
+          let alanDegeri = document.getElementById("tuzakAlan").value;
+          if (!alanBuyuklukKontrolu(alanDegeri)) return;
+
           paket.tuzakID = document.getElementById("tuzakID").value;
           paket.ilce = document.getElementById("tuzakIlce").value;
           paket.mahalle = formatKelime(
@@ -4181,7 +4290,7 @@ function vipBildirim(mesaj, tur = "basarili") {
           paket.parsel = document.getElementById("tuzakParsel").value;
           paket.koordinat = anlikKoordinatTuzak;
           paket.yukseklik = document.getElementById("tuzakRakim").value;
-          paket.alan = document.getElementById("tuzakAlan").value;
+          paket.alan = alanDegeri;
           paket.bahceYasi = document.getElementById("tuzakYas").value;
           paket.findikCesidi = document.getElementById("tuzakCesit").value;
           if (
@@ -4267,20 +4376,51 @@ function vipBildirim(mesaj, tur = "basarili") {
       }
 
       function fotoveGonder(paket, btn, fotoId) {
-        btn.innerText = "⏳ Kaydediliyor...";
-        btn.disabled = true;
         let fInp = fotoId ? document.getElementById(fotoId) : null;
         if (fInp && fInp.files.length > 0) {
+          if (!fInp.files[0].type.startsWith("image/")) {
+            alert("⚠️ Güvenlik Uyarısı: Sadece resim formatında (JPEG/PNG vb.) dosya yükleyebilirsiniz!");
+            return;
+          }
+          btn.innerText = "⏳ Kaydediliyor...";
+          btn.disabled = true;
           fotografSikistir(fInp.files[0], function (b64) {
             paket.fotoData = b64;
             sunucuyaGonder(paket, btn);
           });
         } else {
+          btn.innerText = "⏳ Kaydediliyor...";
+          btn.disabled = true;
           sunucuyaGonder(paket, btn);
         }
       }
 
       function sunucuyaGonder(paket, btn) {
+        if (personelinYetkisi === "ghost") {
+          setTimeout(() => {
+            let logDetay = paket.tuzakID ? "Tuzak ID: " + paket.tuzakID : (paket.hastalikAdi ? "Hastalık/Zararlı: " + paket.hastalikAdi : "Yeni Kayıt");
+            vipBildirim("👻 [GHOST MOD] İşlem Başarılı: " + logDetay, "basarili");
+
+            document.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach((el) => {
+              if (!el.disabled || el.id === "tuzakID") el.value = "";
+            });
+            let secFoto = document.getElementById("sayimFoto");
+            if (secFoto) secFoto.value = "";
+            let sf = document.getElementById("sayimFormAlani");
+            if (sf) sf.classList.add("hidden");
+
+            setTimeout(() => {
+                if (paket.islemTipi === "Genel Survey Kaydi") modulAc("dashboardSurvey");
+                else if (paket.islemTipi === "Tuzak Kaydı" || paket.islemTipi === "Sayım") modulAc("dashboardKokarca");
+                else modulAc("anaMenu");
+            }, 1500);
+
+            btn.innerText = "💾 Kaydet";
+            btn.disabled = false;
+          }, 800);
+          return;
+        }
+        paket.token = localStorage.getItem("kktp_token");
         fetch(GOOGLE_SCRIPT_URL, {
           method: "POST",
           body: JSON.stringify(paket),
@@ -4348,10 +4488,11 @@ function vipBildirim(mesaj, tur = "basarili") {
         govde.innerHTML =
           "<tr><td colspan='7' style='text-align:center; font-weight:bold; color:#f57c00;'>⏳ Kayıtlar Yükleniyor...</td></tr>";
 
-        fetch(GOOGLE_SCRIPT_URL + "?istek=surveyler")
+        fetch(GOOGLE_SCRIPT_URL + "?istek=surveyler&token=" + localStorage.getItem("kktp_token"))
           .then((res) => res.json())
           .then((data) => {
             govde.innerHTML = "";
+            if (!tokenGecerlilikKontrolu(data)) return;
             if (data.hata) {
               govde.innerHTML =
                 "<tr><td colspan='7'>Bağlantı hatası!</td></tr>";
@@ -4414,21 +4555,21 @@ function vipBildirim(mesaj, tur = "basarili") {
                 "<tr><td>" +
                 guzelTarih +
                 " <br><small style='color:#666; font-weight:bold;'>" +
-                (s.ornekNo || "-") +
+                guvenliMetin(s.ornekNo || "-") +
                 "</small></td><td>" +
-                s.ilce +
+                guvenliMetin(s.ilce) +
                 " / " +
-                s.mahalle +
+                guvenliMetin(s.mahalle) +
                 "</td><td>" +
-                s.ada +
+                guvenliMetin(s.ada) +
                 " / " +
-                s.parsel +
+                guvenliMetin(s.parsel) +
                 "</td><td>" +
-                s.hastalik +
+                guvenliMetin(s.hastalik) +
                 " (" +
                 zDurum +
                 ")</td><td>" +
-                s.program +
+                guvenliMetin(s.program) +
                 "</td><td>" +
                 resimLink +
                 "</td><td><button onclick='surveyDetayGoster(" +
@@ -4532,9 +4673,10 @@ function vipBildirim(mesaj, tur = "basarili") {
           d.style.color = "#f57c00";
           d.innerText = "İlçe verileri çekiliyor...";
         }
-        fetch(GOOGLE_SCRIPT_URL + "?ilce=" + ilce)
+        fetch(GOOGLE_SCRIPT_URL + "?ilce=" + ilce + "&token=" + localStorage.getItem("kktp_token"))
           .then((res) => res.json())
           .then((data) => {
+            if (!tokenGecerlilikKontrolu(data)) return;
             if (data.hata) {
               if (d) d.innerText = data.hata;
               aktifIlceTuzaklari = [];
@@ -4599,8 +4741,8 @@ function vipBildirim(mesaj, tur = "basarili") {
               // --- HARİTA İĞNESİ BİLGİ KUTUSU (POPUP) ---
               let popup =
                 "<div style='font-size:14px; text-align:center;'>" +
-                "<b>ID:</b> " + t.Tuzak_ID + "<br>" +
-                "<b>" + t.Mahalle + "</b> " + t.Ada + "/" + t.Parsel + "<br>" +
+                "<b>ID:</b> " + guvenliMetin(t.Tuzak_ID) + "<br>" +
+                "<b>" + guvenliMetin(t.Mahalle) + "</b> " + guvenliMetin(t.Ada) + "/" + guvenliMetin(t.Parsel) + "<br>" +
                 
                 // 1. MEVCUT SAYIM GİR BUTONU (Kırmızı)
                 "<button onclick=\"sayimFormunuAc('" +
@@ -4691,10 +4833,12 @@ function vipBildirim(mesaj, tur = "basarili") {
         let tAlani = document.getElementById("raporTabloAlani");
         let btnE = document.getElementById("btnExcelAktar");
         let btnP = document.getElementById("btnPdfAktar");
+        let btnM = document.getElementById("btnMailAt");
         let istPano = document.getElementById("istatistikPanosu");
         let sekmeler = document.getElementById("raporSekmeleri");
         if (btnE) btnE.classList.add("hidden");
         if (btnP) btnP.classList.add("hidden");
+        if (btnM) btnM.classList.add("hidden");
         if (istPano) istPano.classList.add("hidden");
         if (tAlani) {
           tAlani.classList.add("hidden");
@@ -4704,8 +4848,8 @@ function vipBildirim(mesaj, tur = "basarili") {
         if (!secim) return;
         let url =
           secim === "TÜM İL"
-            ? GOOGLE_SCRIPT_URL + "?istek=il_raporu"
-            : GOOGLE_SCRIPT_URL + "?istek=raporlar&ilce=" + secim;
+            ? GOOGLE_SCRIPT_URL + "?istek=il_raporu&token=" + localStorage.getItem("kktp_token")
+            : GOOGLE_SCRIPT_URL + "?istek=raporlar&ilce=" + secim + "&token=" + localStorage.getItem("kktp_token");
         if (d)
           d.innerHTML =
             "<br><span style='display:inline-block; color:#d32f2f; font-size:18px; font-weight:bold; background:#fff3e0; padding:12px; border-radius:5px; border:2px solid #f57c00; box-shadow: 0 2px 4px rgba(0,0,0,0.1);'>⏳ Rapor Yükleniyor...</span>";
@@ -4723,6 +4867,7 @@ function vipBildirim(mesaj, tur = "basarili") {
             if (m4) m4.style.maxWidth = "100%";
             if (btnE) btnE.classList.remove("hidden");
             if (btnP) btnP.classList.remove("hidden");
+            if (btnM) btnM.classList.remove("hidden");
             let eTuzak = new Set();
             let sSayisi = 0;
             let bSayisi = 0;
@@ -4834,11 +4979,11 @@ function vipBildirim(mesaj, tur = "basarili") {
                 "<td rowspan='" +
                 mahalleler.length +
                 "' style='position:sticky; left:0; background:white; font-weight:bold; vertical-align:middle; border:1px solid #aaa;'>" +
-                ilce +
+                guvenliMetin(ilce) +
                 "</td>";
             html +=
               "<td style='position:sticky; left:100px; background:white; text-align:left; border:1px solid #aaa;'>" +
-              mahalle +
+              guvenliMetin(mahalle) +
               "</td>";
             tarihler.forEach((t) => {
               html +=
@@ -4914,152 +5059,160 @@ function vipBildirim(mesaj, tur = "basarili") {
             return 0;
           }
         });
-        let tuzakListesi = Object.keys(tuzakMap).sort();
+        
+        // İLÇELERE GÖRE ALFABETİK SIRALAMA (Soldan Sağa)
+        let tuzakListesi = Object.keys(tuzakMap).sort((a, b) => {
+            let ilceA = (tuzakMap[a].ilce || "").toLocaleUpperCase('tr-TR');
+            let ilceB = (tuzakMap[b].ilce || "").toLocaleUpperCase('tr-TR');
+            if (ilceA < ilceB) return -1;
+            if (ilceA > ilceB) return 1;
+            return a.localeCompare(b, 'tr-TR');
+        });
+
         if (tarihler.length === 0) {
           tabloAlani.innerHTML =
             "<p style='padding:20px; font-weight:bold; color:red;'>Geçerli Sayım Yok.</p>";
           return;
         }
-        let toplamSutun = 1 + tuzakListesi.length;
-        let html =
-          "<table class='veri-tablosu' id='exportTablo' style='text-align:center;'><thead><tr><th colspan='" +
-          toplamSutun +
-          "' style='font-size:22px; color:#c62828; text-align:center; padding:15px; border:1px solid #ccc; background:white;'>" +
-          yil +
-          " YILI HALYOMORPHA HALYS SURVEYİ İZLEME FORMU</th></tr>";
-        html += "<tr><th colspan='" + toplamSutun + "' style='background:#f5f5f5; color:#333; text-align:left; padding:10px; font-size:16px; border:1px solid #aaa;'>📍 İL: TRABZON</th></tr></thead><tbody>";
-        let bg =
-          "style='background:var(--bakanlik-kirmizi); color:white; font-weight:bold; text-align:left; border: 1px solid #ccc; white-space:nowrap;'";
-        let hCell =
-          "style='font-weight:bold; border: 1px solid #ccc; background:#f9f9f9;'";
-        html += "<tr><td " + bg + ">Lokasyon Kodu</td>";
-        tuzakListesi.forEach(
-          (t) => (html += "<td " + hCell + ">" + t + "</td>"),
-        );
-        html += "</tr>";
-        html += "<tr><td " + bg + ">İlçe</td>";
-        tuzakListesi.forEach(
-          (t) =>
-            (html +=
-              "<td " + hCell + ">" + tuzakMap[t].ilce + "</td>"),
-        );
-        html += "</tr>";
-        html += "<tr><td " + bg + ">Köy / Mahalle</td>";
-        tuzakListesi.forEach(
-          (t) => (html += "<td " + hCell + ">" + tuzakMap[t].mah + "</td>"),
-        );
-        html += "</tr>";
-        html += "<tr><td " + bg + ">Ada / Parsel</td>";
-        tuzakListesi.forEach(
-          (t) =>
-            (html +=
-              "<td " +
-              hCell +
-              ">" +
-              tuzakMap[t].ada +
-              "/" +
-              tuzakMap[t].par +
-              "</td>"),
-        );
-        html += "</tr>";
-        html += "<tr><td " + bg + ">Enlem</td>";
-        tuzakListesi.forEach(
-          (t) =>
-            (html +=
-              "<td style='border: 1px solid #ccc;'>" +
-              tuzakMap[t].enlem +
-              "</td>"),
-        );
-        html += "</tr>";
-        html += "<tr><td " + bg + ">Boylam</td>";
-        tuzakListesi.forEach(
-          (t) =>
-            (html +=
-              "<td style='border: 1px solid #ccc;'>" +
-              tuzakMap[t].boylam +
-              "</td>"),
-        );
-        html += "</tr>";
-        html += "<tr><td " + bg + ">Yükseklik</td>";
-        tuzakListesi.forEach(
-          (t) =>
-            (html +=
-              "<td style='border: 1px solid #ccc;'>" +
-              tuzakMap[t].yuks +
-              "</td>"),
-        );
-        html += "</tr>";
-        html += "<tr><td " + bg + ">Bahçe Yaşı</td>";
-        tuzakListesi.forEach(
-          (t) =>
-            (html +=
-              "<td style='border: 1px solid #ccc;'>" +
-              tuzakMap[t].yas +
-              "</td>"),
-        );
-        html += "</tr>";
-        html += "<tr><td " + bg + ">Fındık Çeşidi</td>";
-        tuzakListesi.forEach(
-          (t) =>
-            (html +=
-              "<td style='border: 1px solid #ccc;'>" +
-              tuzakMap[t].cesit +
-              "</td>"),
-        );
-        html += "</tr>";
-        html += "<tr><td " + bg + ">Alan (da)</td>";
-        tuzakListesi.forEach(
-          (t) =>
-            (html +=
-              "<td style='border: 1px solid #ccc;'>" +
-              (tuzakMap[t].alan ? tuzakMap[t].alan + " da." : "-") +
-              "</td>"),
-        );
-        html += "</tr>";
-        html += "<tr><td " + bg + ">Sayım Sonuçları</td>";
-        tuzakListesi.forEach(
-          () =>
-            (html +=
-              "<td style='background:#555; color:white; font-weight:bold; border: 1px solid #ccc;'>Ergin Sayısı</td>"),
-        );
-        html += "</tr>";
+        
+        let bg = "style='background:var(--bakanlik-kirmizi); color:white; font-weight:bold; text-align:left; border: 1px solid #ccc; white-space:nowrap; padding: 8px;'";
+        let hCell = "style='font-weight:bold; border: 1px solid #ccc; background:#f9f9f9; padding: 8px;'";
+        let dCell = "style='border: 1px solid #ccc; padding: 8px;'";
+
+        // --- 1. EKRAN VE EXCEL İÇİN TEK PARÇA TABLO (GÖRÜNÜR) ---
+        let toplamSutunExcel = 1 + tuzakListesi.length;
+        let htmlExcel = "<div id='ekranTablosuAlani' style='overflow-x:auto; width:100%;'><table class='veri-tablosu' id='exportTablo' style='text-align:center;'><thead><tr><th colspan='" + toplamSutunExcel + "' style='font-size:22px; color:#c62828; text-align:center; padding:15px; border:1px solid #ccc; background:white;'>" + yil + " YILI HALYOMORPHA HALYS SURVEYİ İZLEME FORMU</th></tr>";
+        htmlExcel += "<tr><th colspan='" + toplamSutunExcel + "' style='background:#f5f5f5; color:#333; text-align:left; padding:10px; font-size:16px; border:1px solid #aaa;'>📍 İL: TRABZON</th></tr></thead><tbody>";
+        
+        htmlExcel += "<tr><td " + bg + ">Lokasyon Kodu</td>";
+        tuzakListesi.forEach((t) => (htmlExcel += "<td " + hCell + ">" + guvenliMetin(t) + "</td>")); htmlExcel += "</tr>";
+        htmlExcel += "<tr><td " + bg + ">İlçe</td>";
+        tuzakListesi.forEach((t) => (htmlExcel += "<td " + hCell + ">" + guvenliMetin(tuzakMap[t].ilce) + "</td>")); htmlExcel += "</tr>";
+        htmlExcel += "<tr><td " + bg + ">Köy / Mahalle</td>";
+        tuzakListesi.forEach((t) => (htmlExcel += "<td " + hCell + ">" + guvenliMetin(tuzakMap[t].mah) + "</td>")); htmlExcel += "</tr>";
+        htmlExcel += "<tr><td " + bg + ">Ada / Parsel</td>";
+        tuzakListesi.forEach((t) => (htmlExcel += "<td " + hCell + ">" + guvenliMetin(tuzakMap[t].ada) + "/" + guvenliMetin(tuzakMap[t].par) + "</td>")); htmlExcel += "</tr>";
+        htmlExcel += "<tr><td " + bg + ">Enlem</td>";
+        tuzakListesi.forEach((t) => (htmlExcel += "<td " + dCell + ">" + guvenliMetin(tuzakMap[t].enlem) + "</td>")); htmlExcel += "</tr>";
+        htmlExcel += "<tr><td " + bg + ">Boylam</td>";
+        tuzakListesi.forEach((t) => (htmlExcel += "<td " + dCell + ">" + guvenliMetin(tuzakMap[t].boylam) + "</td>")); htmlExcel += "</tr>";
+        htmlExcel += "<tr><td " + bg + ">Yükseklik</td>";
+        tuzakListesi.forEach((t) => (htmlExcel += "<td " + dCell + ">" + guvenliMetin(tuzakMap[t].yuks) + "</td>")); htmlExcel += "</tr>";
+        htmlExcel += "<tr><td " + bg + ">Bahçe Yaşı</td>";
+        tuzakListesi.forEach((t) => (htmlExcel += "<td " + dCell + ">" + guvenliMetin(tuzakMap[t].yas) + "</td>")); htmlExcel += "</tr>";
+        htmlExcel += "<tr><td " + bg + ">Fındık Çeşidi</td>";
+        tuzakListesi.forEach((t) => (htmlExcel += "<td " + dCell + ">" + guvenliMetin(tuzakMap[t].cesit) + "</td>")); htmlExcel += "</tr>";
+        htmlExcel += "<tr><td " + bg + ">Alan (da)</td>";
+        tuzakListesi.forEach((t) => (htmlExcel += "<td " + dCell + ">" + guvenliMetin(tuzakMap[t].alan ? tuzakMap[t].alan + " da." : "-") + "</td>")); htmlExcel += "</tr>";
+        htmlExcel += "<tr><td " + bg + ">Sayım Sonuçları</td>";
+        tuzakListesi.forEach(() => (htmlExcel += "<td style='background:#555; color:white; font-weight:bold; border: 1px solid #ccc; padding:8px;'>Ergin Sayısı</td>")); htmlExcel += "</tr>";
+        
         tarihler.forEach((tarih) => {
-          html +=
-            "<tr><td style='font-weight:bold; text-align:left; border:1px solid #ccc;'>" +
-            tarih +
-            "</td>";
+          htmlExcel += "<tr><td style='font-weight:bold; text-align:left; border:1px solid #ccc; padding:8px;'>" + guvenliMetin(tarih) + "</td>";
           tuzakListesi.forEach((tID) => {
             let ergin = tuzakMap[tID].sayimlar[tarih];
-            html +=
-              "<td style='font-weight:bold; border:1px solid #ccc; font-size:15px; color:#333;'>" +
-              (ergin !== undefined ? ergin : 0) +
-              "</td>";
+            htmlExcel += "<td style='font-weight:bold; border:1px solid #ccc; font-size:15px; color:#333; padding:8px;'>" + (ergin !== undefined ? ergin : 0) + "</td>";
           });
-          html += "</tr>";
+          htmlExcel += "</tr>";
         });
-        html += "</tbody></table>";
-        tabloAlani.innerHTML = html;
+        htmlExcel += "</tbody></table></div>";
+
+        // --- 2. PDF İÇİN SAYFALANMIŞ GİZLİ TABLO (BAŞLIK KESİLMESİN DİYE SABİT GENİŞLİK) ---
+        let htmlParcali = "<div id='pdfTablosuAlani' style='display:none; width: 1100px; background: white; margin: 0 auto;'>";
+        let grupBoyutu = 9; // A4 / A3 sayfasına sığması için 9 sütun + 1 başlık = 10 sütun ideal
+        let sayfaSayisi = Math.ceil(tuzakListesi.length / grupBoyutu);
+
+        let bgPdf = "style='background:var(--bakanlik-kirmizi); color:white; font-weight:bold; text-align:left; border: 1px solid #ccc; font-size: 11px; padding: 4px; width: 120px;'";
+        let hCellPdf = "style='font-weight:bold; border: 1px solid #ccc; background:#f9f9f9; font-size: 11px; padding: 4px; word-wrap: break-word;'";
+        let dCellPdf = "style='border: 1px solid #ccc; font-size: 11px; padding: 4px; word-wrap: break-word;'";
+
+        for (let g = 0; g < sayfaSayisi; g++) {
+          let grupTuzaklar = tuzakListesi.slice(g * grupBoyutu, (g + 1) * grupBoyutu);
+          let sutunSayisi = 1 + grupTuzaklar.length;
+          
+          if (g > 0) {
+              htmlParcali += "<div class='html2pdf__page-break'></div><br><br>";
+          }
+          
+          htmlParcali += "<div style='padding: 15px; box-sizing: border-box; width: 100%;'>";
+          htmlParcali += "<table style='border-collapse:collapse; text-align:center; width:100%; table-layout: fixed; margin-bottom:10px;'><thead><tr><th colspan='" + sutunSayisi + "' style='font-size:18px; color:#c62828; text-align:center; padding:10px; border:1px solid #ccc; background:white;'>" + yil + " YILI HALYOMORPHA HALYS SURVEYİ İZLEME FORMU " + (sayfaSayisi > 1 ? "(Sayfa " + (g+1) + "/" + sayfaSayisi + ")" : "") + "</th></tr>";
+          htmlParcali += "<tr><th colspan='" + sutunSayisi + "' style='background:#f5f5f5; color:#333; text-align:left; padding:8px; font-size:14px; border:1px solid #aaa;'>📍 İL: TRABZON</th></tr></thead><tbody>";
+          
+          htmlParcali += "<tr><td " + bgPdf + ">Lokasyon Kodu</td>";
+          grupTuzaklar.forEach((t) => (htmlParcali += "<td " + hCellPdf + ">" + guvenliMetin(t) + "</td>")); htmlParcali += "</tr>";
+          htmlParcali += "<tr><td " + bgPdf + ">İlçe</td>";
+          grupTuzaklar.forEach((t) => (htmlParcali += "<td " + hCellPdf + ">" + guvenliMetin(tuzakMap[t].ilce) + "</td>")); htmlParcali += "</tr>";
+          htmlParcali += "<tr><td " + bgPdf + ">Köy / Mahalle</td>";
+          grupTuzaklar.forEach((t) => (htmlParcali += "<td " + hCellPdf + ">" + guvenliMetin(tuzakMap[t].mah) + "</td>")); htmlParcali += "</tr>";
+          htmlParcali += "<tr><td " + bgPdf + ">Ada / Parsel</td>";
+          grupTuzaklar.forEach((t) => (htmlParcali += "<td " + hCellPdf + ">" + guvenliMetin(tuzakMap[t].ada) + "/" + guvenliMetin(tuzakMap[t].par) + "</td>")); htmlParcali += "</tr>";
+          htmlParcali += "<tr><td " + bgPdf + ">Enlem</td>";
+          grupTuzaklar.forEach((t) => (htmlParcali += "<td " + dCellPdf + ">" + guvenliMetin(tuzakMap[t].enlem) + "</td>")); htmlParcali += "</tr>";
+          htmlParcali += "<tr><td " + bgPdf + ">Boylam</td>";
+          grupTuzaklar.forEach((t) => (htmlParcali += "<td " + dCellPdf + ">" + guvenliMetin(tuzakMap[t].boylam) + "</td>")); htmlParcali += "</tr>";
+          htmlParcali += "<tr><td " + bgPdf + ">Yükseklik</td>";
+          grupTuzaklar.forEach((t) => (htmlParcali += "<td " + dCellPdf + ">" + guvenliMetin(tuzakMap[t].yuks) + "</td>")); htmlParcali += "</tr>";
+          htmlParcali += "<tr><td " + bgPdf + ">Bahçe Yaşı</td>";
+          grupTuzaklar.forEach((t) => (htmlParcali += "<td " + dCellPdf + ">" + guvenliMetin(tuzakMap[t].yas) + "</td>")); htmlParcali += "</tr>";
+          htmlParcali += "<tr><td " + bgPdf + ">Fındık Çeşidi</td>";
+          grupTuzaklar.forEach((t) => (htmlParcali += "<td " + dCellPdf + ">" + guvenliMetin(tuzakMap[t].cesit) + "</td>")); htmlParcali += "</tr>";
+          htmlParcali += "<tr><td " + bgPdf + ">Alan (da)</td>";
+          grupTuzaklar.forEach((t) => (htmlParcali += "<td " + dCellPdf + ">" + guvenliMetin(tuzakMap[t].alan ? tuzakMap[t].alan + " da." : "-") + "</td>")); htmlParcali += "</tr>";
+          htmlParcali += "<tr><td " + bgPdf + ">Sayım Sonuçları</td>";
+          grupTuzaklar.forEach(() => (htmlParcali += "<td style='background:#555; color:white; font-weight:bold; border: 1px solid #ccc; font-size:11px; padding: 4px;'>Ergin Sayısı</td>")); htmlParcali += "</tr>";
+          tarihler.forEach((tarih) => {
+            htmlParcali += "<tr><td style='font-weight:bold; text-align:left; border:1px solid #ccc; font-size:11px; padding:4px;'>" + guvenliMetin(tarih) + "</td>";
+            grupTuzaklar.forEach((tID) => { htmlParcali += "<td style='font-weight:bold; border:1px solid #ccc; font-size:12px; color:#333; padding:4px;'>" + (tuzakMap[tID].sayimlar[tarih] !== undefined ? tuzakMap[tID].sayimlar[tarih] : 0) + "</td>"; });
+            htmlParcali += "</tr>";
+          });
+          htmlParcali += "</tbody></table></div>";
+        }
+        htmlParcali += "</div>";
+
+        tabloAlani.innerHTML = htmlExcel + htmlParcali;
       }
       function pdfIndir() {
         let btn = document.getElementById("btnPdfAktar");
         if (!btn) return;
         btn.innerText = "⏳ Hazırlanıyor...";
-        let tablo = document.getElementById("exportTablo");
-        if (!tablo) return;
-        let element = document.getElementById("pdfIcerikAlani");
+
+        let pdfTablosu = document.getElementById("pdfTablosuAlani");
+        let ekranTablosu = document.getElementById("ekranTablosuAlani");
+        let elementToPrint = document.getElementById("pdfIcerikAlani");
+
+        // Eğer detay sekmesindeysek, gizli olan PDF şablonunu aç, ekran şablonunu gizle
+        if (pdfTablosu && ekranTablosu) {
+            ekranTablosu.style.display = "none";
+            pdfTablosu.style.display = "block";
+            elementToPrint = pdfTablosu;
+        }
+
         let opt = {
           margin: 0.2,
           filename: "Rapor.pdf",
           image: { type: "jpeg", quality: 1 },
           html2canvas: { scale: 2 },
-          jsPDF: { unit: "in", format: "a3", orientation: "landscape" },
+          jsPDF: { unit: "in", format: "a4", orientation: "landscape" },
+          pagebreak: { mode: 'css', before: '.html2pdf__page-break' }
         };
         html2pdf()
           .set(opt)
-          .from(element)
+          .from(elementToPrint)
           .save()
           .then(() => {
+            if (pdfTablosu && ekranTablosu) {
+                ekranTablosu.style.display = "block";
+                pdfTablosu.style.display = "none";
+            }
             btn.innerHTML = "📄 PDF İndir";
+          })
+          .catch((e) => {
+            if (pdfTablosu && ekranTablosu) {
+                ekranTablosu.style.display = "block";
+                pdfTablosu.style.display = "none";
+            }
+            btn.innerHTML = "📄 PDF İndir";
+            console.error("PDF Hatası:", e);
           });
       }
       function excelIndir() {
@@ -5067,6 +5220,116 @@ function vipBildirim(mesaj, tur = "basarili") {
         if (!tablo) return;
         let wb = XLSX.utils.table_to_book(tablo, { sheet: "Rapor" });
         XLSX.writeFile(wb, "Rapor.xlsx");
+      }
+      
+      let aktifPaylasimModulu = "";
+
+      function paylasimTetikle(modul) {
+          aktifPaylasimModulu = modul;
+          document.getElementById('paylasModal').classList.add('show');
+      }
+
+      function paylasTetikle(format) {
+          document.getElementById('paylasModal').classList.remove('show');
+          if (aktifPaylasimModulu === 'kokarca') {
+              if (format === 'pdf') raporuPaylasPDF();
+              else raporuPaylasExcel();
+          } else if (aktifPaylasimModulu === 'survey') {
+              if (format === 'pdf') surveyPaylasPDF();
+              else surveyPaylasExcel();
+          }
+      }
+
+      function raporuPaylasPDF() {
+        let btn = document.getElementById("btnMailAt");
+        if (!btn) return;
+        let eskiMetin = btn.innerText;
+        btn.innerText = "⏳ Hazırlanıyor...";
+
+        let pdfTablosu = document.getElementById("pdfTablosuAlani");
+        let ekranTablosu = document.getElementById("ekranTablosuAlani");
+        let elementToPrint = document.getElementById("pdfIcerikAlani");
+
+        // PDF şablonunu görünür yap
+        if (pdfTablosu && ekranTablosu) {
+            ekranTablosu.style.display = "none";
+            pdfTablosu.style.display = "block";
+            elementToPrint = pdfTablosu;
+        }
+
+        let opt = {
+          margin: 0.2,
+          filename: "Rapor.pdf",
+          image: { type: "jpeg", quality: 1 },
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: "in", format: "a4", orientation: "landscape" },
+          pagebreak: { mode: 'css', before: '.html2pdf__page-break' }
+        };
+
+        html2pdf().set(opt).from(elementToPrint).output('blob').then(function(pdfBlob) {
+            // Ekranı eski haline döndür
+            if (pdfTablosu && ekranTablosu) {
+                ekranTablosu.style.display = "block";
+                pdfTablosu.style.display = "none";
+            }
+            btn.innerText = eskiMetin;
+
+            // PDF Blob verisini bir dosyaya çevir ve Paylaşım menüsüne tetikle
+            let file = new File([pdfBlob], "Kokarca_Raporu.pdf", { type: "application/pdf" });
+            
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                navigator.share({
+                    title: 'Kokarca İzleme Raporu',
+                    text: 'İlgili döneme ait Kokarca İzleme Formu (PDF) ektedir.',
+                    files: [file]
+                }).catch((e) => console.log("Paylaşım iptal edildi."));
+            } else {
+                alert("⚠️ Bilgisayarınız doğrudan paylaşım menüsünü desteklemiyor.\n\nDosya cihazınıza indiriliyor... Lütfen mailinize veya WhatsApp'a kendiniz ekleyiniz.");
+                let url = URL.createObjectURL(pdfBlob);
+                let a = document.createElement("a");
+                a.href = url;
+                a.download = "Kokarca_Raporu.pdf";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+        }).catch((e) => {
+            if (pdfTablosu && ekranTablosu) { ekranTablosu.style.display = "block"; pdfTablosu.style.display = "none"; }
+            btn.innerText = eskiMetin;
+            alert("Hata oluştu, rapor paylaşılamadı.");
+        });
+      }
+      
+      function raporuPaylasExcel() {
+        let tablo = document.getElementById("exportTablo");
+        if (!tablo) { alert("Paylaşılacak veri yok!"); return; }
+        let btn = document.getElementById("btnMailAt");
+        let eskiMetin = btn.innerText;
+        btn.innerText = "⏳ Hazırlanıyor...";
+        
+        try {
+            let wb = XLSX.utils.table_to_book(tablo, { sheet: "Rapor" });
+            let wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            let blob = new Blob([wbout], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+            let file = new File([blob], "Kokarca_Raporu.xlsx", { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+            
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                navigator.share({ title: 'Kokarca İzleme Raporu', text: 'İlgili döneme ait Kokarca İzleme Formu (Excel) ektedir.', files: [file] })
+                .catch((e) => console.log("Paylaşım iptal edildi."));
+            } else {
+                alert("⚠️ Bilgisayarınız doğrudan paylaşım menüsünü desteklemiyor.\n\nDosya cihazınıza indiriliyor... Lütfen mailinize veya WhatsApp'a kendiniz ekleyiniz.");
+                let url = URL.createObjectURL(blob);
+                let a = document.createElement("a");
+                a.href = url;
+                a.download = "Kokarca_Raporu.xlsx";
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+            }
+        } catch(e) {
+            alert("Hata oluştu.");
+        }
+        btn.innerText = eskiMetin;
       }
 
       function isiHaritasiniCiz() {
@@ -5118,7 +5381,7 @@ function vipBildirim(mesaj, tur = "basarili") {
           d.style.color = "#1976d2";
           d.innerText = "⏳ Veriler sunucudan çekiliyor...";
         }
-        fetch(GOOGLE_SCRIPT_URL + "?istek=il_raporu")
+        fetch(GOOGLE_SCRIPT_URL + "?istek=il_raporu&token=" + localStorage.getItem("kktp_token"))
           .then((res) => res.json())
           .then((data) => {
             if (data.hata) {
@@ -5131,7 +5394,18 @@ function vipBildirim(mesaj, tur = "basarili") {
             }
             let aylarSet = new Set();
             let temizData = [];
+            let tuzakNoktalari = [];
             data.forEach((x) => {
+              if (x.islem === "Tuzak Kaydı" && x.koordinat) {
+                let kor = String(x.koordinat).split(",");
+                if (kor.length === 2 && !isNaN(parseFloat(kor[0]))) {
+                  tuzakNoktalari.push({
+                    ilce: temizle(x.ilce),
+                    lat: parseFloat(kor[0]),
+                    lng: parseFloat(kor[1])
+                  });
+                }
+              }
               if (x.islem === "Sayım" && x.tarih) {
                 let dt = zekiTarihOku(x.tarih);
                 if (dt) {
@@ -5274,6 +5548,25 @@ function vipBildirim(mesaj, tur = "basarili") {
                   geoJsonLayer.addTo(haritaYogunluk);
                   haritaYogunluk.fitBounds(geoJsonLayer.getBounds());
                 }
+
+                if (katmanYogunlukTuzaklar && haritaYogunluk) {
+                  haritaYogunluk.removeLayer(katmanYogunlukTuzaklar);
+                }
+                katmanYogunlukTuzaklar = L.layerGroup().addTo(haritaYogunluk);
+
+                let kucukKareIkon = L.divIcon({
+                  className: "custom-icon",
+                  html: '<div style="background-color: #d32f2f; width: 6px; height: 6px; border: 1px solid white; box-shadow: 0 0 2px rgba(0,0,0,0.5);"></div>',
+                  iconSize: [8, 8],
+                  iconAnchor: [4, 4]
+                });
+
+                tuzakNoktalari.forEach(t => {
+                  if (secim === "TÜM İL" || t.ilce === temizle(secim)) {
+                    L.marker([t.lat, t.lng], { icon: kucukKareIkon, interactive: false }).addTo(katmanYogunlukTuzaklar);
+                  }
+                });
+
                 haritaRenkleriGuncelle(haritaAylarListesi.length);
                 if (d) {
                   d.innerText = "✅ Harita güncellendi!";
@@ -5412,7 +5705,7 @@ function vipBildirim(mesaj, tur = "basarili") {
         }
 
         try {
-          const response = await fetch(GOOGLE_SCRIPT_URL + "?istek=il_raporu");
+          const response = await fetch(GOOGLE_SCRIPT_URL + "?istek=il_raporu&token=" + localStorage.getItem("kktp_token"));
           const data = await response.json();
           if (data.hata) return;
 
@@ -5569,6 +5862,14 @@ function vipBildirim(mesaj, tur = "basarili") {
           b.disabled = true;
         }
 
+        if (personelinYetkisi === "ghost") {
+          setTimeout(() => {
+            alert("👻 [GHOST MOD] Personel eklendi simülasyonu!");
+            if (b) { b.innerText = "Personeli Kaydet"; b.disabled = false; }
+          }, 800);
+          return;
+        }
+
         fetch(GOOGLE_SCRIPT_URL, {
           method: "POST",
           body: JSON.stringify({
@@ -5580,6 +5881,7 @@ function vipBildirim(mesaj, tur = "basarili") {
             yeniYetki: yt.value,
             yeniTel: tl ? tl.value : "",
             ekleyenKisi: localStorage.getItem("kktp_adSoyad"), // İŞTE EKLENEN SATIR BURASI
+            token: localStorage.getItem("kktp_token")
           }),
         })
           .then((res) => res.json())
@@ -5613,10 +5915,11 @@ function vipBildirim(mesaj, tur = "basarili") {
         if (!govde) return;
         govde.innerHTML = "<tr><td colspan='7'>Yükleniyor...</td></tr>";
 
-        fetch(GOOGLE_SCRIPT_URL + "?istek=personeller")
+        fetch(GOOGLE_SCRIPT_URL + "?istek=personeller&token=" + localStorage.getItem("kktp_token"))
           .then((res) => res.json())
           .then((data) => {
             govde.innerHTML = "";
+            if (!tokenGecerlilikKontrolu(data)) return;
             let sysIlce = temizle(personelinIlcesi);
             data.forEach((p) => {
               // 🔒 GÜVENLİK ZEKASI: Yönetici olmayanlara Yöneticileri tamamen gizle!
@@ -5638,20 +5941,21 @@ function vipBildirim(mesaj, tur = "basarili") {
                 // p.tel yerine boş string gönderiyoruz çünkü arka planda o sütunu 'ekleyenKisi' yaptık, 'undefined' yazmasın
                 let duzenleBtn = `<button class="btn-duzenle" onclick="personelDuzenleAc('${p.kulAdi}','${p.sifre}','${p.ad}','${p.ilce}','','${p.yetki}','${p.durum}')">✏️</button>`;
                 govde.innerHTML +=
+                  // 🛡️ XSS KORUMASI EKLENDİ
                   "<tr><td>" +
-                  p.kulAdi +
+                  guvenliMetin(p.kulAdi) +
                   "</td><td>" +
-                  gosterSifre +
+                  guvenliMetin(gosterSifre) +
                   "</td><td>" +
-                  p.ad +
+                  guvenliMetin(p.ad) +
                   "</td><td>" +
-                  p.ilce +
+                  guvenliMetin(p.ilce) +
                   "</td><td>" +
-                  p.yetki +
+                  guvenliMetin(p.yetki) +
                   "</td><td class='" +
                   dClass +
                   "'>" +
-                  p.durum +
+                  guvenliMetin(p.durum) +
                   "</td><td>" +
                   duzenleBtn +
                   "</td></tr>";
@@ -5755,7 +6059,19 @@ function vipBildirim(mesaj, tur = "basarili") {
           tel: tl ? tl.value : "",
           durum: dr.value,
         };
+        pk.token = localStorage.getItem("kktp_token");
 
+        if (personelinYetkisi === "ghost") {
+          setTimeout(() => {
+            alert("👻 [GHOST MOD] Personel güncellendi simülasyonu!");
+            document.getElementById("personelDuzenleModal").classList.remove("show");
+            if (btn) {
+              btn.innerText = "Güncelle";
+              btn.disabled = false;
+            }
+          }, 800);
+          return;
+        }
         fetch(GOOGLE_SCRIPT_URL, { method: "POST", body: JSON.stringify(pk) })
           .then((res) => res.json())
           .then((data) => {
@@ -5787,12 +6103,21 @@ function vipBildirim(mesaj, tur = "basarili") {
           b.disabled = true;
         }
 
+        if (personelinYetkisi === "ghost") {
+          setTimeout(() => {
+            alert("👻 [GHOST MOD] Şifre güncellendi simülasyonu!");
+            if (b) { b.innerText = "Şifremi Güncelle"; b.disabled = false; }
+          }, 800);
+          return;
+        }
+
         fetch(GOOGLE_SCRIPT_URL, {
           method: "POST",
           body: JSON.stringify({
             islemTipi: "SifreDegistir",
             kullaniciAdi: localStorage.getItem("kktp_kulAdi"),
             eskiSifre: e,
+            token: localStorage.getItem("kktp_token"),
             yeniSifre: y,
           }),
         })
@@ -5824,7 +6149,7 @@ function duyuruPanosunuYukle() {
     
     fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
-        body: JSON.stringify({ islemTipi: "DuyuruGetir" }),
+        body: JSON.stringify({ islemTipi: "DuyuruGetir", token: localStorage.getItem("kktp_token") }),
         headers: { "Content-Type": "text/plain;charset=utf-8" }
     })
     .then(r => r.json())
@@ -5891,7 +6216,7 @@ function duyuruPanosunuEkranaBas(duyuruListesi) {
         if (formatliTarih !== "") {
             satirHtml += `<span style="color:#d32f2f; font-weight:bold; margin-right:5px;">[${formatliTarih}]</span>`;
         }
-        satirHtml += d.metin + "</li>";
+        satirHtml += guvenliMetin(d.metin) + "</li>";
         html += satirHtml;
 
         let okunduKey = "duyuru_okundu_v2_" + d.id + "_" + d.metin.length;
@@ -5920,7 +6245,7 @@ function duyuruDuzenle() {
 
     fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
-        body: JSON.stringify({ islemTipi: "DuyuruGetir" }),
+        body: JSON.stringify({ islemTipi: "DuyuruGetir", token: localStorage.getItem("kktp_token") }),
         headers: { "Content-Type": "text/plain;charset=utf-8" }
     })
     .then(r => r.json())
@@ -5942,7 +6267,7 @@ function duyuruDuzenle() {
                     <h4 style="margin-top:0; margin-bottom:10px; color:#1976d2;">📝 Slot ${d.id}</h4>
                     <div class="form-group" style="margin-bottom:10px;">
                         <label>Duyuru Metni</label>
-                        <textarea id="d_metin_${d.id}" rows="3" placeholder="Duyuru metnini yazın...">${d.metin}</textarea>
+                        <textarea id="d_metin_${d.id}" rows="3" placeholder="Duyuru metnini yazın...">${guvenliMetin(d.metin)}</textarea>
                     </div>
                     <div class="form-group" style="margin-bottom:10px;">
                         <label>Miad Tarihi (Opsiyonel)</label>
@@ -5986,9 +6311,18 @@ function islemiSunucuyaGonder(id, metin, tarih, btnElement) {
     btnElement.innerText = "⏳...";
     btnElement.disabled = true;
     
+    if (personelinYetkisi === "ghost") {
+        setTimeout(() => {
+            vipBildirim("👻 [GHOST MOD] Slot " + id + " başarıyla güncellendi simülasyonu!", "basarili");
+            btnElement.innerText = oncekiMetin;
+            btnElement.disabled = false;
+        }, 800);
+        return;
+    }
+
     fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
-        body: JSON.stringify({ islemTipi: "DuyuruKaydet", id: id, metin: metin, tarih: tarih, ekleyen: localStorage.getItem("kktp_adSoyad") }),
+        body: JSON.stringify({ islemTipi: "DuyuruKaydet", id: id, metin: metin, tarih: tarih, ekleyen: localStorage.getItem("kktp_adSoyad"), token: localStorage.getItem("kktp_token") }),
         headers: { "Content-Type": "text/plain;charset=utf-8" }
     }).then(r => r.json()).then(data => {
         btnElement.innerText = oncekiMetin;
@@ -6029,13 +6363,15 @@ function panoTuzaklariniGetir() {
     fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
         body: JSON.stringify({ 
-            islemTipi: "Pano Tuzaklari Getir", // Code.gs'deki şifremiz tam olarak bu!
-            ilce: secilenIlce 
+            islemTipi: "Pano Tuzaklari Getir",
+            ilce: secilenIlce,
+            token: localStorage.getItem("kktp_token")
         }),
         headers: { "Content-Type": "text/plain;charset=utf-8" }
     })
     .then(r => r.json())
     .then(data => {
+        if (!tokenGecerlilikKontrolu(data)) return;
         if (data.durum === "basarili") {
             // Veri jilet gibi geldiyse, 2. Aşamaya (Çizim Motoruna) gönder
             gorevPanosunuCiz(data.tuzaklar);
@@ -6124,8 +6460,8 @@ function gorevPanosunuCiz(tuzakListesi) {
 
         kart.innerHTML = `
             <div style="flex: 1;">
-                <div style="font-size: 15px; font-weight: bold; margin-bottom: 4px; color:#222;">${durumIkon} ID: ${t.Tuzak_ID}</div>
-                <div style="font-size: 13px; color: #444; margin-bottom: 6px;">📍 <b>${t.Ilce}</b> - ${t.Mahalle} Mah. - Ada:${t.Ada} / Parsel:${t.Parsel}</div>
+                <div style="font-size: 15px; font-weight: bold; margin-bottom: 4px; color:#222;">${durumIkon} ID: ${guvenliMetin(t.Tuzak_ID)}</div>
+                <div style="font-size: 13px; color: #444; margin-bottom: 6px;">📍 <b>${guvenliMetin(t.Ilce)}</b> - ${guvenliMetin(t.Mahalle)} Mah. - Ada:${guvenliMetin(t.Ada)} / Parsel:${guvenliMetin(t.Parsel)}</div>
                 <div style="font-size: 13px;">🕒 ${uyariMetni}</div>
             </div>
             <div style="display:flex; flex-direction:column; gap:6px; min-width: 90px;">
@@ -6154,7 +6490,7 @@ function surveyVerileriniGetir() {
     // 1. SİSTEMDEKİ GLOBAL DEĞİŞKENLERİ OKU VE YETKİ KİLİDİNİ ÇÖZ
     if (typeof personelinYetkisi !== 'undefined') {
         let yetkiKucuk = (personelinYetkisi || "").toLowerCase();
-        if (yetkiKucuk === "yönetici" || yetkiKucuk === "il yetkilisi") {
+        if (yetkiKucuk === "yönetici" || yetkiKucuk === "il yetkilisi" || yetkiKucuk === "ghost") {
             isYoneticiVeyaIl = true;
         }
     }
@@ -6216,11 +6552,12 @@ function surveyVerileriniGetir() {
     // Mutfağa doğru ilçeyi gönderiyoruz...
     fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
-        body: JSON.stringify({ islemTipi: "Genel Survey Raporu Getir", ilce: sunucuyaGidecekIlce }),
+        body: JSON.stringify({ islemTipi: "Genel Survey Raporu Getir", ilce: sunucuyaGidecekIlce, token: localStorage.getItem("kktp_token") }),
         headers: { "Content-Type": "text/plain;charset=utf-8" }
     })
     .then(r => r.json())
     .then(data => {
+        if (!tokenGecerlilikKontrolu(data)) return;
         if(btn) {
             btn.innerHTML = "📥 1. Adım: Verileri Sunucudan Çek";
             btn.style.background = "#1976d2"; 
@@ -6281,12 +6618,7 @@ function surveyTablosunuFiltrele() {
 // =======================================================
 // 📥 3. GİZLİ EXCEL ÇIKTISI MOTORU (Fazlalıklar Temizlendi)
 // =======================================================
-function exportToExcel() {
-    if(!window.globalFiltreliVeri || window.globalFiltreliVeri.length === 0) {
-        alert("İndirilecek veri yok! Lütfen önce verileri çekin.");
-        return;
-    }
-
+function surveyExcelHtmlOlustur() {
     let excelHTML = "<table border='1'><thead><tr style='background:#1976d2; color:white;'>";
     
     // EXCEL BAŞLIKLARI (Sistem Kayıt Zamanı Silindi!)
@@ -6326,7 +6658,16 @@ function exportToExcel() {
         </tr>`;
     });
     excelHTML += "</tbody></table>";
-    
+    return excelHTML;
+}
+
+function exportToExcel() {
+    if(!window.globalFiltreliVeri || window.globalFiltreliVeri.length === 0) {
+        alert("İndirilecek veri yok! Lütfen önce verileri çekin.");
+        return;
+    }
+
+    let excelHTML = surveyExcelHtmlOlustur();
     // UTF-8 BOM ile Excel'e bas
     let url = 'data:application/vnd.ms-excel;charset=utf-8,' + encodeURIComponent("\uFEFF" + excelHTML);
     
@@ -6336,8 +6677,82 @@ function exportToExcel() {
     indirmeLinki.download = 'Detayli_Survey_Raporu.xls'; 
     indirmeLinki.click();
     document.body.removeChild(indirmeLinki);
+  }
 
-    
+  function surveyPaylasExcel() {
+      if(!window.globalFiltreliVeri || window.globalFiltreliVeri.length === 0) {
+          alert("Paylaşılacak veri yok! Lütfen önce verileri çekin.");
+          return;
+      }
+      let btn = document.getElementById("btnSurveyPaylas");
+      let eskiMetin = btn.innerText;
+      btn.innerText = "⏳...";
+
+      let tempDiv = document.createElement('div');
+      tempDiv.innerHTML = surveyExcelHtmlOlustur();
+      
+      try {
+          let wb = XLSX.utils.table_to_book(tempDiv.firstChild, { sheet: "Rapor" });
+          let wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+          let blob = new Blob([wbout], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+          let file = new File([blob], "Survey_Raporu.xlsx", { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+          
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+              navigator.share({ title: 'Genel Sürvey Raporu', text: 'İlgili döneme ait Genel Sürvey Raporu (Excel) ektedir.', files: [file] })
+              .catch((e) => console.log("Paylaşım iptal edildi."));
+          } else {
+              alert("⚠️ Bilgisayarınız doğrudan paylaşım menüsünü desteklemiyor.\n\nDosya cihazınıza indiriliyor... Lütfen mailinize veya WhatsApp'a kendiniz ekleyiniz.");
+              let url = URL.createObjectURL(blob);
+              let a = document.createElement("a");
+              a.href = url;
+              a.download = "Survey_Raporu.xlsx";
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+          }
+      } catch(e) { alert("Hata oluştu."); }
+      btn.innerText = eskiMetin;
+  }
+
+  function surveyPaylasPDF() {
+      if(!window.globalFiltreliVeri || window.globalFiltreliVeri.length === 0) {
+          alert("Paylaşılacak veri yok! Lütfen önce verileri çekin.");
+          return;
+      }
+      let btn = document.getElementById("btnSurveyPaylas");
+      let eskiMetin = btn.innerText;
+      btn.innerText = "⏳...";
+
+      let tempContainer = document.createElement("div");
+      tempContainer.style.padding = "20px";
+      tempContainer.style.fontFamily = "sans-serif";
+      tempContainer.innerHTML = "<h2 style='text-align:center; color:#1976d2;'>Genel Sürvey Raporu</h2>";
+      let tableClone = document.getElementById("surveySonucTablosu").cloneNode(true);
+      tableClone.style.width = "100%"; tableClone.style.borderCollapse = "collapse"; tableClone.style.fontSize = "12px";
+      tempContainer.appendChild(tableClone);
+
+      let opt = { margin: 0.3, filename: "Survey_Raporu.pdf", image: { type: "jpeg", quality: 1 }, html2canvas: { scale: 2 }, jsPDF: { unit: "in", format: "a4", orientation: "landscape" } };
+
+      html2pdf().set(opt).from(tempContainer).output('blob').then(function(pdfBlob) {
+          btn.innerText = eskiMetin;
+          let file = new File([pdfBlob], "Survey_Raporu.pdf", { type: "application/pdf" });
+          if (navigator.canShare && navigator.canShare({ files: [file] })) {
+              navigator.share({ title: 'Genel Sürvey Raporu', text: 'İlgili döneme ait Genel Sürvey Raporu (PDF) ektedir.', files: [file] })
+              .catch((e) => console.log("Paylaşım iptal edildi."));
+          } else { 
+              alert("⚠️ Bilgisayarınız doğrudan paylaşım menüsünü desteklemiyor.\n\nDosya cihazınıza indiriliyor... Lütfen mailinize veya WhatsApp'a kendiniz ekleyiniz.");
+              let url = URL.createObjectURL(pdfBlob);
+              let a = document.createElement("a");
+              a.href = url;
+              a.download = "Survey_Raporu.pdf";
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+          }
+      }).catch(e => {
+          btn.innerText = eskiMetin;
+          alert("Hata oluştu.");
+      });
   }
 
   // =======================================================
@@ -6352,11 +6767,12 @@ function loglariGetir() {
 
     fetch(GOOGLE_SCRIPT_URL, {
         method: 'POST',
-        body: JSON.stringify({ islemTipi: "LoglariGetir" }),
+        body: JSON.stringify({ islemTipi: "LoglariGetir", token: localStorage.getItem("kktp_token") }),
         headers: { "Content-Type": "text/plain;charset=utf-8" }
     })
     .then(r => r.json())
     .then(data => {
+        if (!tokenGecerlilikKontrolu(data)) return;
         if (data.durum === "basarili") {
             globalLoglar = data.loglar || [];
             logTablosunuFiltrele();
@@ -6424,10 +6840,10 @@ function logTablosunuFiltrele() {
         else if(log.islem.includes("Güncellen") || log.islem.includes("Değiştirildi")) { islemRenk = "#f57c00"; ikon = "🔄"; }
 
         govde.innerHTML += `<tr>
-            <td style="font-size:12px;">${log.tarih}</td>
-            <td style="font-weight:bold; color:#444;">${log.personel}</td>
-            <td style="color:${islemRenk}; font-weight:bold; font-size:13px;">${ikon} ${log.islem}</td>
-            <td style="font-size:13px; text-align:left;">${log.detay}</td>
+            <td style="font-size:12px;">${guvenliMetin(log.tarih)}</td>
+            <td style="font-weight:bold; color:#444;">${guvenliMetin(log.personel)}</td>
+            <td style="color:${islemRenk}; font-weight:bold; font-size:13px;">${ikon} ${guvenliMetin(log.islem)}</td>
+            <td style="font-size:13px; text-align:left;">${guvenliMetin(log.detay)}</td>
         </tr>`;
     });
 }
@@ -6445,9 +6861,21 @@ function loglariExcelIndir() {
 </button>
 
 <script>
-  // 1. Service Worker Kaydı (Android için şart)
+  // 1. Service Worker Kaydı ve Otomatik Versiyon Güncelleme Motoru
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js');
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      reg.addEventListener('updatefound', () => {
+        const newWorker = reg.installing;
+        newWorker.addEventListener('statechange', () => {
+          // Eğer yeni bir service worker kurulduysa ve halihazırda eski bir tane çalışıyorsa
+          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+            if (confirm("🚀 Sisteme yeni bir güncelleme geldi!\n\nYeni özellikleri kullanabilmek için uygulama şimdi yenilenecektir.")) {
+              window.location.reload(true);
+            }
+          }
+        });
+      });
+    });
   }
 
   const installBtn = document.getElementById('pwaInstallBtn');
@@ -6462,10 +6890,10 @@ function loglariExcelIndir() {
   if (!isStandalone) {
     installBtn.style.display = 'block';
     
-    // 30 saniye (30000 ms) sonra butonu otomatik olarak gizle
+    // 30 saniye (10000 ms) sonra butonu otomatik olarak gizle
     setTimeout(() => {
       installBtn.style.display = 'none';
-    }, 30000);
+    }, 10000);
   }
 
   // Android Chrome İndirme Yakalayıcı
