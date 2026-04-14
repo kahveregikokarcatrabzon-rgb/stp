@@ -639,6 +639,18 @@
           </li>
         </ul>
 
+        <li
+          onclick="akordeonAcKapat('samurayMenu', 'samurayOk')"
+          style="border-left: 4px solid #1976d2"
+        >
+          <span>🐝 Samuray Arısı Takip</span>
+          <span id="samurayOk" class="ok-ikonu">▼</span>
+        </li>
+        <ul id="samurayMenu" class="akordeon-icerik">
+          <li onclick="modulAc('modulSamurayYeniNokta')">📍 Yeni Salım Noktası</li>
+          <li onclick="modulAc('modulSamurayHarita')">🗺️ Salım Noktaları Haritası</li>
+        </ul>
+
         <li id="menuPersonel" class="hidden" onclick="modulAc('modulPersonel')">
           <span>👥 Personel Yönetimi</span>
         </li>
@@ -651,7 +663,7 @@
         </li>
       </ul>
       <div class="footer-imza">
-        © <span id="footerYil">2026</span> STP | Cloud Sürümü <b id="appVersiyon" style="color:var(--bakanlik-kirmizi);">v12.0</b><br />Geliştirici:
+        © <span id="footerYil">2026</span> STP | Cloud Sürümü <b id="appVersiyon" style="color:var(--bakanlik-kirmizi);">v13.0</b><br />Geliştirici:
         <a
           href="mailto:mustafa.cavdar@tarimorman.gov.tr"
           style="
@@ -1197,6 +1209,14 @@
           <div class="modul-text" style="color: #f57c00">
             Kokarca Takip Sistemi
           </div>
+        </div>
+        <div
+          class="kare-modul"
+          style="border-color: #1976d2"
+          onclick="modulAc('dashboardSamuray')"
+        >
+          <div class="modul-icon">🐝</div>
+          <div class="modul-text" style="color: #1976d2">Samuray Arısı Takip</div>
         </div>
         <div
           id="karePersonel"
@@ -2238,6 +2258,133 @@
   </div>
 </div>
 
+    <div id="dashboardSamuray" class="container hidden">
+      <button class="back-btn" onclick="modulAc('anaMenu')">
+        ⬅ Ana Sayfaya Dön
+      </button>
+      <h3 style="color: #1976d2; border-bottom: 2px solid #1976d2; padding-bottom: 10px;">
+        🐝 Samuray Arısı Takip Modülleri
+      </h3>
+      <div class="dashboard-grid">
+        <div class="kare-modul" onclick="modulAc('modulSamurayYeniNokta')">
+          <div class="modul-icon">📍</div>
+          <div class="modul-text">Yeni Salım Noktası Gir</div>
+        </div>
+        <div class="kare-modul" onclick="modulAc('modulSamurayHarita')">
+          <div class="modul-icon">🗺️</div>
+          <div class="modul-text">Salım Noktaları Haritası</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="modulSamurayYeniNokta" class="container hidden">
+      <button class="back-btn" onclick="modulAc('dashboardSamuray')">
+        ⬅ Samuray Menüsüne Dön
+      </button>
+      <div class="form-container">
+        <h3 style="color: #1976d2; margin-top: 0">
+          📍 Yeni Samuray Arısı Salım Noktası
+        </h3>
+        <button id="btnSamurayKonum" onclick="konumAlSamuray()" class="action-btn" style="background: #1976d2">
+          📍 Haritadan Konum Al (GPS)
+        </button>
+        <p id="samurayKonumDurum" style="font-size: 13px; margin-top: 10px; font-weight: bold"></p>
+        <div id="mapSamuray" style="height: 300px; width: 100%; border-radius: 8px; border: 2px solid #ccc; margin-top: 10px; display: none; z-index: 1;"></div>
+        <p id="samurayAltDurum" style="font-size: 13px; font-weight: bold; color: #1976d2; margin-top: 5px; text-align: center;"></p>
+
+        <div id="samurayFormAlani" class="hidden" style="margin-top: 20px">
+          <div class="form-group">
+            <label>Koordinatlar</label>
+            <input type="text" id="samurayGPS" disabled style="background: #e0e0e0; font-weight: bold; text-align: center" />
+          </div>
+          <div class="form-group">
+            <label>Salım Noktası ID (Otomatik Oluşturulur)</label>
+            <input type="text" id="samurayID" placeholder="Mahalle_Ada_Parsel" readonly style="background-color: #e9ecef; cursor: not-allowed" />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group half-width">
+              <label>İlçe</label>
+              <select id="samurayIlce" onchange="mahalleListesiDoldur('samurayMahalleListesi', this.value); haritayiManuelOdakla('mapSamuray', this.value);"></select>
+            </div>
+            <div class="form-group half-width">
+              <label>Mahalle</label>
+              <input type="text" id="samurayMahalle" list="samurayMahalleListesi" placeholder="Seçin veya yazın..." onchange="mahalleyeOdakla('mapSamuray', document.getElementById('samurayIlce').value, this.value)" />
+              <datalist id="samurayMahalleListesi"></datalist>
+            </div>
+          </div>
+
+          <button type="button" onclick="document.getElementById('parselSorguModal').classList.add('show')" class="action-btn" style="background: #0277bd; margin-bottom: 15px; padding: 10px; font-size: 14px;">
+            🗺️ TKGM Parsel Sorgula
+          </button>
+
+          <div class="form-row">
+            <div class="form-group half-width">
+              <label>Ada <span style="color: red">*</span></label>
+              <input type="number" id="samurayAda" />
+            </div>
+            <div class="form-group half-width">
+              <label>Parsel <span style="color: red">*</span></label>
+              <input type="number" id="samurayParsel" />
+            </div>
+          </div>
+          
+          <div class="form-group" style="background: #e3f2fd; padding: 15px; border-radius: 6px; border-left: 4px solid #1976d2;">
+            <label style="color: #1976d2;">Samuray Arısı Sayısı (Adet) <span style="color: red">*</span></label>
+            <input type="number" id="samuraySayisi" placeholder="Örn: 200" style="border: 2px solid #1976d2; font-weight: bold; color: #1976d2;" />
+          </div>
+
+          <h4 style="color: #1976d2; margin-bottom: 10px; margin-top: 20px; border-bottom: 1px solid #eee; padding-bottom: 5px;">Tarımsal Veriler</h4>
+          <div class="form-row">
+            <div class="form-group half-width">
+              <label>Yükseklik (Rakım)</label>
+              <input type="number" id="samurayRakim" placeholder="Örn: 150" />
+            </div>
+            <div class="form-group half-width">
+              <label>Alan (Dekar)</label>
+              <input type="text" inputmode="decimal" id="samurayAlan" oninput="alanFormatla(this)" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group half-width">
+              <label>Bahçe Yaşı</label>
+              <input type="text" id="samurayYas" />
+            </div>
+            <div class="form-group half-width">
+              <label>Fındık Çeşidi</label>
+              <input type="text" id="samurayCesit" />
+            </div>
+          </div>
+          <button id="btnSamurayKaydet" onclick="veriKaydet('Samuray Kaydı')" class="action-btn" style="background: #1976d2; margin-top: 15px">
+            💾 Salım Noktasını Kaydet
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="modulSamurayHarita" class="container hidden" style="max-width: 1000px">
+      <button class="back-btn" onclick="modulAc('dashboardSamuray')">
+        ⬅ Samuray Menüsüne Dön
+      </button>
+      <div class="form-container">
+        <h3 style="color: #1976d2; margin-top: 0">
+          🗺️ Samuray Arısı Salım Noktaları Haritası
+        </h3>
+        <select id="samurayHaritaFiltreIlce" onchange="samurayHaritasiniCiz()" style="width: 100%; padding: 12px; border: 1px solid #ccc; border-radius: 6px; font-size: 16px; margin-bottom: 15px;">
+          <option value="" selected disabled>İlçe veya Tüm İl Seçiniz...</option>
+          <option value="TÜM İL">Tüm Trabzon (İlçe Bazlı)</option>
+        </select>
+        <p style="font-size: 13px; color: #666; margin-bottom: 15px">
+          Haritadaki mavi noktalar Samuray Arısı salımı yapılan alanları temsil eder. Üzerine tıklayarak veya fare ile üzerine gelerek detayları ve bırakılan arı sayısını görebilirsiniz.
+        </p>
+        <button id="btnSamurayHaritaCiz" onclick="samurayHaritasiniCiz()" class="action-btn" style="background: #1976d2; margin-bottom: 15px">
+          🔄 Haritayı Güncelle
+        </button>
+        <p id="samurayHaritaDurum" style="font-size: 12px; font-weight: bold; color: red"></p>
+        <div id="mapSamurayHarita" style="height: 600px; width: 100%; border-radius: 8px; border: 2px solid #ccc; z-index: 1; display: none;"></div>
+      </div>
+    </div>
+
     <div id="modulPersonel" class="container hidden">
       <button class="back-btn" onclick="modulAc('anaMenu')">
         ⬅ Ana Sayfaya Dön
@@ -2958,12 +3105,15 @@ function vipBildirim(mesaj, tur = "basarili") {
       // Global değişkenlere harita katmanlarını saklamak için yer açalım (script'in en başına, diğer global'lerin yanına ekle)
       let poligonKatmaniSurvey = null;
       let poligonKatmaniTuzak = null;
+      let poligonKatmaniSamuray = null;
 
       // Mahalle poligonunu çizen yeni fonksiyon
       function poligonCiz(mapId, feature) {
         let harita = mapId === "mapSurvey" ? haritaSurvey : haritaTuzak;
+        if (mapId === "mapSamuray") harita = haritaSamuray;
         let mevcutKatman =
           mapId === "mapSurvey" ? poligonKatmaniSurvey : poligonKatmaniTuzak;
+        if (mapId === "mapSamuray") mevcutKatman = poligonKatmaniSamuray;
 
         if (!harita || !feature) return;
 
@@ -2985,7 +3135,8 @@ function vipBildirim(mesaj, tur = "basarili") {
 
         // Yeni katmanı global değişkende sakla
         if (mapId === "mapSurvey") poligonKatmaniSurvey = yeniKatman;
-        else poligonKatmaniTuzak = yeniKatman;
+        else if (mapId === "mapTuzak") poligonKatmaniTuzak = yeniKatman;
+        else poligonKatmaniSamuray = yeniKatman;
       }
 
       let haritaHafiza = {};
@@ -3056,6 +3207,11 @@ function vipBildirim(mesaj, tur = "basarili") {
         haritaAylikKumulatif = {};
       let haritaYukseklik = null,
         katmanYukseklikGrup = null;
+      let haritaSamuray = null,
+        isaretciSamuray = null,
+        anlikKoordinatSamuray = "";
+      let haritaSamurayGenel = null,
+        katmanSamurayNoktalari = null;
       let aktifDuzenlenenSurvey = null;
 
       function temizle(str) {
@@ -3247,6 +3403,7 @@ function vipBildirim(mesaj, tur = "basarili") {
         let isIlceMuduru =
           personelinYetkisi === "ilçe müdürü" ||
           personelinYetkisi === "ilce muduru";
+        let isTeknikPersonel = personelinYetkisi === "teknik personel";
         let isGhost = personelinYetkisi === "ghost";
         let ilceKilidiAcik =
           isYonetici ||
@@ -3267,10 +3424,12 @@ function vipBildirim(mesaj, tur = "basarili") {
           let el = document.getElementById(id);
           if (el) el.classList.remove("hidden");
         };
-        if (isYonetici || isIlYetkilisi || isIlceMuduru || isGhost) {
+        if (isYonetici || isIlYetkilisi || isIlceMuduru || isGhost || isTeknikPersonel) {
           goster("kareKokarcaRapor");
-          goster("karePersonel");
           goster("menuKokarcaRapor");
+        }
+        if (isYonetici || isIlYetkilisi ) {
+          goster("karePersonel");
           goster("menuPersonel");
         }
         if (isYonetici || isIlYetkilisi || isGhost) {
@@ -3361,6 +3520,21 @@ function vipBildirim(mesaj, tur = "basarili") {
           }
         }
       
+        let sHaritaFiltre = document.getElementById("samurayHaritaFiltreIlce");
+        if (sHaritaFiltre) {
+          sHaritaFiltre.innerHTML =
+            '<option value="" selected disabled>İlçe veya Tüm İl Seçiniz...</option>';
+          if (ilceKilidiAcik) {
+            sHaritaFiltre.innerHTML += `<option value="TÜM İL" style="font-weight:bold; color:red;">Tüm Trabzon (İlçe Bazlı)</option>`;
+            TRABZON_ILCELER.forEach((i) => {
+              sHaritaFiltre.innerHTML += `<option value="${i}">${i}</option>`;
+            });
+          } else {
+            sHaritaFiltre.innerHTML += `<option value="${personelinIlcesi}" selected>${personelinIlcesi}</option>`;
+            sHaritaFiltre.disabled = true;
+          }
+        }
+
       // GÖREV PANOSU YETKİ KİLİDİ VE DOLDURMA
       let pFiltre = document.getElementById("panoFiltreIlce");
       if (pFiltre) {
@@ -3382,6 +3556,7 @@ function vipBildirim(mesaj, tur = "basarili") {
           "sayimFiltreIlce",
           "surveyIlce",
           "yeniPersonelIlce",
+          "samurayIlce",
           "duzIlce",
         ].forEach((id) => {
           let select = document.getElementById(id);
@@ -3494,6 +3669,15 @@ function vipBildirim(mesaj, tur = "basarili") {
           setTimeout(() => {
             haritaTuzak.invalidateSize();
           }, 400); // Race Condition önlemi: DOM renderı için süre artırıldı
+        if (hedefID === "modulSamurayYeniNokta" && haritaSamuray)
+          setTimeout(() => {
+            haritaSamuray.invalidateSize();
+          }, 400);
+        if (hedefID === "modulSamurayHarita")
+          setTimeout(() => {
+            if (haritaSamurayGenel) haritaSamurayGenel.invalidateSize();
+            else samurayHaritasiniCiz();
+          }, 400);
     if (hedefID === "modulAcilGorevPanosu") {
       duyuruPanosunuYukle();
       
@@ -3531,13 +3715,13 @@ function vipBildirim(mesaj, tur = "basarili") {
 
       async function zekiKonumBul(lat, lng, formTipi) {
         let durumKutusu = document.getElementById(
-          formTipi === "survey" ? "surveyKonumDurum" : "tuzakKonumDurum",
+          formTipi === "survey" ? "surveyKonumDurum" : (formTipi === "samuray" ? "samurayKonumDurum" : "tuzakKonumDurum")
         );
         let ilceKutu = document.getElementById(
-          formTipi === "survey" ? "surveyIlce" : "tuzakIlce",
+          formTipi === "survey" ? "surveyIlce" : (formTipi === "samuray" ? "samurayIlce" : "tuzakIlce")
         );
         let mahalleKutu = document.getElementById(
-          formTipi === "survey" ? "surveyMahalle" : "tuzakMahalle",
+          formTipi === "survey" ? "surveyMahalle" : (formTipi === "samuray" ? "samurayMahalle" : "tuzakMahalle")
         );
         let point = turf.point([lng, lat]);
 
@@ -3602,9 +3786,9 @@ function vipBildirim(mesaj, tur = "basarili") {
           ilceKutu.value = bulunanIlce;
           mahalleListesiDoldur(
             formTipi === "survey"
-              ? "surveyMahalleListesi"
+              ? "surveyMahalleListesi" : (formTipi === "samuray" ? "samurayMahalleListesi"
               : "tuzakMahalleListesi",
-            bulunanIlce,
+            bulunanIlce),
           );
 
           let link = HARITA_LINKLERI[bulunanIlce];
@@ -3634,7 +3818,7 @@ function vipBildirim(mesaj, tur = "basarili") {
                 feature.properties.Name;
               // 👉 YENİ: Haritada poligonunu çiz
               poligonCiz(
-                formTipi === "survey" ? "mapSurvey" : "mapTuzak",
+                formTipi === "survey" ? "mapSurvey" : (formTipi === "samuray" ? "mapSamuray" : "mapTuzak"),
                 feature,
               );
               break;
@@ -3752,6 +3936,35 @@ function vipBildirim(mesaj, tur = "basarili") {
               haritaTuzak.invalidateSize();
             }, 200);
           }
+        } else if (mapId === "mapSamuray") {
+          anlikKoordinatSamuray = e + ", " + b;
+          let gpsKutu = document.getElementById("samurayGPS");
+          if (gpsKutu) gpsKutu.value = anlikKoordinatSamuray;
+          if (!haritaSamuray && mp) {
+            haritaSamuray = L.map("mapSamuray").setView([e, b], 13);
+            L.tileLayer("https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}", {
+              maxZoom: 20,
+            }).addTo(haritaSamuray);
+            haritayaTamEkranEkle(haritaSamuray);
+            haritayaKonumButonuEkle(haritaSamuray);
+          } else if (haritaSamuray) {
+            haritaSamuray.setView([e, b], 13);
+          }
+          if (isaretciSamuray && haritaSamuray)
+            haritaSamuray.removeLayer(isaretciSamuray);
+          if (haritaSamuray) {
+            isaretciSamuray = L.marker([e, b], { draggable: true }).addTo(haritaSamuray);
+            isaretciSamuray.bindPopup("<b>" + secilenIlce + "</b><br>İğneyi kaydırarak tam konumu belirleyin.").openPopup();
+            isaretciSamuray.on("dragend", function (event) {
+              let y = event.target.getLatLng();
+              anlikKoordinatSamuray = y.lat + ", " + y.lng;
+              if (gpsKutu) gpsKutu.value = anlikKoordinatSamuray;
+              zekiKonumBul(y.lat, y.lng, "samuray");
+            });
+            setTimeout(() => {
+              haritaSamuray.invalidateSize();
+            }, 200);
+          }
         }
       }
 
@@ -3760,9 +3973,9 @@ function vipBildirim(mesaj, tur = "basarili") {
 
         let link = HARITA_LINKLERI[ilce];
         let dId =
-          mapId === "mapSurvey" ? "surveyKonumDurum" : "tuzakKonumDurum";
+          mapId === "mapSurvey" ? "surveyKonumDurum" : (mapId === "mapSamuray" ? "samurayKonumDurum" : "tuzakKonumDurum");
         let d = document.getElementById(dId);
-        let dAltId = mapId === "mapSurvey" ? "surveyAltDurum" : "tuzakAltDurum";
+        let dAltId = mapId === "mapSurvey" ? "surveyAltDurum" : (mapId === "mapSamuray" ? "samurayAltDurum" : "tuzakAltDurum");
         let dAlt = document.getElementById(dAltId);
 
         // Eğer o ilçe için bir harita linki (GIST) girilmemişse işlem yapma
@@ -3817,11 +4030,11 @@ function vipBildirim(mesaj, tur = "basarili") {
             let lng = merkez.geometry.coordinates[0];
             let lat = merkez.geometry.coordinates[1];
 
-            let harita = mapId === "mapSurvey" ? haritaSurvey : haritaTuzak;
+            let harita = mapId === "mapSurvey" ? haritaSurvey : (mapId === "mapSamuray" ? haritaSamuray : haritaTuzak);
             let isaretci =
-              mapId === "mapSurvey" ? isaretciSurvey : isaretciTuzak;
+              mapId === "mapSurvey" ? isaretciSurvey : (mapId === "mapSamuray" ? isaretciSamuray : isaretciTuzak);
             let gpsKutu = document.getElementById(
-              mapId === "mapSurvey" ? "surveyGPS" : "tuzakGPS",
+              mapId === "mapSurvey" ? "surveyGPS" : (mapId === "mapSamuray" ? "samurayGPS" : "tuzakGPS")
             );
 
             if (harita) {
@@ -3844,6 +4057,7 @@ function vipBildirim(mesaj, tur = "basarili") {
             // Koordinatları global değişkenlere ve input kutusuna yazdır
             let anlik = lat + ", " + lng;
             if (mapId === "mapSurvey") anlikKoordinatSurvey = anlik;
+            else if (mapId === "mapSamuray") anlikKoordinatSamuray = anlik;
             else anlikKoordinatTuzak = anlik;
 
             if (gpsKutu) gpsKutu.value = anlik;
@@ -4026,6 +4240,85 @@ function vipBildirim(mesaj, tur = "basarili") {
           );
         }
       }
+
+      function konumAlSamuray() {
+        const d = document.getElementById("samurayKonumDurum");
+        const gpsKutu = document.getElementById("samurayGPS");
+        if (d) {
+          d.style.color = "#1976d2";
+          d.innerText = "GPS aranıyor...";
+        }
+        if ("geolocation" in navigator) {
+          navigator.geolocation.getCurrentPosition(
+            function (pos) {
+              const e = pos.coords.latitude;
+              const b = pos.coords.longitude;
+              const rakim = pos.coords.altitude ? Math.round(pos.coords.altitude) : "";
+              anlikKoordinatSamuray = e + ", " + b;
+              if (gpsKutu) gpsKutu.value = anlikKoordinatSamuray;
+              let rakimKutu = document.getElementById("samurayRakim");
+              if (rakimKutu && rakim !== "") rakimKutu.value = rakim;
+              let mp = document.getElementById("mapSamuray");
+              if (mp) mp.style.display = "block";
+              if (!haritaSamuray && mp) {
+                haritaSamuray = L.map("mapSamuray").setView([e, b], 18);
+                L.tileLayer("https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}", { maxZoom: 20 }).addTo(haritaSamuray);
+                haritayaTamEkranEkle(haritaSamuray);
+                haritayaKonumButonuEkle(haritaSamuray);
+              } else if (haritaSamuray) {
+                haritaSamuray.setView([e, b], 18);
+              }
+              if (isaretciSamuray && haritaSamuray) haritaSamuray.removeLayer(isaretciSamuray);
+              if (haritaSamuray) {
+                isaretciSamuray = L.marker([e, b], { draggable: true }).addTo(haritaSamuray);
+                isaretciSamuray.on("dragend", function (event) {
+                  let y = event.target.getLatLng();
+                  anlikKoordinatSamuray = y.lat + ", " + y.lng;
+                  if (gpsKutu) gpsKutu.value = anlikKoordinatSamuray;
+                  zekiKonumBul(y.lat, y.lng, "samuray");
+                });
+                setTimeout(() => { haritaSamuray.invalidateSize(); }, 200);
+              }
+              document.getElementById("samurayFormAlani").classList.remove("hidden");
+              zekiKonumBul(e, b, "samuray");
+            },
+            function (error) {
+              document.getElementById("samurayFormAlani").classList.remove("hidden");
+              let ilceKutusu = document.getElementById("samurayIlce");
+              if (ilceKutusu && ilceKutusu.value) {
+                haritayiManuelOdakla("mapSamuray", ilceKutusu.value);
+                if (d) { d.style.color = "#f57c00"; d.innerText = "📍 GPS alınamadı. Harita ilçe merkezine odaklandı, lütfen iğneyi elinizle kaydırın."; }
+              } else {
+                if (d) { d.style.color = "red"; d.innerText = "📍 GPS alınamadı. Haritayı açmak için lütfen aşağıdaki formdan 'İlçe' seçiniz."; }
+              }
+            },
+            { enableHighAccuracy: true, timeout: 5000 },
+          );
+        }
+      }
+
+      function otomatikSamurayIDOlustur() {
+        let mahalle = document.getElementById("samurayMahalle").value;
+        let ada = document.getElementById("samurayAda").value;
+        let parsel = document.getElementById("samurayParsel").value;
+        let idKutusu = document.getElementById("samurayID");
+
+        if (mahalle && ada && parsel) {
+          let temizMahalle = formatKelime(mahalle).replace(/\s+/g, "");
+          idKutusu.value = ada + "_" + parsel + "_" + temizMahalle;
+        } else {
+          idKutusu.value = "";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", function () {
+        let smKutu = document.getElementById("samurayMahalle");
+        let saKutu = document.getElementById("samurayAda");
+        let spKutu = document.getElementById("samurayParsel");
+        if (smKutu) smKutu.addEventListener("change", otomatikSamurayIDOlustur);
+        if (saKutu) saKutu.addEventListener("input", otomatikSamurayIDOlustur);
+        if (spKutu) spKutu.addEventListener("input", otomatikSamurayIDOlustur);
+      });
 
       function surveyKaydet() {
         let btn = document.getElementById("btnSurveyKaydet");
@@ -4311,6 +4604,32 @@ function vipBildirim(mesaj, tur = "basarili") {
             );
             return;
           }
+        } else if (tur === "Samuray Kaydı") {
+          btn = document.getElementById("btnSamurayKaydet");
+          
+          let alanDegeri = document.getElementById("samurayAlan").value;
+          if (!alanBuyuklukKontrolu(alanDegeri)) return;
+          
+          paket.samurayID = document.getElementById("samurayID").value;
+          paket.ilce = document.getElementById("samurayIlce").value;
+          paket.mahalle = formatKelime(document.getElementById("samurayMahalle").value);
+          paket.ada = document.getElementById("samurayAda").value;
+          paket.parsel = document.getElementById("samurayParsel").value;
+          paket.ariSayisi = document.getElementById("samuraySayisi").value;
+          paket.koordinat = anlikKoordinatSamuray;
+          paket.yukseklik = document.getElementById("samurayRakim").value;
+          paket.alan = alanDegeri;
+          paket.bahceYasi = document.getElementById("samurayYas").value;
+          paket.findikCesidi = document.getElementById("samurayCesit").value;
+          
+          if (!paket.samurayID || !paket.ilce || !paket.mahalle || !paket.ada || !paket.parsel || !paket.ariSayisi) {
+            alert("⚠️ İlçe, Mahalle, Ada, Parsel, Salım Noktası ID ve Arı Sayısı alanlarını doldurun!");
+            return;
+          }
+          if (!paket.koordinat) {
+            alert("⚠️ Lütfen haritadan veya iğneyi kaydırarak konumu belirleyin!");
+            return;
+          }
         } else if (tur === "Sayım") {
           btn = document.getElementById("btnSayimKaydet");
           paket.tuzakID = aktifSayim.id;
@@ -4372,7 +4691,7 @@ function vipBildirim(mesaj, tur = "basarili") {
             paket.sapmaMesafesi = 0;
           }
         }
-        fotoveGonder(paket, btn, tur === "Tuzak Kaydı" ? null : "sayimFoto");
+        fotoveGonder(paket, btn, (tur === "Tuzak Kaydı" || tur === "Samuray Kaydı") ? null : "sayimFoto");
       }
 
       function fotoveGonder(paket, btn, fotoId) {
@@ -4412,6 +4731,7 @@ function vipBildirim(mesaj, tur = "basarili") {
             setTimeout(() => {
                 if (paket.islemTipi === "Genel Survey Kaydi") modulAc("dashboardSurvey");
                 else if (paket.islemTipi === "Tuzak Kaydı" || paket.islemTipi === "Sayım") modulAc("dashboardKokarca");
+                else if (paket.islemTipi === "Samuray Kaydı") modulAc("dashboardSamuray");
                 else modulAc("anaMenu");
             }, 1500);
 
@@ -4463,6 +4783,8 @@ function vipBildirim(mesaj, tur = "basarili") {
                       modulAc("dashboardSurvey"); // Sürvey ana panosuna dön
                   } else if (paket.islemTipi === "Tuzak Kaydı" || paket.islemTipi === "Sayım") {
                       modulAc("dashboardKokarca"); // Kokarca ana panosuna dön
+                  } else if (paket.islemTipi === "Samuray Kaydı") {
+                      modulAc("dashboardSamuray");
                   } else {
                       modulAc("anaMenu"); // Diğer durumlarda genel Ana Menüye dön
                   }
@@ -4519,7 +4841,7 @@ function vipBildirim(mesaj, tur = "basarili") {
               if (yetki === "yönetici" || yetki === "il yetkilisi") {
                 if (secilenIlce === "TÜM İL") return true;
                 return temizle(s.ilce) === temizle(secilenIlce);
-              } else if (yetki === "ilçe müdürü" || yetki === "ilce muduru") {
+          } else if (yetki === "ilçe müdürü" || yetki === "ilce muduru" || yetki === "teknik personel") {
                 return ilceUyumu;
               } else {
                 return personelUyumu;
@@ -5685,6 +6007,149 @@ function vipBildirim(mesaj, tur = "basarili") {
                     : d > 0
                       ? "#FFEDA0"
                       : "#ececec";
+      }
+
+      function samurayHaritasiniCiz() {
+        let d = document.getElementById("samurayHaritaDurum");
+        let btn = document.getElementById("btnSamurayHaritaCiz");
+        let secimKutu = document.getElementById("samurayHaritaFiltreIlce");
+        let secim = secimKutu ? secimKutu.value : "";
+        
+        if (!secim) {
+          if(d) { d.innerText = "⚠️ Lütfen ilçe seçin."; d.style.color = "#f57c00"; }
+          return;
+        }
+        
+        let mapDiv = document.getElementById("mapSamurayHarita");
+        if (mapDiv) mapDiv.style.display = "block";
+        
+        if (!haritaSamurayGenel && mapDiv) {
+          haritaSamurayGenel = L.map("mapSamurayHarita").setView([40.85, 39.75], 9);
+          L.tileLayer("https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}", { maxZoom: 20 }).addTo(haritaSamurayGenel);
+          haritayaTamEkranEkle(haritaSamurayGenel);
+        }
+        
+        if (btn) { btn.innerText = "⏳ Yükleniyor..."; btn.disabled = true; }
+        if (d) { d.innerText = "⏳ Veriler sunucudan çekiliyor..."; d.style.color = "#1976d2"; }
+        
+        fetch(GOOGLE_SCRIPT_URL + "?istek=samuray_raporu&token=" + localStorage.getItem("kktp_token"))
+          .then(res => res.json())
+          .then(data => {
+            if (data.hata) {
+              if (btn) { btn.innerText = "🔄 Haritayı Güncelle"; btn.disabled = false; }
+              if(d) d.innerText = "Hata: " + data.hata;
+              return;
+            }
+            
+            // Sınır haritası URL'sini belirle
+            let link = "";
+            if (secim === "TÜM İL") {
+              link = "https://gist.githubusercontent.com/kahveregikokarcatrabzon-rgb/06343574ee29d9c28bac831167f7599c/raw/1bdb70e4248d7a3a061ae83da4fe058e3dc7ba3d/trabzon.geojson";
+            } else {
+              link = HARITA_LINKLERI[secim];
+              if (!link || link.indexOf("BURAYA") > -1) {
+                if (d) d.innerText = "⚠️ Seçilen ilçe için mahalle haritası bulunamadı!";
+              }
+            }
+
+            // Sınırları çekip çiz, ardından noktaları ekle
+            if (link && link.indexOf("BURAYA") === -1) {
+               if (d) d.innerText = "📥 Harita poligonları çekiliyor...";
+               fetch(link).then(r => r.json()).then(geoData => {
+                  if (geoJsonLayerSamuray && haritaSamurayGenel) {
+                      haritaSamurayGenel.removeLayer(geoJsonLayerSamuray);
+                  }
+                  geoJsonLayerSamuray = L.geoJSON(geoData, {
+                      style: function() {
+                          return {
+                              fillColor: "#e3f2fd",
+                              weight: 2,
+                              opacity: 1,
+                              color: "#1976d2",
+                              dashArray: "3",
+                              fillOpacity: 0.4
+                          };
+                      },
+                      onEachFeature: function(feature, layer) {
+                          let fAd = "";
+                          let rawAd = "";
+                          if (secim === "TÜM İL") {
+                              rawAd = feature.properties.name;
+                              fAd = formatKelime(rawAd);
+                              layer.bindTooltip("<b>" + fAd + " İlçesi</b>", { direction: "center", sticky: true });
+                          } else {
+                              rawAd = feature.properties.Mahalle || feature.properties.name || feature.properties.Name;
+                              fAd = formatKelime(rawAd);
+                              layer.bindTooltip("<b>" + fAd + " Mah.</b>", { direction: "center", sticky: true });
+                          }
+                          layer.on({
+                              mouseover: (e) => {
+                                  let l = e.target;
+                                  l.setStyle({ weight: 4, color: "#0d47a1", dashArray: "", fillOpacity: 0.6 });
+                                  l.bringToFront();
+                              },
+                              mouseout: (e) => {
+                                  geoJsonLayerSamuray.resetStyle(e.target);
+                              }
+                          });
+                      }
+                  }).addTo(haritaSamurayGenel);
+                  
+                  haritaSamurayGenel.fitBounds(geoJsonLayerSamuray.getBounds());
+                  samurayNoktalariniHaritayaEkle(data, secim, d, btn);
+               }).catch(() => {
+                  samurayNoktalariniHaritayaEkle(data, secim, d, btn);
+               });
+            } else {
+               samurayNoktalariniHaritayaEkle(data, secim, d, btn);
+            }
+          }).catch(err => {
+            if (btn) { btn.innerText = "🔄 Haritayı Güncelle"; btn.disabled = false; }
+            if (d) d.innerText = "Bağlantı Hatası!";
+          });
+      }
+
+      function samurayNoktalariniHaritayaEkle(data, secim, d, btn) {
+          if (btn) { btn.innerText = "🔄 Haritayı Güncelle"; btn.disabled = false; }
+          
+          if (katmanSamurayNoktalari && haritaSamurayGenel) {
+            haritaSamurayGenel.removeLayer(katmanSamurayNoktalari);
+          }
+          katmanSamurayNoktalari = L.layerGroup().addTo(haritaSamurayGenel);
+          
+          let sayac = 0;
+          let maviIkon = L.divIcon({
+            className: "custom-icon",
+            html: '<div style="background-color: #1976d2; width: 14px; height: 14px; border: 2px solid white; border-radius: 50%; box-shadow: 0 0 4px rgba(0,0,0,0.5);"></div>',
+            iconSize: [18, 18],
+            iconAnchor: [9, 9]
+          });
+          
+          let bounds = [];
+          
+          data.forEach(x => {
+            if (secim === "TÜM İL" || temizle(x.ilce) === temizle(secim)) {
+              if (x.koordinat && x.koordinat.includes(",")) {
+                let kor = x.koordinat.split(",");
+                let lat = parseFloat(kor[0]);
+                let lng = parseFloat(kor[1]);
+                if (!isNaN(lat) && !isNaN(lng)) {
+                  let tooltipTxt = `<b>ID:</b> ${guvenliMetin(x.id)}<br><b>İlçe/Mahalle:</b> ${guvenliMetin(x.ilce)} / ${guvenliMetin(x.mahalle)}<br><b>Salınan Arı:</b> <span style="color:#1976d2;font-weight:bold;">${guvenliMetin(x.ariSayisi)}</span>`;
+                  L.marker([lat, lng], { icon: maviIkon })
+                   .bindTooltip(tooltipTxt)
+                   .addTo(katmanSamurayNoktalari);
+                  bounds.push([lat, lng]);
+                  sayac++;
+                }
+              }
+            }
+          });
+          
+          if (bounds.length > 0 && !geoJsonLayerSamuray && haritaSamurayGenel) {
+             haritaSamurayGenel.fitBounds(bounds);
+          }
+          
+          if (d) { d.innerText = `✅ Haritaya ${sayac} adet salım noktası eklendi.`; d.style.color = "green"; }
       }
 
       async function yukseklikHaritasiniCiz() {
