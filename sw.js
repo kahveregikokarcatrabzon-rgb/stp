@@ -1,4 +1,4 @@
-const CACHE_NAME = 'stp-cache-v12.0';
+const CACHE_NAME = 'stp-cache-v13.0';
 
 // Önbelleğe alınacak statik dosyalar (Çevrimdışı çalışabilmesi için)
 const urlsToCache = [
