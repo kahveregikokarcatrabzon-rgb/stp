@@ -6912,7 +6912,7 @@ function gorevPanosunuCiz(tuzakListesi) {
         let koordinat = t.Koordinat ? t.Koordinat.split(",") : ["41.0", "39.7"];
         let enlem = parseFloat(koordinat[0]); let boylam = parseFloat(koordinat[1]);
         
-        let yolTarifiLink = `https://www.google.com/maps/dir/?api=1&destination=$$${enlem},${boylam}`;
+        let yolTarifiLink = `https://www.google.com/maps/dir/?api=1&destination=${enlem},${boylam}`;
 
         let safeTuzakId = t.Tuzak_ID ? String(t.Tuzak_ID).replace(/'/g, "\\'") : "";
         let safeIlce = t.Ilce ? String(t.Ilce).replace(/'/g, "\\'") : "";
