@@ -12,8 +12,6 @@
 </script>
    <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#2e7d32"> 
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#2e7d32">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>🌱</text></svg>">
     
     <meta charset="UTF-8" />
@@ -663,7 +661,7 @@
         </li>
       </ul>
       <div class="footer-imza">
-        © <span id="footerYil">2026</span> STP | Cloud Sürümü <b id="appVersiyon" style="color:var(--bakanlik-kirmizi);">v13.0</b><br />Geliştirici:
+        © <span id="footerYil">2026</span> STP | Cloud Sürümü <b id="appVersiyon" style="color:var(--bakanlik-kirmizi);">v15.0</b><br />Geliştirici:
         <a
           href="mailto:mustafa.cavdar@tarimorman.gov.tr"
           style="
@@ -1062,7 +1060,7 @@
               <input type="text" id="g_sahibi">
             </div>
             <div class="form-group half-width">
-              <label>Alan (da)</label>
+              <label>Alan (da) <span style="color: red">*</span></label>
               <input type="text" inputmode="decimal" id="g_alan" oninput="alanFormatla(this)">
             </div>
         </div>
@@ -1919,7 +1917,7 @@
               padding: 15px;
               border-radius: 8px;
               border-left: 4px solid var(--bakanlik-kirmizi);
-              margin-bottom: 20px;
+              margin-bottom: 5px;
             "
           >
             <input
@@ -1934,6 +1932,21 @@
                 border: 1px solid var(--bakanlik-kirmizi);
               "
             />
+            <button
+              type="button"
+              onclick="zararliEkle()"
+              style="
+                background: var(--bakanlik-kirmizi);
+                color: white;
+                border: none;
+                border-radius: 4px;
+                padding: 10px 15px;
+                font-weight: bold;
+                cursor: pointer;
+                font-size: 18px;
+              "
+              title="Farklı Bir Zararlı Daha Ekle"
+            >+</button>
             <span
               style="
                 flex: 1;
@@ -1945,6 +1958,7 @@
               >Survey Formu <span style="color: red">*</span></span
             >
           </div>
+          <div id="secilenZararlilarListesi" style="margin-bottom: 20px; display: flex; flex-direction: column; gap: 5px;"></div>
 
           <div class="form-group">
             <label>Program Tipi</label
@@ -2056,7 +2070,7 @@
           </div>
           <div class="form-row">
             <div class="form-group half-width">
-              <label>Alan (da)</label><input type="text" inputmode="decimal" id="surveyAlan" oninput="alanFormatla(this)" />
+              <label>Alan (da) <span style="color: red">*</span></label><input type="text" inputmode="decimal" id="surveyAlan" oninput="alanFormatla(this)" />
             </div>
             <div class="form-group half-width">
               <label>Zararlı Durumu</label
@@ -4320,20 +4334,59 @@ function vipBildirim(mesaj, tur = "basarili") {
         if (spKutu) spKutu.addEventListener("input", otomatikSamurayIDOlustur);
       });
 
+      window.secilenZararlilar = [];
+
+      function zararliEkle() {
+          let input = document.getElementById("surveyHastalikAdi");
+          let deger = input.value.trim();
+          if (!deger) return;
+          
+          if (!window.secilenZararlilar.includes(deger)) {
+              window.secilenZararlilar.push(deger);
+              zararliListesiniGuncelleUI();
+          }
+          input.value = "";
+      }
+
+      function zararliSil(index) {
+          window.secilenZararlilar.splice(index, 1);
+          zararliListesiniGuncelleUI();
+      }
+
+      function zararliListesiniGuncelleUI() {
+          let listeDiv = document.getElementById("secilenZararlilarListesi");
+          if (!listeDiv) return;
+          listeDiv.innerHTML = "";
+          window.secilenZararlilar.forEach((zararli, index) => {
+              listeDiv.innerHTML += `
+              <div style="background: #e8f5e9; border-left: 4px solid #2e7d32; padding: 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                  <span style="font-weight: bold; color: #2e7d32;">✅ ${guvenliMetin(zararli)} Sürvey Formu</span>
+                  <button type="button" onclick="zararliSil(${index})" style="background: #d32f2f; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer; font-size: 12px; font-weight: bold;">❌ Çıkar</button>
+              </div>`;
+          });
+      }
+
       function surveyKaydet() {
         let btn = document.getElementById("btnSurveyKaydet");
         let ilce = document.getElementById("surveyIlce").value;
         let mahalle = document.getElementById("surveyMahalle").value;
-        let hastalik = document.getElementById("surveyHastalikAdi").value;
         let ada = document.getElementById("surveyAda").value;
         let parsel = document.getElementById("surveyParsel").value;
+        let alanDegeri = document.getElementById("surveyAlan").value;
 
-        if (!hastalik.trim()) {
+        let anlikHastalik = document.getElementById("surveyHastalikAdi").value.trim();
+        let hastaliklar = [...(window.secilenZararlilar || [])];
+        
+        if (anlikHastalik && !hastaliklar.includes(anlikHastalik)) {
+            hastaliklar.push(anlikHastalik);
+        }
+
+        if (hastaliklar.length === 0) {
           alert("⚠️ Lütfen Zararlı/Hastalık Adını giriniz!");
           return;
         }
-        if (!ilce || !mahalle.trim() || !ada || !parsel) {
-          alert("⚠️ Lütfen İlçe, Mahalle, Ada ve Parsel alanlarını doldurun!");
+        if (!ilce || !mahalle.trim() || !ada || !parsel || !alanDegeri.trim()) {
+          alert("⚠️ Lütfen İlçe, Mahalle, Ada, Parsel ve Alan alanlarını doldurun!");
           return;
         }
         if (!anlikKoordinatSurvey) {
@@ -4343,7 +4396,6 @@ function vipBildirim(mesaj, tur = "basarili") {
           return;
         }
 
-        let alanDegeri = document.getElementById("surveyAlan").value;
         if (!alanBuyuklukKontrolu(alanDegeri)) return;
 
         let fInp = document.getElementById("surveyFoto");
@@ -4354,7 +4406,7 @@ function vipBildirim(mesaj, tur = "basarili") {
 
         btn.innerText = "⏳ Kaydediliyor...";
         btn.disabled = true;
-        let paket = {
+        let basePaket = {
           islemTipi: "Genel Survey Kaydi",
           personelAd: localStorage.getItem("kktp_adSoyad"),
           ilce: ilce,
@@ -4362,7 +4414,6 @@ function vipBildirim(mesaj, tur = "basarili") {
           ada: ada,
           parsel: parsel,
           koordinat: anlikKoordinatSurvey,
-          hastalikAdi: hastalik,
           programTipi: document.getElementById("surveyTipi").value,
           sahibi: document.getElementById("surveySahibi").value,
           ornekNo: document.getElementById("surveyOrnekNo") ? document.getElementById("surveyOrnekNo").value : "",
@@ -4378,14 +4429,60 @@ function vipBildirim(mesaj, tur = "basarili") {
         };
         if (fInp && fInp.files.length > 0) {
           fotografSikistir(fInp.files[0], function (b64) {
-            paket.fotoData = b64;
-            sunucuyaGonder(paket, btn);
+            basePaket.fotoData = b64;
+            cokluSurveySunucuyaGonder(hastaliklar, basePaket, btn);
           });
         } else {
-          sunucuyaGonder(paket, btn);
+          cokluSurveySunucuyaGonder(hastaliklar, basePaket, btn);
         }
       }
       
+      function cokluSurveySunucuyaGonder(hastaliklar, basePaket, btn) {
+          if (personelinYetkisi === "ghost") {
+              setTimeout(() => {
+                  vipBildirim("👻 [GHOST MOD] " + hastaliklar.length + " adet Sürvey Formu kaydedildi!", "basarili");
+                  surveyFormunuSifirla();
+                  setTimeout(() => { modulAc("dashboardSurvey"); }, 1500);
+                  btn.innerText = "💾 Surveyi Kaydet";
+                  btn.disabled = false;
+              }, 800);
+              return;
+          }
+
+          let promises = hastaliklar.map(hastalik => {
+              let paket = Object.assign({}, basePaket);
+              paket.hastalikAdi = hastalik;
+              paket.token = localStorage.getItem("kktp_token");
+              
+              return fetch(GOOGLE_SCRIPT_URL, {
+                  method: "POST",
+                  body: JSON.stringify(paket),
+                  headers: { "Content-Type": "text/plain;charset=utf-8" }
+              }).then(r => r.json()).then(data => {
+                  if (data.durum === "basarili") {
+                      sistemeLogYaz(paket.islemTipi, "Hastalık/Zararlı: " + paket.hastalikAdi);
+                      return true;
+                  }
+                  throw new Error(data.mesaj || "Bilinmeyen Hata");
+              });
+          });
+
+          Promise.all(promises)
+              .then(() => {
+                  vipBildirim("✅ " + hastaliklar.length + " adet Form Başarıyla Kaydedildi!", "basarili");
+                  surveyFormunuSifirla();
+                  setTimeout(() => { modulAc("dashboardSurvey"); }, 1500);
+                  btn.innerText = "💾 Surveyi Kaydet";
+                  btn.disabled = false;
+              })
+              .catch(hata => {
+                  console.error("Çoklu Kayıt Hatası:", hata);
+                  vipBildirim("❌ Bazı kayıtlar sırasında sunucu bağlantı hatası oluştu!", "hata");
+                  btn.innerText = "💾 Surveyi Kaydet";
+                  btn.disabled = false;
+              });
+      }
+
       function surveyFormunuSifirla() {
             aktifDuzenlenenSurvey = null;
             document.getElementById("btnSurveyKonum").style.display = "block";
@@ -4427,6 +4524,10 @@ function vipBildirim(mesaj, tur = "basarili") {
             });
             document.getElementById("surveyGPS").value = "";
             document.getElementById("surveyFoto").value = "";
+
+            window.secilenZararlilar = [];
+            let listeDiv = document.getElementById("secilenZararlilarListesi");
+            if (listeDiv) listeDiv.innerHTML = "";
         }
 
         function surveyDuzenlemeModunaGec() {
@@ -4463,11 +4564,11 @@ function vipBildirim(mesaj, tur = "basarili") {
             let hastalik = document.getElementById("g_hastalik").value;
             let ada = document.getElementById("g_ada").value;
             let parsel = document.getElementById("g_parsel").value;
+            let alanDegeri = document.getElementById("g_alan").value;
 
             if (!hastalik.trim()) { alert("⚠️ Lütfen Zararlı/Hastalık Adını giriniz!"); return; }
-            if (!ada || !parsel) { alert("⚠️ Lütfen Ada ve Parsel alanlarını doldurun!"); return; }
+            if (!ada || !parsel || !alanDegeri.trim()) { alert("⚠️ Lütfen Ada, Parsel ve Alan alanlarını doldurun!"); return; }
 
-            let alanDegeri = document.getElementById("g_alan").value;
             if (!alanBuyuklukKontrolu(alanDegeri)) return;
 
             let fInp = document.getElementById("g_foto");
@@ -6914,11 +7015,11 @@ function gorevPanosunuCiz(tuzakListesi) {
         
         let yolTarifiLink = `https://www.google.com/maps/dir/?api=1&destination=${enlem},${boylam}`;
 
-        let safeTuzakId = t.Tuzak_ID ? String(t.Tuzak_ID).replace(/'/g, "\\'") : "";
-        let safeIlce = t.Ilce ? String(t.Ilce).replace(/'/g, "\\'") : "";
-        let safeMahalle = t.Mahalle ? String(t.Mahalle).replace(/'/g, "\\'") : "";
-        let safeAda = t.Ada ? String(t.Ada).replace(/'/g, "\\'") : "";
-        let safeParsel = t.Parsel ? String(t.Parsel).replace(/'/g, "\\'") : "";
+        let safeTuzakId = jsKacis(t.Tuzak_ID);
+        let safeIlce = jsKacis(t.Ilce);
+        let safeMahalle = jsKacis(t.Mahalle);
+        let safeAda = jsKacis(t.Ada);
+        let safeParsel = jsKacis(t.Parsel);
 
         let kart = document.createElement("div");
         kart.style.cssText = `background-color: ${durumRenk}; border: 1px solid #ccc; border-radius: 6px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);`;
@@ -7098,21 +7199,26 @@ function surveyExcelHtmlOlustur() {
     basliklar.forEach(b => excelHTML += `<th style='padding:5px;'>${b}</th>`);
     excelHTML += "</tr></thead><tbody>";
     
-    // FİLTRELENMİŞ VERİLERİ DİZİYORUZ
-    window.globalFiltreliVeri.forEach(item => {
-        excelHTML += `<tr>
-            <td>${veriTemizle(item.raporNo)}</td>
-            <td>${veriTemizle(item.tarih, "tarih")}</td> <td style='font-weight:bold;'>${veriTemizle(item.ilce)}</td>
+              
+        // FİLTRELENMİŞ VERİLERİ DİZİYORUZ
+        window.globalFiltreliVeri.forEach(item => {
+            let alanStr = veriTemizle(item.alan).toString();
+            let alanTdHtml = alanStr ? `<td data-t="n" data-v="${alanStr.replace(',', '.')}">${alanStr.replace('.', ',')}</td>` : `<td></td>`;
+
+            excelHTML += `<tr>
+                <td data-t="s" style='mso-number-format:"\\@";'>${veriTemizle(item.raporNo)}</td>
+                <td>${veriTemizle(item.tarih, "tarih")}</td> <td style='font-weight:bold;'>${veriTemizle(item.ilce)}</td>
+
             <td>${veriTemizle(item.mahalle)}</td>
-            <td>${veriTemizle(item.ada)}</td>
-            <td>${veriTemizle(item.parsel)}</td>
-            <td>${veriTemizle(item.koordinat)}</td>
+            <td data-t="s" style='mso-number-format:"\\@";'>${veriTemizle(item.ada)}</td>
+            <td data-t="s" style='mso-number-format:"\\@";'>${veriTemizle(item.parsel)}</td>
+            <td data-t="s" style='mso-number-format:"\\@";'>${veriTemizle(item.koordinat)}</td>
             <td>${veriTemizle(item.personel)}</td>
             <td>${veriTemizle(item.sahibi)}</td>
             <td style='color:red;'>${veriTemizle(item.zararli)}</td>
             <td>${veriTemizle(item.durum)}</td>
             <td>${veriTemizle(item.yogunluk)}</td>
-            <td>${veriTemizle(item.alan)}</td>
+                ${alanTdHtml}
             <td>${veriTemizle(item.program)}</td>
             <td>${veriTemizle(item.bitki)}</td>
             <td>${veriTemizle(item.fenoloji)}</td>
@@ -7394,6 +7500,11 @@ function loglariExcelIndir() {
     
    
 
+
+    
+   
+
+  
 
     
    
