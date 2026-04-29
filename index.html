@@ -661,7 +661,7 @@
         </li>
       </ul>
       <div class="footer-imza">
-        © <span id="footerYil">2026</span> STP | Cloud Sürümü <b id="appVersiyon" style="color:var(--bakanlik-kirmizi);">v15.0</b><br />Geliştirici:
+        © <span id="footerYil">2026</span> STP | Cloud Sürümü <b id="appVersiyon" style="color:var(--bakanlik-kirmizi);">v16.0</b><br />Geliştirici:
         <a
           href="mailto:mustafa.cavdar@tarimorman.gov.tr"
           style="
@@ -1160,6 +1160,10 @@
           <div class="password-eye" onclick="sifreGosterGizle('loginSifre')">
             👁️
           </div>
+        </div>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 15px;">
+          <input type="checkbox" id="beniHatirla" style="width: auto; margin: 0; cursor: pointer; transform: scale(1.2);" />
+          <label for="beniHatirla" style="margin: 0; cursor: pointer; font-size: 14px; font-weight: bold; color: #555;">Beni Hatırla</label>
         </div>
         <button id="btnLogin" onclick="sistemeGirisYap()" class="action-btn">
           Giriş Yap
@@ -1905,6 +1909,13 @@
                 text-align: center;
               "
             />
+          </div>
+
+          <div class="form-group" style="background: #fff3e0; padding: 15px; border-radius: 8px; border-left: 4px solid #f57c00; margin-bottom: 10px;">
+            <label style="color: #e65100;">🌿 Ürün / Bitki Seçimi <span style="color: red">*</span></label>
+            <select id="surveySecilenBitki" onchange="bitkiDegisti(this.value)" style="border: 2px solid #f57c00; font-weight:bold; color:#e65100; background-color: #fff;">
+                <option value="">Yükleniyor...</option>
+            </select>
           </div>
 
           <div
@@ -2881,6 +2892,8 @@ function tokenGecerlilikKontrolu(data) {
     // --- GLOBAL LİSTELER ---
 let gHastalikList = [];
 let gKonukcuList = [];
+let gBitkiHastaliklari = {};
+let aktifHastalikListesi = [];
 // Global dinleyici birikmesini (Memory Leak) önlemek için bayrak
 window.aramaKapaticiEklendi = false;
 
@@ -2895,12 +2908,31 @@ function listeleriYukle() {
     .then(data => {
         if (!tokenGecerlilikKontrolu(data)) return;
         if (data.durum === "basarili") {
-            gHastalikList = data.hastalikListesi;
-            gKonukcuList = data.konukcuListesi;
+            gHastalikList = data.hastalikListesi || [];
+            gKonukcuList = data.konukcuListesi || [];
+            gBitkiHastaliklari = data.bitkiHastaliklari || {};
+            aktifHastalikListesi = gHastalikList;
             
-            // Yeni Kayıt Formundaki Zekayı kutulara takalım
-            akilliAramaUygula('surveyHastalikAdi', gHastalikList);
-            akilliAramaUygula('surveyBitki', gKonukcuList);
+            // Yeni Kayıt Formundaki Zekayı kutulara takalım (Dinamik referans ile)
+            akilliAramaUygula('surveyHastalikAdi', () => aktifHastalikListesi);
+            akilliAramaUygula('surveyBitki', () => gKonukcuList);
+
+            // Bitki açılır listesini dolduralım
+            let bitkiSelect = document.getElementById("surveySecilenBitki");
+            if (bitkiSelect) {
+                bitkiSelect.innerHTML = '<option value="" disabled>Seçiniz...</option>';
+                gKonukcuList.forEach(b => {
+                    let isSelected = (b === "FINDIK") ? "selected" : "";
+                    bitkiSelect.innerHTML += `<option value="${b}" ${isSelected}>${b}</option>`;
+                });
+                
+                // FINDIK'ı zorla seçili duruma getir ve sistemi tetikle
+                if (gKonukcuList.includes("FINDIK")) {
+                    bitkiSelect.value = "FINDIK";
+                }
+                // Seçili bitkinin hastalıklarını aktif hale getirelim
+                bitkiDegisti(bitkiSelect.value);
+            }
             console.log("✅ Akıllı Listeler Yüklendi.");
 
             // 🚀 REİS'İN EFSANE BBYPASS TAKTİĞİ: 
@@ -2914,10 +2946,33 @@ function listeleriYukle() {
     });
 }
 
+function bitkiDegisti(secilenBitki) {
+    let hastalikInput = document.getElementById("surveyHastalikAdi");
+    let konukcuInput = document.getElementById("surveyBitki");
+
+    if (!secilenBitki || secilenBitki === "DİĞER") {
+        aktifHastalikListesi = gHastalikList; // Tüm liste açık kalsın
+        if (konukcuInput) konukcuInput.value = "";
+    } else {
+        aktifHastalikListesi = gBitkiHastaliklari[secilenBitki] || [];
+        if (konukcuInput) konukcuInput.value = secilenBitki;
+    }
+
+    if (hastalikInput) hastalikInput.value = "";
+    window.secilenZararlilar = [];
+    if (typeof zararliListesiniGuncelleUI === "function") {
+        zararliListesiniGuncelleUI();
+    }
+}
+
 // 2. REUSABLE (Yeniden Kullanılabilir) AKILLI ARAMA MOTORU
-function akilliAramaUygula(inputID, liste) {
+function akilliAramaUygula(inputID, listeKaynagi) {
     const inputField = document.getElementById(inputID);
     if (!inputField) return;
+
+    // Eğer fonksiyon tekrar çağrılırsa eski kutuyu temizle (çiftlenmeyi önle)
+    let eskiKutu = inputField.parentNode.querySelector('.autocomplete-box');
+    if (eskiKutu) eskiKutu.remove();
 
     let sonucKutusu = document.createElement('div');
     sonucKutusu.className = "autocomplete-box"; // CSS ile süsleyeceğiz
@@ -2938,12 +2993,17 @@ function akilliAramaUygula(inputID, liste) {
         window.aramaKapaticiEklendi = true;
     }
 
-    inputField.addEventListener('input', function() {
-        let ara = this.value.toLocaleLowerCase('tr-TR');
+    function listeyiCiz() {
+        let ara = inputField.value.toLocaleLowerCase('tr-TR');
         sonucKutusu.innerHTML = '';
-        if (!ara) { sonucKutusu.style.display = 'none'; return; }
 
-        let eslesenler = liste.filter(item => item.toLocaleLowerCase('tr-TR').includes(ara));
+        // Dinamik fonksiyon ise çalıştırıp listeyi al, değilse doğrudan kullan
+        let guncelListe = typeof listeKaynagi === 'function' ? listeKaynagi() : listeKaynagi;
+        
+        let eslesenler = guncelListe;
+        if (ara) {
+            eslesenler = guncelListe.filter(item => item.toLocaleLowerCase('tr-TR').includes(ara));
+        }
 
         if (eslesenler.length > 0) {
             sonucKutusu.style.display = 'block';
@@ -2959,7 +3019,11 @@ function akilliAramaUygula(inputID, liste) {
         } else {
             sonucKutusu.style.display = 'none';
         }
-    });
+    }
+
+    inputField.addEventListener('input', listeyiCiz);
+    inputField.addEventListener('click', listeyiCiz);
+    inputField.addEventListener('focus', listeyiCiz);
 }
 
 // --- SİSTEM LOG MOTORU ---
@@ -3335,6 +3399,18 @@ function vipBildirim(mesaj, tur = "basarili") {
         let kayitliToken = localStorage.getItem("kktp_token");
         if (kayitliAd && kayitliYetki && kayitliToken)
           sistemiHazirla(formatAdSoyad(kayitliAd), kayitliYetki, kayitliIlce);
+          
+        // --- BENİ HATIRLA: Kayıtlı bilgileri giriş formuna doldur ---
+        let hatirlananKul = localStorage.getItem("kktp_hatirla_kul");
+        let hatirlananSifre = localStorage.getItem("kktp_hatirla_sifre");
+        if (hatirlananKul && hatirlananSifre) {
+          let kKutu = document.getElementById("loginKullanici");
+          let sKutu = document.getElementById("loginSifre");
+          let cKutu = document.getElementById("beniHatirla");
+          if (kKutu) kKutu.value = hatirlananKul;
+          if (sKutu) sKutu.value = hatirlananSifre;
+          if (cKutu) cKutu.checked = true;
+        }
       };
 
       function sistemeGirisYap() {
@@ -3373,6 +3449,17 @@ function vipBildirim(mesaj, tur = "basarili") {
               localStorage.setItem("kktp_yetki", data.yetki);
               localStorage.setItem("kktp_ilce", data.ilce || "");
               localStorage.setItem("kktp_token", data.token); // 👈 İŞTE UNUTULAN SİHİRLİ SATIR BURASI!
+              
+              // --- BENİ HATIRLA: Kutucuk işaretliyse bilgileri kaydet, değilse sil ---
+              let cb = document.getElementById("beniHatirla");
+              if (cb && cb.checked) {
+                localStorage.setItem("kktp_hatirla_kul", kulAdi);
+                localStorage.setItem("kktp_hatirla_sifre", sifre);
+              } else {
+                localStorage.removeItem("kktp_hatirla_kul");
+                localStorage.removeItem("kktp_hatirla_sifre");
+              }
+              
               sistemiHazirla(
                 formatAdSoyad(data.adSoyad),
                 data.yetki,
@@ -3442,7 +3529,7 @@ function vipBildirim(mesaj, tur = "basarili") {
           goster("kareKokarcaRapor");
           goster("menuKokarcaRapor");
         }
-        if (isYonetici || isIlYetkilisi ) {
+      if (isYonetici) {
           goster("karePersonel");
           goster("menuPersonel");
         }
@@ -4524,6 +4611,18 @@ function vipBildirim(mesaj, tur = "basarili") {
             });
             document.getElementById("surveyGPS").value = "";
             document.getElementById("surveyFoto").value = "";
+
+            let bitkiSelect = document.getElementById("surveySecilenBitki");
+            if (bitkiSelect) {
+                // Sadece listede FINDIK varsa onu seç
+                if ([...bitkiSelect.options].some(o => o.value === "FINDIK")) {
+                    bitkiSelect.value = "FINDIK";
+                    bitkiDegisti("FINDIK");
+                } else {
+                    bitkiSelect.selectedIndex = 0;
+                    bitkiDegisti(bitkiSelect.value);
+                }
+            }
 
             window.secilenZararlilar = [];
             let listeDiv = document.getElementById("secilenZararlilarListesi");
@@ -7015,11 +7114,11 @@ function gorevPanosunuCiz(tuzakListesi) {
         
         let yolTarifiLink = `https://www.google.com/maps/dir/?api=1&destination=${enlem},${boylam}`;
 
-        let safeTuzakId = jsKacis(t.Tuzak_ID);
-        let safeIlce = jsKacis(t.Ilce);
-        let safeMahalle = jsKacis(t.Mahalle);
-        let safeAda = jsKacis(t.Ada);
-        let safeParsel = jsKacis(t.Parsel);
+        let safeTuzakId = t.Tuzak_ID ? String(t.Tuzak_ID).replace(/'/g, "\\'") : "";
+        let safeIlce = t.Ilce ? String(t.Ilce).replace(/'/g, "\\'") : "";
+        let safeMahalle = t.Mahalle ? String(t.Mahalle).replace(/'/g, "\\'") : "";
+        let safeAda = t.Ada ? String(t.Ada).replace(/'/g, "\\'") : "";
+        let safeParsel = t.Parsel ? String(t.Parsel).replace(/'/g, "\\'") : "";
 
         let kart = document.createElement("div");
         kart.style.cssText = `background-color: ${durumRenk}; border: 1px solid #ccc; border-radius: 6px; padding: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);`;
@@ -7115,12 +7214,9 @@ function surveyVerileriniGetir() {
         btn.disabled = true; 
     }
 
-    // Mutfağa doğru ilçeyi gönderiyoruz...
-    fetch(GOOGLE_SCRIPT_URL, {
-        method: 'POST',
-        body: JSON.stringify({ islemTipi: "Genel Survey Raporu Getir", ilce: sunucuyaGidecekIlce, token: localStorage.getItem("kktp_token") }),
-        headers: { "Content-Type": "text/plain;charset=utf-8" }
-    })
+    // Backend tarafında 'il yetkilisi' rolü için 'Tümü' parametresi kısıtlanmış olabileceğinden,
+    // tüm sürveyleri getiren garanti 'istek=surveyler' endpoint'ini kullanıp frontend'de mapliyoruz.
+    fetch(GOOGLE_SCRIPT_URL + "?istek=surveyler&token=" + localStorage.getItem("kktp_token"))
     .then(r => r.json())
     .then(data => {
         if (!tokenGecerlilikKontrolu(data)) return;
@@ -7130,11 +7226,41 @@ function surveyVerileriniGetir() {
             btn.disabled = false; 
         }
 
-        if(data.durum !== "basarili" || !data.veriler) {
+        if(data.hata || !Array.isArray(data)) {
             if(gövde) gövde.innerHTML = `<tr><td colspan='7' style='text-align:center; padding:20px; color:#d32f2f;'>⚠️ Veri alınamadı.</td></tr>`;
             return;
         }
-        globalSurveyVerisi = data.veriler; 
+        
+        // Gelen veriyi (istek=surveyler formatı) analiz tablosu formatına çeviriyoruz
+        let mappedData = data.map(item => ({
+            raporNo: item.ornekNo || "",
+            tarih: item.surveyTarihi || "",
+            ilce: item.ilce || "",
+            mahalle: item.mahalle || "",
+            ada: item.ada || "",
+            parsel: item.parsel || "",
+            personel: item.personel || "",
+            alan: item.alan || "",
+            yogunluk: item.yogunluk || "",
+            zararli: item.hastalik || "",
+            durum: item.zararliDurumu || "",
+            program: item.program || "",
+            koordinat: item.koordinat || "",
+            sahibi: item.sahibi || "",
+            bitki: item.bitki || "",
+            fenoloji: item.fenoloji || "",
+            islem: item.islem || "",
+            faydali: item.faydali || "",
+            oneri: item.oneri || "",
+            foto: item.foto || ""
+        }));
+
+        // Eğer yetkili sadece tek bir ilçeyi görebiliyorsa, veriyi filtrele
+        if (sunucuyaGidecekIlce !== "Tümü") {
+            mappedData = mappedData.filter(d => temizle(d.ilce) === temizle(sunucuyaGidecekIlce));
+        }
+
+        globalSurveyVerisi = mappedData; 
         surveyTablosunuFiltrele(); 
     })
     .catch(err => {
