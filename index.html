@@ -3293,9 +3293,18 @@ function vipBildirim(mesaj, tur = "basarili") {
       let aktifDuzenlenenSurvey = null;
 
       function temizle(str) {
-        return str
-          ? String(str).trim().toLocaleLowerCase("tr-TR").replace(/\s+/g, " ")
-          : "";
+        if (!str) return "";
+        return String(str)
+          .trim()
+          .toLocaleLowerCase("tr-TR")
+          .replace(/ğ/g, "g")
+          .replace(/ü/g, "u")
+          .replace(/ş/g, "s")
+          .replace(/ö/g, "o")
+          .replace(/ç/g, "c")
+          .replace(/ı/g, "i")
+          .replace(/i̇/g, "i") // Bazen 'i' karakteri üzerinde nokta olan farklı bir unicode ile gelebiliyor
+          .replace(/\s+/g, " ");
       }
       function guvenliMetin(metin) {
         if (!metin) return "";
@@ -5041,10 +5050,9 @@ function vipBildirim(mesaj, tur = "basarili") {
               if (yetki === "yönetici" || yetki === "il yetkilisi") {
                 if (secilenIlce === "TÜM İL") return true;
                 return temizle(s.ilce) === temizle(secilenIlce);
-          } else if (yetki === "ilçe müdürü" || yetki === "ilce muduru" || yetki === "teknik personel") {
-                return ilceUyumu;
               } else {
-                return personelUyumu;
+                // Yönetici ve İl Yetkilisi hariç herkes "Kayıtlı Sürveyler" sekmesinde SADECE kendi kaydını görür
+                return personelUyumu; 
               }
             });
 
@@ -7154,8 +7162,8 @@ function surveyVerileriniGetir() {
 
     // 1. SİSTEMDEKİ GLOBAL DEĞİŞKENLERİ OKU VE YETKİ KİLİDİNİ ÇÖZ
     if (typeof personelinYetkisi !== 'undefined') {
-        let yetkiKucuk = (personelinYetkisi || "").toLowerCase();
-        if (yetkiKucuk === "yönetici" || yetkiKucuk === "il yetkilisi" || yetkiKucuk === "ghost") {
+        let yetkiKucuk = temizle(personelinYetkisi);
+        if (yetkiKucuk === "yonetici" || yetkiKucuk === "il yetkilisi" || yetkiKucuk === "ghost") {
             isYoneticiVeyaIl = true;
         }
     }
@@ -7182,7 +7190,7 @@ function surveyVerileriniGetir() {
             
             // Kutuda personelin kendi ilçesini seçili hale getir
             for (let i = 0; i < ilceSelect.options.length; i++) {
-                if (ilceSelect.options[i].value.toLowerCase() === sunucuyaGidecekIlce.toLowerCase()) {
+                if (temizle(ilceSelect.options[i].value) === temizle(sunucuyaGidecekIlce)) {
                     ilceSelect.selectedIndex = i;
                     break;
                 }
@@ -7214,9 +7222,12 @@ function surveyVerileriniGetir() {
         btn.disabled = true; 
     }
 
-    // Backend tarafında 'il yetkilisi' rolü için 'Tümü' parametresi kısıtlanmış olabileceğinden,
-    // tüm sürveyleri getiren garanti 'istek=surveyler' endpoint'ini kullanıp frontend'de mapliyoruz.
-    fetch(GOOGLE_SCRIPT_URL + "?istek=surveyler&token=" + localStorage.getItem("kktp_token"))
+    // Analiz sayfası için tüm ilçenin veya ilin verilerini getiren özel POST isteğini kullanıyoruz.
+    fetch(GOOGLE_SCRIPT_URL, {
+        method: 'POST',
+        body: JSON.stringify({ islemTipi: "Genel Survey Raporu Getir", ilce: sunucuyaGidecekIlce, token: localStorage.getItem("kktp_token") }),
+        headers: { "Content-Type": "text/plain;charset=utf-8" }
+    })
     .then(r => r.json())
     .then(data => {
         if (!tokenGecerlilikKontrolu(data)) return;
@@ -7226,41 +7237,12 @@ function surveyVerileriniGetir() {
             btn.disabled = false; 
         }
 
-        if(data.hata || !Array.isArray(data)) {
-            if(gövde) gövde.innerHTML = `<tr><td colspan='7' style='text-align:center; padding:20px; color:#d32f2f;'>⚠️ Veri alınamadı.</td></tr>`;
+        if(data.durum !== "basarili" || !data.veriler) {
+            if(gövde) gövde.innerHTML = `<tr><td colspan='7' style='text-align:center; padding:20px; color:#d32f2f;'>⚠️ Veri alınamadı veya bu bölgede kayıt yok.</td></tr>`;
             return;
         }
         
-        // Gelen veriyi (istek=surveyler formatı) analiz tablosu formatına çeviriyoruz
-        let mappedData = data.map(item => ({
-            raporNo: item.ornekNo || "",
-            tarih: item.surveyTarihi || "",
-            ilce: item.ilce || "",
-            mahalle: item.mahalle || "",
-            ada: item.ada || "",
-            parsel: item.parsel || "",
-            personel: item.personel || "",
-            alan: item.alan || "",
-            yogunluk: item.yogunluk || "",
-            zararli: item.hastalik || "",
-            durum: item.zararliDurumu || "",
-            program: item.program || "",
-            koordinat: item.koordinat || "",
-            sahibi: item.sahibi || "",
-            bitki: item.bitki || "",
-            fenoloji: item.fenoloji || "",
-            islem: item.islem || "",
-            faydali: item.faydali || "",
-            oneri: item.oneri || "",
-            foto: item.foto || ""
-        }));
-
-        // Eğer yetkili sadece tek bir ilçeyi görebiliyorsa, veriyi filtrele
-        if (sunucuyaGidecekIlce !== "Tümü") {
-            mappedData = mappedData.filter(d => temizle(d.ilce) === temizle(sunucuyaGidecekIlce));
-        }
-
-        globalSurveyVerisi = mappedData; 
+        globalSurveyVerisi = data.veriler; 
         surveyTablosunuFiltrele(); 
     })
     .catch(err => {
@@ -7287,10 +7269,10 @@ function surveyTablosunuFiltrele() {
     gövde.innerHTML = ""; 
     
     let filtrelenmis = globalSurveyVerisi.filter(item => {
-        return (fIlce === "Tümü" || item.ilce === fIlce) &&
-               (fZararli === "Tümü" || item.zararli === fZararli) &&
-               (fDurum === "Tümü" || item.durum === fDurum) &&
-               (fProg === "Tümü" || item.program === fProg);
+        return (fIlce === "Tümü" || temizle(item.ilce) === temizle(fIlce)) &&
+               (fZararli === "Tümü" || temizle(item.zararli) === temizle(fZararli)) &&
+               (fDurum === "Tümü" || temizle(item.durum) === temizle(fDurum)) &&
+               (fProg === "Tümü" || temizle(item.program) === temizle(fProg));
     });
 
     window.globalFiltreliVeri = filtrelenmis; 
