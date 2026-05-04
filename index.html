@@ -661,7 +661,7 @@
         </li>
       </ul>
       <div class="footer-imza">
-        © <span id="footerYil">2026</span> STP | Cloud Sürümü <b id="appVersiyon" style="color:var(--bakanlik-kirmizi);">v16.1</b><br />Geliştirici:
+        © <span id="footerYil">2026</span> STP | Cloud Sürümü <b id="appVersiyon" style="color:var(--bakanlik-kirmizi);">v16.0</b><br />Geliştirici:
         <a
           href="mailto:mustafa.cavdar@tarimorman.gov.tr"
           style="
@@ -1004,7 +1004,7 @@
     <div id="surveyGuncelleModal" class="sidebar-overlay" style="z-index: 4005; overflow-y: auto;">
       <div class="duzenle-modal-icerik" style="max-width: 700px; margin-top: 5vh; background: #fff;">
         <h3 style="color: #f57c00; margin-top: 0; border-bottom: 2px solid #f57c00; padding-bottom: 10px;">
-          ✏️ Survey Düzenleme ve Silme Paneli
+          ✏️ Sürvey Düzenleme ve Silme Paneli
         </h3>
         
         <div class="form-row">
@@ -1013,7 +1013,7 @@
             <input type="text" id="g_raporNo" disabled style="background: #eee; font-weight: bold; color: #d32f2f;">
           </div>
           <div class="form-group half-width">
-            <label>Survey Tarihi</label>
+            <label>Sürvey Tarihi</label>
             <input type="text" id="g_tarih" disabled style="background: #eee; font-weight: bold; color: #333;">
           </div>
         </div>
@@ -1852,7 +1852,7 @@
         </div>
         <div class="kare-modul" onclick="modulAc('modulSurveyIzleme')">
         <div class="modul-icon">📑</div>
-        <div class="modul-text">Survey Kayıt Raporlama</div>
+        <div class="modul-text">Sürvey Kayıt Raporlama</div>
         </div>
       </div>
     </div>
@@ -2190,7 +2190,7 @@
     </div>
     <div id="modulSurveyIzleme" class="container hidden">
   <button class="back-btn" onclick="modulAc('dashboardSurvey')">⬅ Geri Dön</button>
-  <h2 style="text-align:center; color:#1976d2;">📑 Survey Kayıtları ve Analiz</h2>
+  <h2 style="text-align:center; color:#1976d2;">📑 Sürvey Kayıtları ve Analiz</h2>
 
   
   <div style="background:#fff; padding:20px; border-radius:8px; box-shadow:0 4px 15px rgba(0,0,0,0.05); margin-bottom:20px; border: 1px solid #eee;">
@@ -2936,7 +2936,7 @@ function listeleriYukle() {
             console.log("✅ Akıllı Listeler Yüklendi.");
 
             // 🚀 REİS'İN EFSANE BBYPASS TAKTİĞİ: 
-            // Hazır listeyi çekmişken, Survey Analiz modülündeki filtre menüsüne de yapıştır!
+            // Hazır listeyi çekmişken, Sürvey Analiz modülündeki filtre menüsüne de yapıştır!
             let filtreKutusu = document.getElementById("filtreZararli");
             if (filtreKutusu) {
                 filtreKutusu.innerHTML = '<option value="Tümü">Tümü</option>' + 
@@ -4456,7 +4456,7 @@ function vipBildirim(mesaj, tur = "basarili") {
           window.secilenZararlilar.forEach((zararli, index) => {
               listeDiv.innerHTML += `
               <div style="background: #e8f5e9; border-left: 4px solid #2e7d32; padding: 10px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                  <span style="font-weight: bold; color: #2e7d32;">✅ ${guvenliMetin(zararli)} Survey Formu</span>
+                  <span style="font-weight: bold; color: #2e7d32;">✅ ${guvenliMetin(zararli)} Sürvey Formu</span>
                   <button type="button" onclick="zararliSil(${index})" style="background: #d32f2f; color: white; border: none; border-radius: 4px; padding: 5px 10px; cursor: pointer; font-size: 12px; font-weight: bold;">❌ Çıkar</button>
               </div>`;
           });
@@ -4536,7 +4536,7 @@ function vipBildirim(mesaj, tur = "basarili") {
       function cokluSurveySunucuyaGonder(hastaliklar, basePaket, btn) {
           if (personelinYetkisi === "ghost") {
               setTimeout(() => {
-                  vipBildirim("👻 [GHOST MOD] " + hastaliklar.length + " adet Survey Formu kaydedildi!", "basarili");
+                  vipBildirim("👻 [GHOST MOD] " + hastaliklar.length + " adet Sürvey Formu kaydedildi!", "basarili");
                   surveyFormunuSifirla();
                   setTimeout(() => { modulAc("dashboardSurvey"); }, 1500);
                   btn.innerText = "💾 Surveyi Kaydet";
@@ -4716,7 +4716,7 @@ function vipBildirim(mesaj, tur = "basarili") {
         }
 
         function surveyKaydiSil() {
-            if(!confirm("⚠️ DİKKAT!\nBu survey formu kalıcı olarak silinecektir. Bu işlem geri alınamaz.\nSilmek istediğinize emin misiniz?")) return;
+            if(!confirm("⚠️ DİKKAT!\nBu sürvey formu kalıcı olarak silinecektir. Bu işlem geri alınamaz.\nSilmek istediğinize emin misiniz?")) return;
             
             let btn = document.getElementById("btnGuncelleSil");
             btn.innerText = "⏳ Siliniyor..."; btn.disabled = true;
@@ -4989,7 +4989,7 @@ function vipBildirim(mesaj, tur = "basarili") {
               // Kullanıcı 1.5 saniye "Kayıt Başarılı" bildirimini görsün, ardından ilgili panele otomatik dönsün
               setTimeout(() => {
                   if (paket.islemTipi === "Genel Survey Kaydi") {
-                      modulAc("dashboardSurvey"); // Survey ana panosuna dön
+                      modulAc("dashboardSurvey"); // Sürvey ana panosuna dön
                   } else if (paket.islemTipi === "Tuzak Kaydı" || paket.islemTipi === "Sayım") {
                       modulAc("dashboardKokarca"); // Kokarca ana panosuna dön
                   } else if (paket.islemTipi === "Samuray Kaydı") {
@@ -5038,7 +5038,7 @@ function vipBildirim(mesaj, tur = "basarili") {
               ? document.getElementById("surveyListeIlceSecim").value
               : "TÜM İL";
 
-            if (yetki === "yönetici" || yetki === "il yetkilisi") {
+            if (yetki === "yonetici" || yetki === "il yetkilisi") {
               if (filtreAlani) filtreAlani.classList.remove("hidden");
             } else {
               if (filtreAlani) filtreAlani.classList.add("hidden");
@@ -5047,11 +5047,11 @@ function vipBildirim(mesaj, tur = "basarili") {
             let filtrelenmis = data.filter((s) => {
               let personelUyumu = temizle(s.personel) === temizle(aktifAd);
               let ilceUyumu = temizle(s.ilce) === temizle(kendiIlcem);
-              if (yetki === "yönetici" || yetki === "il yetkilisi") {
+              if (yetki === "yonetici" || yetki === "il yetkilisi") {
                 if (secilenIlce === "TÜM İL") return true;
                 return temizle(s.ilce) === temizle(secilenIlce);
               } else {
-                // Yönetici ve İl Yetkilisi hariç herkes "Kayıtlı Surveyler" sekmesinde SADECE kendi kaydını görür
+                // Yönetici ve İl Yetkilisi hariç herkes "Kayıtlı Sürveyler" sekmesinde SADECE kendi kaydını görür
                 return personelUyumu; 
               }
             });
@@ -6596,19 +6596,19 @@ function vipBildirim(mesaj, tur = "basarili") {
             let sysIlce = temizle(personelinIlcesi);
             data.forEach((p) => {
               // 🔒 GÜVENLİK ZEKASI: Yönetici olmayanlara Yöneticileri tamamen gizle!
-              if (personelinYetkisi !== "yönetici" && temizle(p.yetki) === "yönetici") {
+              if (personelinYetkisi !== "yonetici" && temizle(p.yetki) === "yonetici") {
                 return;
               }
 
               if (
-                personelinYetkisi === "yönetici" ||
+                personelinYetkisi === "yonetici" ||
                 personelinYetkisi === "il yetkilisi" ||
                 temizle(p.ilce) === sysIlce
               ) {
                 let dClass =
                   p.durum === "Aktif" ? "durum-aktif" : "durum-pasif";
                 let gosterSifre =
-                  personelinYetkisi === "yönetici"
+                  personelinYetkisi === "yonetici"
                     ? p.sifre
                     : "•••••";
                 // p.tel yerine boş string gönderiyoruz çünkü arka planda o sütunu 'ekleyenKisi' yaptık, 'undefined' yazmasın
@@ -6647,7 +6647,7 @@ function vipBildirim(mesaj, tur = "basarili") {
         if (dSf) {
           dSf.value = sifre;
           // İl yetkilisi düzenleme modunda eski şifreyi okuyamasın, noktalarla gizlensin
-          dSf.type = personelinYetkisi === "yönetici" ? "text" : "password";
+          dSf.type = personelinYetkisi === "yonetici" ? "text" : "password";
         }
         let dAd = document.getElementById("duzAd");
         if (dAd) dAd.value = ad;
@@ -6845,7 +6845,7 @@ function duyuruPanosunuEkranaBas(duyuruListesi) {
     let aktifDuyurular = duyuruListesi.filter(d => d.metin && d.metin.trim() !== "");
 
     if (aktifDuyurular.length === 0) {
-         if (personelinYetkisi === "yönetici" || personelinYetkisi === "il yetkilisi") {
+         if (personelinYetkisi === "yonetici" || personelinYetkisi === "il yetkilisi") {
             kutu.style.display = "block";
             metinAlani.innerText = "Henüz bir duyuru eklenmedi. Yeni bir duyuru oluşturmak için sağ üstteki kalem (✏️) ikonuna tıklayın.";
             kutu.classList.remove("duyuru-yanip-son");
@@ -7297,7 +7297,7 @@ function surveyExcelHtmlOlustur() {
     
     // EXCEL BAŞLIKLARI (Sistem Kayıt Zamanı Silindi!)
     let basliklar = [
-        "Rapor Numarası", "Survey Tarihi", "İlçe", "Mahalle", 
+        "Rapor Numarası", "Sürvey Tarihi", "İlçe", "Mahalle", 
         "Ada", "Parsel", "Koordinat", "Personel Adı", "Tarla Sahibi", 
         "Zararlı/Hastalık Adı", "Zararlı Durumu", "Yoğunluk/EZE", "Alan (da)", 
         "Program Tipi", "Konukçu Bitki", "Fenoloji", "Yapılan İşlem", 
@@ -7377,7 +7377,7 @@ function exportToExcel() {
           let file = new File([blob], "Survey_Raporu.xlsx", { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
           
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
-              navigator.share({ title: 'Genel Survey Raporu', text: 'İlgili döneme ait Genel Survey Raporu (Excel) ektedir.', files: [file] })
+              navigator.share({ title: 'Genel Sürvey Raporu', text: 'İlgili döneme ait Genel Sürvey Raporu (Excel) ektedir.', files: [file] })
               .catch((e) => console.log("Paylaşım iptal edildi."));
           } else {
               alert("⚠️ Bilgisayarınız doğrudan paylaşım menüsünü desteklemiyor.\n\nDosya cihazınıza indiriliyor... Lütfen mailinize veya WhatsApp'a kendiniz ekleyiniz.");
@@ -7405,7 +7405,7 @@ function exportToExcel() {
       let tempContainer = document.createElement("div");
       tempContainer.style.padding = "20px";
       tempContainer.style.fontFamily = "sans-serif";
-      tempContainer.innerHTML = "<h2 style='text-align:center; color:#1976d2;'>Genel Survey Raporu</h2>";
+      tempContainer.innerHTML = "<h2 style='text-align:center; color:#1976d2;'>Genel Sürvey Raporu</h2>";
       let tableClone = document.getElementById("surveySonucTablosu").cloneNode(true);
       tableClone.style.width = "100%"; tableClone.style.borderCollapse = "collapse"; tableClone.style.fontSize = "12px";
       tempContainer.appendChild(tableClone);
@@ -7416,7 +7416,7 @@ function exportToExcel() {
           btn.innerText = eskiMetin;
           let file = new File([pdfBlob], "Survey_Raporu.pdf", { type: "application/pdf" });
           if (navigator.canShare && navigator.canShare({ files: [file] })) {
-              navigator.share({ title: 'Genel Survey Raporu', text: 'İlgili döneme ait Genel Survey Raporu (PDF) ektedir.', files: [file] })
+              navigator.share({ title: 'Genel Sürvey Raporu', text: 'İlgili döneme ait Genel Sürvey Raporu (PDF) ektedir.', files: [file] })
               .catch((e) => console.log("Paylaşım iptal edildi."));
           } else { 
               alert("⚠️ Bilgisayarınız doğrudan paylaşım menüsünü desteklemiyor.\n\nDosya cihazınıza indiriliyor... Lütfen mailinize veya WhatsApp'a kendiniz ekleyiniz.");
