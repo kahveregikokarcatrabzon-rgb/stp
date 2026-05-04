@@ -661,7 +661,7 @@
         </li>
       </ul>
       <div class="footer-imza">
-        © <span id="footerYil">2026</span> STP | Cloud Sürümü <b id="appVersiyon" style="color:var(--bakanlik-kirmizi);">v16.2</b><br />Geliştirici:
+        © <span id="footerYil">2026</span> STP | Cloud Sürümü <b id="appVersiyon" style="color:var(--bakanlik-kirmizi);">v16.3</b><br />Geliştirici:
         <a
           href="mailto:mustafa.cavdar@tarimorman.gov.tr"
           style="
@@ -3508,11 +3508,9 @@ function vipBildirim(mesaj, tur = "basarili") {
 
         sidebarKapat();
         let kucukIlce = temizle(personelinIlcesi);
-        let isYonetici = personelinYetkisi === "yönetici";
+        let isYonetici = personelinYetkisi === "yonetici";
         let isIlYetkilisi = personelinYetkisi === "il yetkilisi";
-        let isIlceMuduru =
-          personelinYetkisi === "ilçe müdürü" ||
-          personelinYetkisi === "ilce muduru";
+        let isIlceMuduru = personelinYetkisi === "ilce muduru";
         let isTeknikPersonel = personelinYetkisi === "teknik personel";
         let isGhost = personelinYetkisi === "ghost";
         let ilceKilidiAcik =
@@ -3534,10 +3532,11 @@ function vipBildirim(mesaj, tur = "basarili") {
           let el = document.getElementById(id);
           if (el) el.classList.remove("hidden");
         };
-        if (isYonetici || isIlYetkilisi || isIlceMuduru || isGhost || isTeknikPersonel) {
-          goster("kareKokarcaRapor");
-          goster("menuKokarcaRapor");
-        }
+        
+        // Kokarca Raporlarını tüm personeller görebilsin
+        goster("kareKokarcaRapor");
+        goster("menuKokarcaRapor");
+
       if (isYonetici) {
           goster("karePersonel");
           goster("menuPersonel");
@@ -7192,6 +7191,7 @@ function surveyVerileriniGetir() {
             for (let i = 0; i < ilceSelect.options.length; i++) {
                 if (temizle(ilceSelect.options[i].value) === temizle(sunucuyaGidecekIlce)) {
                     ilceSelect.selectedIndex = i;
+                    sunucuyaGidecekIlce = ilceSelect.options[i].value; // Backend'e her zaman standart format gitsin
                     break;
                 }
             }
