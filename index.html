@@ -661,7 +661,7 @@
         </li>
       </ul>
       <div class="footer-imza">
-        © <span id="footerYil">2026</span> STP | Cloud Sürümü <b id="appVersiyon" style="color:var(--bakanlik-kirmizi);">v16.3</b><br />Geliştirici:
+        © <span id="footerYil">2026</span> STP | Cloud Sürümü <b id="appVersiyon" style="color:var(--bakanlik-kirmizi);">v17</b><br />Geliştirici:
         <a
           href="mailto:mustafa.cavdar@tarimorman.gov.tr"
           style="
@@ -1031,7 +1031,9 @@
 
         <div class="form-group">
             <label>Zararlı/Hastalık Adı <span style="color: red">*</span></label>
-            <input type="text" id="g_hastalik" style="border: 2px solid var(--bakanlik-kirmizi); font-weight:bold; color:var(--bakanlik-kirmizi);">
+            <select id="g_hastalik" style="border: 2px solid var(--bakanlik-kirmizi); font-weight:bold; color:var(--bakanlik-kirmizi);">
+                <option value="">Seçiniz...</option>
+            </select>
         </div>
 
         <div class="form-group">
@@ -1096,7 +1098,11 @@
 
         <div class="form-group">
             <label>Yapılan İşlem</label>
-            <textarea id="g_islem" rows="2"></textarea>
+            <select id="g_islem">
+              <option value="">Seçiniz...</option>
+              <option value="Makroskobik Kontrol Yapıldı.">Makroskobik Kontrol Yapıldı.</option>
+              <option value="Numune Alındı.">Numune Alındı.</option>
+            </select>
         </div>
         <div class="form-group">
             <label>Faydalı böcekler, varlığı ve yoğunluğu</label>
@@ -1931,10 +1937,8 @@
               margin-bottom: 5px;
             "
           >
-            <input
-              type="text"
+            <select
               id="surveyHastalikAdi"
-              placeholder="Zararlı/Hastalık Adını Girin... *"
               style="
                 flex: 2;
                 font-size: 16px;
@@ -1942,7 +1946,9 @@
                 color: var(--bakanlik-kirmizi);
                 border: 1px solid var(--bakanlik-kirmizi);
               "
-            />
+            >
+              <option value="">Zararlı/Hastalık Seçiniz... *</option>
+            </select>
             <button
               type="button"
               onclick="zararliEkle()"
@@ -2101,7 +2107,11 @@
           </div>
           <div class="form-group">
             <label>Yapılan İşlem</label
-            ><textarea id="surveyIslem" rows="2"></textarea>
+            ><select id="surveyIslem">
+              <option value="">Seçiniz...</option>
+              <option value="Makroskobik Kontrol Yapıldı.">Makroskobik Kontrol Yapıldı.</option>
+              <option value="Numune Alındı.">Numune Alındı.</option>
+            </select>
           </div>
           <div class="form-group">
             <label>Faydalı böcekler, varlığı ve yoğunluğu</label
@@ -2914,7 +2924,6 @@ function listeleriYukle() {
             aktifHastalikListesi = gHastalikList;
             
             // Yeni Kayıt Formundaki Zekayı kutulara takalım (Dinamik referans ile)
-            akilliAramaUygula('surveyHastalikAdi', () => aktifHastalikListesi);
             akilliAramaUygula('surveyBitki', () => gKonukcuList);
 
             // Bitki açılır listesini dolduralım
@@ -2932,6 +2941,15 @@ function listeleriYukle() {
                 }
                 // Seçili bitkinin hastalıklarını aktif hale getirelim
                 bitkiDegisti(bitkiSelect.value);
+                
+                // Düzenleme formundaki hastalık listesini tüm hastalıklarla dolduralım
+                let gHastalikInput = document.getElementById("g_hastalik");
+                if (gHastalikInput) {
+                    gHastalikInput.innerHTML = '<option value="">Seçiniz...</option>';
+                    gHastalikList.forEach(h => {
+                         gHastalikInput.innerHTML += `<option value="${h}">${h}</option>`;
+                    });
+                }
             }
             console.log("✅ Akıllı Listeler Yüklendi.");
 
@@ -2958,7 +2976,13 @@ function bitkiDegisti(secilenBitki) {
         if (konukcuInput) konukcuInput.value = secilenBitki;
     }
 
-    if (hastalikInput) hastalikInput.value = "";
+    if (hastalikInput) {
+        hastalikInput.innerHTML = '<option value="">Zararlı/Hastalık Seçiniz... *</option>';
+        aktifHastalikListesi.forEach(h => {
+             hastalikInput.innerHTML += `<option value="${h}">${h}</option>`;
+        });
+        hastalikInput.value = ""; // Seçimi sıfırla
+    }
     window.secilenZararlilar = [];
     if (typeof zararliListesiniGuncelleUI === "function") {
         zararliListesiniGuncelleUI();
@@ -3000,9 +3024,9 @@ function akilliAramaUygula(inputID, listeKaynagi) {
         // Dinamik fonksiyon ise çalıştırıp listeyi al, değilse doğrudan kullan
         let guncelListe = typeof listeKaynagi === 'function' ? listeKaynagi() : listeKaynagi;
         
-        let eslesenler = guncelListe;
+        let eslesenler = guncelListe || [];
         if (ara) {
-            eslesenler = guncelListe.filter(item => item.toLocaleLowerCase('tr-TR').includes(ara));
+            eslesenler = eslesenler.filter(item => item && String(item).toLocaleLowerCase('tr-TR').includes(ara));
         }
 
         if (eslesenler.length > 0) {
@@ -4267,7 +4291,7 @@ function vipBildirim(mesaj, tur = "basarili") {
                 }
               }
             },
-            { enableHighAccuracy: true, timeout: 5000 },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
           );
         }
       }
@@ -4345,7 +4369,7 @@ function vipBildirim(mesaj, tur = "basarili") {
                 }
               }
             },
-            { enableHighAccuracy: true, timeout: 5000 },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
           );
         }
       }
@@ -4401,7 +4425,7 @@ function vipBildirim(mesaj, tur = "basarili") {
                 if (d) { d.style.color = "red"; d.innerText = "📍 GPS alınamadı. Haritayı açmak için lütfen aşağıdaki formdan 'İlçe' seçiniz."; }
               }
             },
-            { enableHighAccuracy: true, timeout: 5000 },
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
           );
         }
       }
@@ -4467,7 +4491,8 @@ function vipBildirim(mesaj, tur = "basarili") {
         let mahalle = document.getElementById("surveyMahalle").value;
         let ada = document.getElementById("surveyAda").value;
         let parsel = document.getElementById("surveyParsel").value;
-        let alanDegeri = document.getElementById("surveyAlan").value;
+        let alanDegeri = document.getElementById("surveyAlan").value.trim();
+        alanDegeri = alanDegeri.replace(/\./g, ','); // Güvenlik: Her ihtimale karşı noktayı virgüle çevir
 
         let anlikHastalik = document.getElementById("surveyHastalikAdi").value.trim();
         let hastaliklar = [...(window.secilenZararlilar || [])];
@@ -4532,7 +4557,7 @@ function vipBildirim(mesaj, tur = "basarili") {
         }
       }
       
-      function cokluSurveySunucuyaGonder(hastaliklar, basePaket, btn) {
+      async function cokluSurveySunucuyaGonder(hastaliklar, basePaket, btn) {
           if (personelinYetkisi === "ghost") {
               setTimeout(() => {
                   vipBildirim("👻 [GHOST MOD] " + hastaliklar.length + " adet Sürvey Formu kaydedildi!", "basarili");
@@ -4544,38 +4569,50 @@ function vipBildirim(mesaj, tur = "basarili") {
               return;
           }
 
-          let promises = hastaliklar.map(hastalik => {
+          let basariliSayisi = 0;
+          let hataVar = false;
+
+          for (let i = 0; i < hastaliklar.length; i++) {
               let paket = Object.assign({}, basePaket);
-              paket.hastalikAdi = hastalik;
+              paket.hastalikAdi = hastaliklar[i];
               paket.token = localStorage.getItem("kktp_token");
               
-              return fetch(GOOGLE_SCRIPT_URL, {
-                  method: "POST",
-                  body: JSON.stringify(paket),
-                  headers: { "Content-Type": "text/plain;charset=utf-8" }
-              }).then(r => r.json()).then(data => {
+              try {
+                  let response = await fetch(GOOGLE_SCRIPT_URL, {
+                      method: "POST",
+                      body: JSON.stringify(paket),
+                      headers: { "Content-Type": "text/plain;charset=utf-8" }
+                  });
+                  let data = await response.json();
+                  
                   if (data.durum === "basarili") {
                       sistemeLogYaz(paket.islemTipi, "Hastalık/Zararlı: " + paket.hastalikAdi);
-                      return true;
+                      basariliSayisi++;
+                  } else {
+                      hataVar = true;
+                      console.error("Kayıt Hatası:", data.mesaj);
                   }
-                  throw new Error(data.mesaj || "Bilinmeyen Hata");
-              });
-          });
+              } catch (e) {
+                  hataVar = true;
+                  console.error("Bağlantı Hatası:", e);
+              }
+              
+              // Zeka: Kayıtlar arasına 500ms bekleme süresi koyuyoruz.
+              if (i < hastaliklar.length - 1) {
+                  await new Promise(r => setTimeout(r, 500));
+              }
+          }
 
-          Promise.all(promises)
-              .then(() => {
-                  vipBildirim("✅ " + hastaliklar.length + " adet Form Başarıyla Kaydedildi!", "basarili");
-                  surveyFormunuSifirla();
-                  setTimeout(() => { modulAc("dashboardSurvey"); }, 1500);
-                  btn.innerText = "💾 Surveyi Kaydet";
-                  btn.disabled = false;
-              })
-              .catch(hata => {
-                  console.error("Çoklu Kayıt Hatası:", hata);
-                  vipBildirim("❌ Bazı kayıtlar sırasında sunucu bağlantı hatası oluştu!", "hata");
-                  btn.innerText = "💾 Surveyi Kaydet";
-                  btn.disabled = false;
-              });
+          if (!hataVar && basariliSayisi === hastaliklar.length) {
+              vipBildirim("✅ " + basariliSayisi + " adet Form Başarıyla Kaydedildi!", "basarili");
+          } else {
+              vipBildirim("⚠️ Bazı kayıtlar sırasında hata oluştu. (" + basariliSayisi + "/" + hastaliklar.length + " kaydedildi)", "hata");
+          }
+          
+          surveyFormunuSifirla();
+          setTimeout(() => { modulAc("dashboardSurvey"); }, 1500);
+          btn.innerText = "💾 Surveyi Kaydet";
+          btn.disabled = false;
       }
 
       function surveyFormunuSifirla() {
@@ -4619,6 +4656,7 @@ function vipBildirim(mesaj, tur = "basarili") {
             });
             document.getElementById("surveyGPS").value = "";
             document.getElementById("surveyFoto").value = "";
+            document.getElementById("surveyIslem").value = "";
 
             let bitkiSelect = document.getElementById("surveySecilenBitki");
             if (bitkiSelect) {
@@ -4637,6 +4675,29 @@ function vipBildirim(mesaj, tur = "basarili") {
             if (listeDiv) listeDiv.innerHTML = "";
         }
 
+        // Düzenleme ekranında eski/standart dışı verilerin silinmesini önleyen koruma kalkanı
+        function selectEskiVeriKorumasi(selectId, eskiVeri) {
+            let kutu = document.getElementById(selectId);
+            if (!kutu) return;
+            
+            // Önceki kayıttan kalan geçici "Eski Kayıt" etiketlerini temizle (Listeyi şişirmemesi için)
+            Array.from(kutu.options).forEach(opt => {
+                if (opt.text.includes("(Eski Kayıt)")) opt.remove();
+            });
+
+            // Eğer eski veri var ve standart listede yoksa geçici olarak listeye ekle
+            if (eskiVeri) {
+                let secenekVar = Array.from(kutu.options).some(opt => opt.value === eskiVeri);
+                if (!secenekVar) {
+                    let yeniOpt = document.createElement("option");
+                    yeniOpt.value = eskiVeri;
+                    yeniOpt.text = eskiVeri + " (Eski Kayıt)";
+                    kutu.appendChild(yeniOpt);
+                }
+            }
+            kutu.value = eskiVeri || "";
+        }
+
         function surveyDuzenlemeModunaGec() {
             document.getElementById('surveyDetayModal').classList.remove('show');
             document.getElementById('surveyGuncelleModal').classList.add('show');
@@ -4650,20 +4711,23 @@ function vipBildirim(mesaj, tur = "basarili") {
             document.getElementById("g_ilce").value = s.ilce;
             document.getElementById("g_mahalle").value = s.mahalle;
             
-            document.getElementById("g_hastalik").value = s.hastalik;
-            document.getElementById("g_program").value = s.program;
-            document.getElementById("g_ada").value = s.ada;
-            document.getElementById("g_parsel").value = s.parsel;
-            document.getElementById("g_sahibi").value = s.sahibi;
-            document.getElementById("g_alan").value = s.alan;
-            document.getElementById("g_bitki").value = s.bitki;
-            document.getElementById("g_fenoloji").value = s.fenoloji;
-            document.getElementById("g_durum").value = s.zararliDurumu;
-            document.getElementById("g_yogunluk").value = s.yogunluk;
-            document.getElementById("g_islem").value = s.islem;
-            document.getElementById("g_faydali").value = s.faydali;
-            document.getElementById("g_oneri").value = s.oneri;
+            // Standart input alanları ("undefined" yazmaması için || "" ile korumalı)
+            document.getElementById("g_ada").value = s.ada || "";
+            document.getElementById("g_parsel").value = s.parsel || "";
+            document.getElementById("g_sahibi").value = s.sahibi || "";
+            document.getElementById("g_alan").value = s.alan || "";
+            document.getElementById("g_bitki").value = s.bitki || "";
+            document.getElementById("g_fenoloji").value = s.fenoloji || "";
+            document.getElementById("g_faydali").value = s.faydali || "";
+            document.getElementById("g_oneri").value = s.oneri || "";
             document.getElementById("g_foto").value = "";
+
+            // Açılır listeler (Select) için özel Eski Veri Koruması
+            selectEskiVeriKorumasi("g_hastalik", s.hastalik);
+            selectEskiVeriKorumasi("g_program", s.program);
+            selectEskiVeriKorumasi("g_durum", s.zararliDurumu);
+            selectEskiVeriKorumasi("g_yogunluk", s.yogunluk);
+            selectEskiVeriKorumasi("g_islem", s.islem);
         }
 
         function surveyGuncelleKaydet() {
@@ -4671,7 +4735,8 @@ function vipBildirim(mesaj, tur = "basarili") {
             let hastalik = document.getElementById("g_hastalik").value;
             let ada = document.getElementById("g_ada").value;
             let parsel = document.getElementById("g_parsel").value;
-            let alanDegeri = document.getElementById("g_alan").value;
+            let alanDegeri = document.getElementById("g_alan").value.trim();
+            alanDegeri = alanDegeri.replace(/\./g, ','); // Güvenlik: Her ihtimale karşı noktayı virgüle çevir
 
             if (!hastalik.trim()) { alert("⚠️ Lütfen Zararlı/Hastalık Adını giriniz!"); return; }
             if (!ada || !parsel || !alanDegeri.trim()) { alert("⚠️ Lütfen Ada, Parsel ve Alan alanlarını doldurun!"); return; }
@@ -4779,7 +4844,8 @@ function vipBildirim(mesaj, tur = "basarili") {
         if (tur === "Tuzak Kaydı") {
           btn = document.getElementById("btnTuzakKaydet");
 
-          let alanDegeri = document.getElementById("tuzakAlan").value;
+          let alanDegeri = document.getElementById("tuzakAlan").value.trim();
+          alanDegeri = alanDegeri.replace(/\./g, ','); // Güvenlik: Her ihtimale karşı noktayı virgüle çevir
           if (!alanBuyuklukKontrolu(alanDegeri)) return;
 
           paket.tuzakID = document.getElementById("tuzakID").value;
@@ -4815,7 +4881,8 @@ function vipBildirim(mesaj, tur = "basarili") {
         } else if (tur === "Samuray Kaydı") {
           btn = document.getElementById("btnSamurayKaydet");
           
-          let alanDegeri = document.getElementById("samurayAlan").value;
+          let alanDegeri = document.getElementById("samurayAlan").value.trim();
+          alanDegeri = alanDegeri.replace(/\./g, ','); // Güvenlik: Her ihtimale karşı noktayı virgüle çevir
           if (!alanBuyuklukKontrolu(alanDegeri)) return;
           
           paket.samurayID = document.getElementById("samurayID").value;
@@ -4891,7 +4958,7 @@ function vipBildirim(mesaj, tur = "basarili") {
                 paket.sapmaMesafesi = 0;
                 fotoveGonder(paket, btn, "sayimFoto");
               },
-              { enableHighAccuracy: true },
+              { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
             );
             return;
           } else {
