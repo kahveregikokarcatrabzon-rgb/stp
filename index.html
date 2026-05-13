@@ -2308,8 +2308,7 @@
           <div class="form-group">
             <label>Yapılan İşlem</label
             ><select id="surveyIslem">
-              <option value="">Seçiniz...</option>
-              <option value="Makroskobik Kontrol Yapıldı.">
+              <option value="Makroskobik Kontrol Yapıldı." selected>
                 Makroskobik Kontrol Yapıldı.
               </option>
               <option value="Numune Alındı.">Numune Alındı.</option>
@@ -5463,7 +5462,7 @@
                   });
                   document.getElementById("surveyGPS").value = "";
                   document.getElementById("surveyFoto").value = "";
-                  document.getElementById("surveyIslem").value = "";
+                  document.getElementById("surveyIslem").value = "Makroskobik Kontrol Yapıldı.";
 
                   let bitkiSelect = document.getElementById("surveySecilenBitki");
                   if (bitkiSelect) {
