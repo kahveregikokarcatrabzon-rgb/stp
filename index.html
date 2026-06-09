@@ -704,7 +704,7 @@
       </ul>
       <div class="footer-imza">
         © <span id="footerYil">2026</span> STP | Cloud Sürümü
-        <b id="appVersiyon" style="color: var(--bakanlik-kirmizi)">v23</b
+        <b id="appVersiyon" style="color: var(--bakanlik-kirmizi)">v24</b
         ><br />Geliştirici:
         <a
           href="mailto:mustafa.cavdar@tarimorman.gov.tr"
@@ -8403,15 +8403,45 @@
       // 🧪 ZİRAİ İLAÇ SATIŞ VE KULLANIM MOTORU
       // =========================================================================
       const ZI_BAYILER = {
-          "Akçaabat": ["BALCI TARIM VE ARICILIK ÜRÜNLERİ", "EMEK ZİRAİ ÜRÜNLER LTD.ŞTİ.", "KUZEY TARIM ÜRÜNLERİ SAN.VE TİC.LTD.ŞTİ.", "ÖZÇAKIR ZİRAİ ÜRÜNLER VE TİCARET LİMİTED ŞİRKETİ", "TOPSAKAL PEYZAJ ÇİÇ. TİC.LTD.ŞTİ."],
-          "Araklı": ["ERTÜRK TARIM ÜRÜNLERİ"],
-          "Arsin": ["ÖZEL TARIM"],
-          "Beşikdüzü": ["KARAR TURİZM LTD.ŞTİ."],
-          "Çarşıbaşı": ["1694 SAYILI ÇARŞIBAŞI TARIM KREDİ KOOPERATİFİ"],
-          "Of": ["310 SAYILI OF TARIM KREDİ KOOPERATİFİ"],
-          "Ortahisar": ["ALİMAN NAK. VE TİC. LTD. ŞTİ.", "BAŞAK TARIM", "KUVVETLER ECZA TARIM ÜRÜNLERİ İNŞ. TİC. LTD. ŞTİ.", "TOPRAK TARIM ÜRÜNLERİ SAN. TİC. LTD. ŞTİ", "TOPRAK TARIM ÜRÜNLERİ SANAYİ NAKLİYE TİC LTD ŞTİ", "TÜM MAKİNA KİMYA SANAYİ VE TİCARET ANONİM ŞİRKETİ", "YAVUZ BAYRAM"],
-          "Vakfıkebir": ["2458 SAYILI VAKFIKEBİR TARIM KREDİ KOOPERATİFİ", "OKYA TARIM SANAYİ TİCARET LİMİTED ŞİRKETİ"],
-          "Yomra": ["DOĞU KARADENİZ GÜBRE ZİRAİ İLAÇ LTD.ŞTİ"]
+          "Akçaabat": [
+              { ad: "84 SAYILI AKÇAABAT TARIM KREDİ KOOPERATİFİ", adres: "Orta Mahalle İnönü Caddesi No:42", tel: "0543 776 89 73" },
+              { ad: "BALCI TARIM VE ARICILIK ÜRÜNLERİ", adres: "Dürbinar Mah. Kasap Sok. Kasap Apt. C Blok No:4/B", tel: "(552) 158-6153" },
+              { ad: "EMEK ZİRAİ ÜRÜNLER LTD.ŞTİ.", adres: "Dürbinar Mah. İstiklal Cad. No:33/A Akçaabat", tel: "0537 275 25 50" },
+              { ad: "KUZEY TARIM ÜRÜNLERİ SAN.VE TİC.LTD.ŞTİ.", adres: "Orta Mah. Dr. Ayhan Kanoğlu Cad. No:28/3", tel: "0532 414 40 32" },
+              { ad: "ÖZÇAKIR ZİRAİ ÜRÜNLER VE TİCARET LİMİTED ŞİRKETİ", adres: "Orta Mah. İstiklal Cad. No:57/A", tel: "(538) 610-5025" },
+              { ad: "TOPSAKAL PEYZAJ ÇİÇ. TİC.LTD.ŞTİ.", adres: "Orta Mah. İstiklal Cad. No:48/2", tel: "0541 307 65 37" }
+          ],
+          "Araklı": [
+              { ad: "ERTÜRK TARIM ÜRÜNLERİ", adres: "Merkez Mah. 1 Nolu Yiğit Sok.No:14/B", tel: "0532 799 64 66" }
+          ],
+          "Arsin": [
+              { ad: "ÖZEL TARIM", adres: "Cumhuriyet Mah. Mehmet Akif Cad. 212. Sokak No:5 İç Kapı No: Z2", tel: "0544 631 70 57" }
+          ],
+          "Beşikdüzü": [
+              { ad: "KARAR TURİZM LTD.ŞTİ.", adres: "Cumhuriyet Mah. Ahmet Yardım Caddesi No:29/A", tel: "0542 641 05 53" }
+          ],
+          "Çarşıbaşı": [
+              { ad: "1694 SAYILI ÇARŞIBAŞI TARIM KREDİ KOOPERATİFİ", adres: "Merkez Mahallesi Muallim Ali Osman Turan Caddesi No:30", tel: "0535 843 94 27" }
+          ],
+          "Of": [
+              { ad: "310 SAYILI OF TARIM KREDİ KOOPERATİFİ", adres: "Cumhuriyet Mah. Cumhuriyet Cad. No:170/A", tel: "0505 890 65 94" }
+          ],
+          "Ortahisar": [
+              { ad: "ALİMAN NAK. VE TİC. LTD. ŞTİ.", adres: "Sanayi Mah. Sanayi Çarşısı Cad. No:4/A Ortahisar/TRABZON", tel: "0537 955 02 93" },
+              { ad: "BAŞAK TARIM", adres: "Pazarkapı Mah.Kalkanoğlu Cad. No:48", tel: "0462 323 03 31" },
+              { ad: "KUVVETLER ECZA TARIM ÜRÜNLERİ İNŞ. TİC. LTD. ŞTİ.", adres: "Pazarkapı Mah. Tophane Hamam Sok. No:7/A Ortahisar", tel: "0536 347 70 38" },
+              { ad: "TOPRAK TARIM ÜRÜNLERİ SAN. TİC. LTD. ŞTİ", adres: "Pazarkapı Mahallesi Dereboyu Sokak No:3/F", tel: "0 537 289 26 61" },
+              { ad: "TOPRAK TARIM ÜRÜNLERİ SANAYİ NAKLİYE TİC LTD ŞTİ", adres: "Pazarkapı Mah. Tophane Camii Sok. No:7/B", tel: "0537 289 26 61" },
+              { ad: "TÜM MAKİNA KİMYA SANAYİ VE TİCARET ANONİM ŞİRKETİ", adres: "Çarşı Mahallesi Sahil Yolu Caddesi No:45/1", tel: "0532 294 27 14" },
+              { ad: "YAVUZ BAYRAM", adres: "Sanayi Mah. Değirmedere Çarşı İçi Sok. No:15/AF", tel: "0(532) 227 64 80" }
+          ],
+          "Vakfıkebir": [
+              { ad: "2458 SAYILI VAKFIKEBİR TARIM KREDİ KOOPERATİFİ", adres: "Kirazlık Yeni Mah. Gülbaharhatun Cad. No:502", tel: "0533 484 54 92" },
+              { ad: "OKYA TARIM SANAYİ TİCARET LİMİTED ŞİRKETİ", adres: "Kemaliye Mah. 14 Şubat Kurtuluş Cad. No:35/A", tel: "0546 520 61 11" }
+          ],
+          "Yomra": [
+              { ad: "DOĞU KARADENİZ GÜBRE ZİRAİ İLAÇ LTD.ŞTİ", adres: "Sancak Mah. Trabzon Cad. No:175/A", tel: "0462 341 19 89" }
+          ]
       };
 
       const ZI_ILACLAR = ["AMPLİGO 150 ZC (İTHAL)", "RELAXIA (İTHAL)", "SANCTUM (İTHAL)", "VANTEX 60 CS (İTHAL)", "DİĞER"];
@@ -8493,10 +8523,12 @@
           
           let gosterilecekBayiler = [];
           if (ilce && ZI_BAYILER[formatKelime(ilce)]) {
-              gosterilecekBayiler = ZI_BAYILER[formatKelime(ilce)];
+              gosterilecekBayiler = ZI_BAYILER[formatKelime(ilce)].map(b => ({...b, ilce: formatKelime(ilce)}));
           } else if (!ilce) {
               // Yönetici tümünü görürse, anahtarları birleştir
-              Object.values(ZI_BAYILER).forEach(bArr => gosterilecekBayiler.push(...bArr));
+              for (const [key, value] of Object.entries(ZI_BAYILER)) {
+                  value.forEach(b => gosterilecekBayiler.push({...b, ilce: key}));
+              }
           }
           
           if (gosterilecekBayiler.length === 0) {
@@ -8505,19 +8537,18 @@
           }
 
           gosterilecekBayiler.forEach(bayi => {
-              // Tıklanan bayinin hangi ilçeden olduğunu bulmak için ufak zeka
-              let aitOlduguIlce = ilce;
-              if (!ilce) {
-                  for (const [key, value] of Object.entries(ZI_BAYILER)) {
-                      if (value.includes(bayi)) { aitOlduguIlce = key; break; }
-                  }
-              }
+              let temizTel = bayi.tel ? bayi.tel.replace(/\D/g, '') : '';
+              let telHtml = bayi.tel ? ` | <a href="tel:${temizTel}" style="color:#2e7d32; text-decoration:none; font-weight:bold; padding: 2px 5px;" onclick="event.stopPropagation();">📞 ${bayi.tel}</a>` : "";
+              let adresHtml = bayi.adres ? `<div style="color:#555; font-size:12px; margin-top:6px; line-height:1.4;">🏠 ${bayi.adres}</div>` : "";
               
               listeKutu.innerHTML += `
-              <button onclick="ziraiBayiSec('${aitOlduguIlce}', '${bayi.replace(/'/g, "\\'")}')" 
-                      style="background:white; border:2px solid #1976d2; border-radius:8px; padding:15px; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.1); font-weight:bold; color:#1976d2; text-align:left; transition:0.2s;">
-                  🏪 ${bayi} <br><small style="color:#757575;">📍 ${aitOlduguIlce}</small>
-              </button>`;
+              <div onclick="ziraiBayiSec('${bayi.ilce}', '${bayi.ad.replace(/'/g, "\\'")}')" 
+                   onmouseover="this.style.boxShadow='0 4px 8px rgba(0,0,0,0.2)'" onmouseout="this.style.boxShadow='0 2px 4px rgba(0,0,0,0.1)'"
+                   style="background:white; border:2px solid #1976d2; border-radius:8px; padding:15px; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.1); text-align:left; transition:0.2s;">
+                  <div style="color:#1976d2; font-weight:bold; font-size:15px; margin-bottom:4px;">🏪 ${bayi.ad}</div> 
+                  <div style="color:#757575; font-size:13px;">📍 ${bayi.ilce}${telHtml}</div>
+                  ${adresHtml}
+              </div>`;
           });
       }
 
