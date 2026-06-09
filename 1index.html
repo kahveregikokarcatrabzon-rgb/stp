@@ -703,7 +703,7 @@
       </ul>
       <div class="footer-imza">
         © <span id="footerYil">2026</span> STP | Cloud Sürümü
-        <b id="appVersiyon" style="color: var(--bakanlik-kirmizi)">v20</b
+        <b id="appVersiyon" style="color: var(--bakanlik-kirmizi)">v21</b
         ><br />Geliştirici:
         <a
           href="mailto:mustafa.cavdar@tarimorman.gov.tr"
@@ -1183,7 +1183,7 @@
         <div class="form-row">
           <div class="form-group half-width">
             <label>Zararlı Durumu</label>
-            <select id="g_durum">
+            <select id="g_durum" onchange="zararliDurumuDegisti('g_durum', 'g_yogunluk')">
               <option value="Yok">Yok</option>
               <option value="Var">Var</option>
             </select>
@@ -2291,7 +2291,7 @@
             </div>
             <div class="form-group half-width">
               <label>Zararlı Durumu</label
-              ><select id="surveyZararliDurumu">
+              ><select id="surveyZararliDurumu" onchange="zararliDurumuDegisti('surveyZararliDurumu', 'surveyYogunluk')">
                 <option value="Yok">Yok</option>
                 <option value="Var">Var</option>
               </select>
@@ -2299,7 +2299,7 @@
           </div>
           <div class="form-group">
             <label>Zararlı Organizmanın Yoğunluğu</label
-            ><select id="surveyYogunluk">
+            ><select id="surveyYogunluk" disabled>
               <option value="-">Seçiniz (Varsa)</option>
               <option value="E.Z.E. Alt">E.Z.E. Altı</option>
               <option value="E.Z.E. Üst">E.Z.E. Üstü</option>
@@ -2354,6 +2354,34 @@
         <h3 style="color: var(--bakanlik-kirmizi); margin-top: 0">
           📂 Survey Kayıtları
         </h3>
+        
+        <div id="surveyListeGenelFiltreler" style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
+            <div style="flex:1; min-width: 120px; background: #e3f2fd; padding: 10px; border-radius: 6px; border: 1px solid #90caf9;">
+                <label style="color: #1565c0; font-weight:bold; font-size:13px;">📅 Yıl Seçimi:</label>
+                <select id="surveyListeYil" onchange="kayitliSurveylerimiGetir()" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; outline:none; color:#333; cursor:pointer;">
+                    <option value="Tümü">Tüm Yıllar</option>
+                </select>
+            </div>
+            <div style="flex:1; min-width: 120px; background: #e3f2fd; padding: 10px; border-radius: 6px; border: 1px solid #90caf9;">
+                <label style="color: #1565c0; font-weight:bold; font-size:13px;">📆 Ay Seçimi:</label>
+                <select id="surveyListeAy" onchange="kayitliSurveylerimiGetir()" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; outline:none; color:#333; cursor:pointer;">
+                    <option value="Tümü">Tüm Aylar</option>
+                    <option value="1">Ocak</option>
+                    <option value="2">Şubat</option>
+                    <option value="3">Mart</option>
+                    <option value="4">Nisan</option>
+                    <option value="5">Mayıs</option>
+                    <option value="6">Haziran</option>
+                    <option value="7">Temmuz</option>
+                    <option value="8">Ağustos</option>
+                    <option value="9">Eylül</option>
+                    <option value="10">Ekim</option>
+                    <option value="11">Kasım</option>
+                    <option value="12">Aralık</option>
+                </select>
+            </div>
+        </div>
+
         <div
           id="surveyListeFiltreAlani"
           class="form-group hidden"
@@ -2362,9 +2390,10 @@
             padding: 10px;
             border-radius: 6px;
             border: 1px solid #ffb74d;
+            margin-bottom: 15px;
           "
         >
-          <label style="color: #e65100">İlçe Filtresi</label>
+          <label style="color: #e65100">👑 İlçe Filtresi (Yönetici Görünümü)</label>
           <select
             id="surveyListeIlceSecim"
             onchange="kayitliSurveylerimiGetir()"
@@ -2372,13 +2401,14 @@
             <option value="TÜM İL">Tüm İl Kayıtları</option>
           </select>
         </div>
-        <button
-          onclick="kayitliSurveylerimiGetir()"
-          class="action-btn"
-          style="background: #1976d2; padding: 8px; margin-bottom: 15px"
-        >
-          🔄 Listeyi Yenile
-        </button>
+        <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
+            <button onclick="kayitliSurveylerimiGetir()" class="action-btn" style="flex:1; min-width: 150px; background: #1976d2; padding: 10px;">
+              🔄 Listeyi Yenile
+            </button>
+            <button id="btnTopluPdf" onclick="surveyTopluPdfIndir()" class="action-btn" style="flex:1; min-width: 150px; background: #d32f2f; padding: 10px;">
+              📄 Toplu PDF İndir
+            </button>
+        </div>
         <div class="table-responsive">
           <table class="veri-tablosu" id="benimSurveylerimTablosu">
             <thead>
@@ -2415,6 +2445,33 @@
           border: 1px solid #eee;
         "
       >
+        <div style="display:flex; gap:15px; margin-bottom:15px;">
+            <div style="flex:1; padding:10px; border-radius:6px; border:1px solid #ccc; background:#f9f9f9;">
+                <label style="font-weight:bold; color:#333; font-size:13px; display:block; margin-bottom:6px;">📅 Yıl Seçimi:</label>
+                <select id="filtreYil" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; outline:none; color:#333; cursor:pointer;">
+                    <option value="Tümü">Tüm Yıllar</option>
+                </select>
+            </div>
+            <div style="flex:1; padding:10px; border-radius:6px; border:1px solid #ccc; background:#f9f9f9;">
+                <label style="font-weight:bold; color:#333; font-size:13px; display:block; margin-bottom:6px;">📆 Ay Seçimi:</label>
+                <select id="filtreAy" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:4px; outline:none; color:#333; cursor:pointer;">
+                    <option value="Tümü">Tüm Aylar</option>
+                    <option value="1">Ocak</option>
+                    <option value="2">Şubat</option>
+                    <option value="3">Mart</option>
+                    <option value="4">Nisan</option>
+                    <option value="5">Mayıs</option>
+                    <option value="6">Haziran</option>
+                    <option value="7">Temmuz</option>
+                    <option value="8">Ağustos</option>
+                    <option value="9">Eylül</option>
+                    <option value="10">Ekim</option>
+                    <option value="11">Kasım</option>
+                    <option value="12">Aralık</option>
+                </select>
+            </div>
+        </div>
+
         <div
           style="
             margin-bottom: 15px;
@@ -3482,6 +3539,24 @@
                   return true;
               }
 
+          // 🔄 ZARARLI DURUMU DEĞİŞTİĞİNDE YOĞUNLUK KUTUSUNU YÖNET
+          function zararliDurumuDegisti(durumId, yogunlukId) {
+              let durumSelect = document.getElementById(durumId);
+              let yogunlukSelect = document.getElementById(yogunlukId);
+              
+              if (durumSelect && yogunlukSelect) {
+                  if (durumSelect.value === "Yok") {
+                      yogunlukSelect.value = "-";
+                      yogunlukSelect.disabled = true;
+                  } else {
+                      yogunlukSelect.disabled = false;
+                      if (yogunlukSelect.value === "-") {
+                          yogunlukSelect.value = "E.Z.E. Alt";
+                      }
+                  }
+              }
+          }
+
               // --- TAM EKRAN BUTONU FABRİKASI ---
       L.Control.TamEkran = L.Control.extend({
           onAdd: function(map) {
@@ -4419,6 +4494,27 @@
                 }
               }
 
+              // Raporlama modülü için Yıl ve Ay filtrelerini varsayılan olarak şu anki zamana ayarla
+              let fYil = document.getElementById("filtreYil");
+              let fAy = document.getElementById("filtreAy");
+              let sListYil = document.getElementById("surveyListeYil");
+              let sListAy = document.getElementById("surveyListeAy");
+              
+              let suAnkiYil = new Date().getFullYear();
+              let maxYil = Math.max(2026, suAnkiYil); // Sistemin saati geride bile olsa en az 2026 gösterilecek
+              
+              if (fYil && fYil.options.length <= 1) { 
+                  for(let y = 2026; y <= maxYil; y++) { fYil.innerHTML += `<option value="${y}">${y}</option>`; }
+              }
+              if (sListYil && sListYil.options.length <= 1) {
+                  for(let y = 2026; y <= maxYil; y++) { sListYil.innerHTML += `<option value="${y}">${y}</option>`; }
+              }
+              
+              if (fYil) fYil.value = maxYil.toString();
+              if (fAy) fAy.value = (new Date().getMonth() + 1).toString();
+              if (sListYil) sListYil.value = maxYil.toString();
+              if (sListAy) sListAy.value = (new Date().getMonth() + 1).toString();
+
             // GÖREV PANOSU YETKİ KİLİDİ VE DOLDURMA
             let pFiltre = document.getElementById("panoFiltreIlce");
             if (pFiltre) {
@@ -5289,22 +5385,28 @@
               .then(data => {
                   if (data.durum === "basarili" && data.veriler) {
                       let formTarihi = document.getElementById("surveyTarihi").value;
-                      let aktifPersonel = temizle(localStorage.getItem("kktp_adSoyad"));
 
                       let cakisiciKayit = data.veriler.find(s => {
                           let dt = zekiTarihOku(s.tarih);
                           let sTarihStr = dt && !isNaN(dt.getTime()) ? ("0" + dt.getDate()).slice(-2) + "." + ("0" + (dt.getMonth() + 1)).slice(-2) + "." + dt.getFullYear() : "";
 
-                          return sTarihStr === formTarihi &&
+                          let ayniYerZaman = sTarihStr === formTarihi &&
                                  temizle(s.ilce) === temizle(ilce) &&
                                  temizle(s.mahalle) === temizle(mahalle) &&
                                  String(s.ada) === String(ada) &&
-                                 String(s.parsel) === String(parsel) &&
-                                 temizle(s.personel) !== aktifPersonel; // Farklı kullanıcı kontrolü
+                                 String(s.parsel) === String(parsel);
+                                 
+                          if (ayniYerZaman) {
+                              let kayitHastalik = temizle(s.zararli) || temizle(s.hastalik);
+                              return hastaliklar.some(h => temizle(h) === kayitHastalik);
+                          }
+                          
+                          return false;
                       });
 
                       if (cakisiciKayit) {
-                          alert(`⚠️ MÜKERRER KAYIT ENGELİ!\n\nBugün bu Ada/Parsel için [${formatAdSoyad(cakisiciKayit.personel)}] tarafından zaten bir sürvey girişi yapılmış.\n\nAynı gün içinde aynı parsele farklı personeller tarafından mükerrer kayıt yapılamaz.`);
+                          let cakisiciHastalik = cakisiciKayit.zararli || cakisiciKayit.hastalik || "aynı";
+                          alert(`⚠️ MÜKERRER KAYIT ENGELİ!\n\nBugün bu Ada/Parsel için [${formatAdSoyad(cakisiciKayit.personel)}] tarafından "${cakisiciHastalik}" hastalığı/zararlısı zaten girilmiş.\n\nAynı gün içinde aynı parsele aynı hastalık için mükerrer kayıt yapılamaz.`);
                           btn.innerText = "💾 Surveyi Kaydet";
                           btn.disabled = false;
                           return;
@@ -5534,6 +5636,8 @@
                   selectEskiVeriKorumasi("g_durum", s.zararliDurumu);
                   selectEskiVeriKorumasi("g_yogunluk", s.yogunluk);
                   selectEskiVeriKorumasi("g_islem", s.islem);
+                  
+                  zararliDurumuDegisti("g_durum", "g_yogunluk");
               }
 
               function surveyGuncelleKaydet() {
@@ -5891,7 +5995,10 @@
               govde.innerHTML =
                 "<tr><td colspan='7' style='text-align:center; font-weight:bold; color:#f57c00;'>⏳ Kayıtlar Yükleniyor...</td></tr>";
 
-              fetch(GOOGLE_SCRIPT_URL + "?istek=surveyler&token=" + localStorage.getItem("kktp_token"))
+              let secilenYil = document.getElementById("surveyListeYil") ? document.getElementById("surveyListeYil").value : "Tümü";
+              let secilenAy = document.getElementById("surveyListeAy") ? document.getElementById("surveyListeAy").value : "Tümü";
+
+              fetch(GOOGLE_SCRIPT_URL + "?istek=surveyler&token=" + localStorage.getItem("kktp_token") + "&yil=" + secilenYil + "&ay=" + secilenAy)
                 .then((res) => res.json())
                 .then((data) => {
                   govde.innerHTML = "";
@@ -5902,32 +6009,22 @@
                     return;
                   }
 
-                  let aktifAd = localStorage.getItem("kktp_adSoyad");
                   let yetki = personelinYetkisi;
-                  let kendiIlcem = personelinIlcesi;
                   let filtreAlani = document.getElementById("surveyListeFiltreAlani");
                   let secilenIlce = document.getElementById("surveyListeIlceSecim")
                     ? document.getElementById("surveyListeIlceSecim").value
                     : "TÜM İL";
 
-                  if (yetki === "yonetici" || yetki === "il yetkilisi") {
+            if (yetki === "yonetici" || yetki === "il yetkilisi" || yetki === "ghost") {
                     if (filtreAlani) filtreAlani.classList.remove("hidden");
                   } else {
                     if (filtreAlani) filtreAlani.classList.add("hidden");
                   }
 
-                  let filtrelenmis = data.filter((s) => {
-                    let personelUyumu = temizle(s.personel) === temizle(aktifAd);
-                    let ilceUyumu = temizle(s.ilce) === temizle(kendiIlcem);
-                    if (yetki === "yonetici" || yetki === "il yetkilisi" || yetki === "ghost") {
-                      if (secilenIlce === "TÜM İL") return true;
-                      return temizle(s.ilce) === temizle(secilenIlce);
-                    } else if (yetki === "ilçe müdürü" || yetki === "ilce muduru") {
-                      return ilceUyumu; // İlçe müdürleri kendi ilçesindeki tüm kayıtları görür
-                    } else {
-                      return personelUyumu;
-                    }
-                  });
+            let filtrelenmis = data;
+            if ((yetki === "yonetici" || yetki === "il yetkilisi" || yetki === "ghost") && secilenIlce !== "TÜM İL") {
+                filtrelenmis = data.filter(s => temizle(s.ilce) === temizle(secilenIlce));
+            }
 
                   filtrelenmis.sort((a, b) => {
                     let dateA = zekiTarihOku(a.surveyTarihi) || new Date(0);
@@ -6062,6 +6159,52 @@
                 downloadLink.click();
               }
               document.body.removeChild(downloadLink);
+            }
+
+            function surveyTopluPdfIndir() {
+                if (!window.globalBenimSurveylerim || window.globalBenimSurveylerim.length === 0) {
+                    alert("İndirilecek kayıt bulunamadı! Lütfen bir Yıl/Ay seçerek listeyi yenileyin.");
+                    return;
+                }
+                
+                // DİKKAT: 500 kayıttan fazlası tarayıcıyı dondurabilir. Personeli uyar!
+                if (window.globalBenimSurveylerim.length > 500) {
+                    if(!confirm("⚠️ Listede çok fazla (" + window.globalBenimSurveylerim.length + ") kayıt var. \nBu kadar büyük bir listeyi PDF'e çevirmek uzun sürebilir veya tarayıcınızı dondurabilir.\n\nDevam etmek istiyor musunuz? (Küçük aylar seçmeniz önerilir)")) return;
+                }
+                
+                let btn = document.getElementById("btnTopluPdf");
+                let eskiMetin = btn.innerText;
+                btn.innerText = "⏳ Hazırlanıyor...";
+
+                let tempContainer = document.createElement("div");
+                tempContainer.style.padding = "20px";
+                tempContainer.style.fontFamily = "sans-serif";
+                tempContainer.innerHTML = "<h2 style='text-align:center; color:#1976d2;'>Genel Sürvey Kayıtları Listesi</h2>";
+
+                let tabloHTML = "<table style='width:100%; border-collapse:collapse; font-size:12px;' border='1'><thead><tr style='background:#1976d2; color:white;'>";
+                tabloHTML += "<th style='padding:8px;'>Tarih / Örnek No</th><th style='padding:8px;'>İlçe / Mahalle</th><th style='padding:8px;'>Ada / Parsel</th><th style='padding:8px;'>Zararlı</th><th style='padding:8px;'>Program</th><th style='padding:8px;'>Durum</th></tr></thead><tbody>";
+
+                window.globalBenimSurveylerim.forEach(s => {
+                     let zDurum = s.zararliDurumu === "Var" ? "Var" : "Yok";
+                     tabloHTML += `<tr>
+                        <td style='padding:5px; text-align:center;'>${tarihFormatlaGuzel(s.surveyTarihi)}<br><small>${guvenliMetin(s.ornekNo||'-')}</small></td>
+                        <td style='padding:5px; text-align:center;'>${guvenliMetin(s.ilce)} / ${guvenliMetin(s.mahalle)}</td>
+                        <td style='padding:5px; text-align:center;'>${guvenliMetin(s.ada)} / ${guvenliMetin(s.parsel)}</td>
+                        <td style='padding:5px; text-align:center;'>${guvenliMetin(s.hastalik)}</td>
+                        <td style='padding:5px; text-align:center;'>${guvenliMetin(s.program)}</td>
+                        <td style='padding:5px; text-align:center;'>${zDurum}</td>
+                     </tr>`;
+                });
+                tabloHTML += "</tbody></table>";
+                tempContainer.innerHTML += tabloHTML;
+
+                let opt = { margin: 0.3, filename: "Toplu_Survey_Kayitlari.pdf", image: { type: "jpeg", quality: 1 }, html2canvas: { scale: 2 }, jsPDF: { unit: "in", format: "a4", orientation: "portrait" } };
+
+                html2pdf().set(opt).from(tempContainer).save().then(() => {
+                    btn.innerText = eskiMetin;
+                }).catch(e => {
+                    btn.innerText = eskiMetin; alert("PDF oluşturulurken hata oluştu.");
+                });
             }
 
             function sayimHaritasiDoldur() {
@@ -6843,7 +6986,7 @@
                     let pb = b.split("|")[0].split(".");
                     return new Date(pa[1], pa[0] - 1) - new Date(pb[1], pb[0] - 1);
                   });
-                  haritaAylikKümülatif = {};
+                  haritaAylikKumulatif = {};
                   temizData.forEach((x) => {
                     let bolgeAdi = "";
                     if (secim === "TÜM İL") {
@@ -6854,21 +6997,21 @@
                       }
                     }
                     if (bolgeAdi) {
-                      if (!haritaAylikKümülatif[bolgeAdi]) {
-                        haritaAylikKümülatif[bolgeAdi] = {};
+                      if (!haritaAylikKumulatif[bolgeAdi]) {
+                        haritaAylikKumulatif[bolgeAdi] = {};
                         haritaAylarListesi.forEach(
-                          (ay) => (haritaAylikKümülatif[bolgeAdi][ay] = 0),
+                          (ay) => (haritaAylikKumulatif[bolgeAdi][ay] = 0),
                         );
                       }
-                      haritaAylikKümülatif[bolgeAdi][x.ayKodu] +=
+                      haritaAylikKumulatif[bolgeAdi][x.ayKodu] +=
                         parseInt(x.bocek) || 0;
                     }
                   });
-                  Object.keys(haritaAylikKümülatif).forEach((b) => {
+                  Object.keys(haritaAylikKumulatif).forEach((b) => {
                     let toplam = 0;
                     haritaAylarListesi.forEach((ay) => {
-                      toplam += haritaAylikKümülatif[b][ay];
-                      haritaAylikKümülatif[b][ay] = toplam;
+                      toplam += haritaAylikKumulatif[b][ay];
+                      haritaAylikKumulatif[b][ay] = toplam;
                     });
                   });
                   let slider = document.getElementById("zamanSlider");
@@ -7016,9 +7159,9 @@
                 if (
                   index > 0 &&
                   secilenAyKodu &&
-                  haritaAylikKümülatif[layer.featureName]
+                    haritaAylikKumulatif[layer.featureName]
                 ) {
-                  sayi = haritaAylikKümülatif[layer.featureName][secilenAyKodu] || 0;
+                    sayi = haritaAylikKumulatif[layer.featureName][secilenAyKodu] || 0;
                 }
                 layer.setStyle({
                   fillColor: renkBelirle(sayi),
@@ -8034,6 +8177,9 @@
           let ilceKutusu = document.getElementById("adminIlceKutusu");
           let ilceLabel = document.getElementById("ilceLabel");
           let btn = document.getElementById("btnVeriCek");
+          
+          let secilenYil = document.getElementById("filtreYil") ? document.getElementById("filtreYil").value : "Tümü";
+          let secilenAy = document.getElementById("filtreAy") ? document.getElementById("filtreAy").value : "Tümü";
 
           let pIlcesi = "Tümü";
           let isYoneticiVeyaIl = false;
@@ -8104,7 +8250,13 @@
           // Analiz sayfası için tüm ilçenin veya ilin verilerini getiren özel POST isteğini kullanıyoruz.
           fetch(GOOGLE_SCRIPT_URL, {
               method: 'POST',
-              body: JSON.stringify({ islemTipi: "Genel Survey Raporu Getir", ilce: sunucuyaGidecekIlce, token: localStorage.getItem("kktp_token") }),
+              body: JSON.stringify({ 
+                  islemTipi: "Genel Survey Raporu Getir", 
+                  ilce: sunucuyaGidecekIlce, 
+                  yil: secilenYil, 
+                  ay: secilenAy,
+                  token: localStorage.getItem("kktp_token") 
+              }),
               headers: { "Content-Type": "text/plain;charset=utf-8" }
           })
           .then(r => r.json())
@@ -8190,8 +8342,12 @@
               // FİLTRELENMİŞ VERİLERİ DİZİYORUZ
               window.globalFiltreliVeri.forEach(item => {
                   let alanStr = veriTemizle(item.alan).toString();
-                  let temizAlan = alanStr.replace(/\./g, ','); // Noktaları güvenlice virgüle çevir
-                  let alanTdHtml = temizAlan ? `<td data-t="s" style='mso-number-format:"\\@";'>${temizAlan}</td>` : `<td></td>`;
+                  
+                  // Excel .xls HTML çıktısında verinin tarih değil sayı algılanması için ekranda (virgül) gösterilmeli.
+                  // SheetJS (.xlsx paylaşımları) için de arka planda matematiksel formatlı hali (nokta) data-v'de tutulmalı.
+                  let rawAlan = alanStr.replace(/,/g, '.'); // Tüm virgülleri matematiksel noktaya çevir
+                  let gosterimAlan = rawAlan.replace(/\./g, ','); // Noktaları tekrar Türkiye formatı için virgüle çevir
+                  let alanTdHtml = gosterimAlan ? `<td data-t="n" data-v="${rawAlan}">${gosterimAlan}</td>` : `<td></td>`;
 
                   excelHTML += `<tr>
                       <td data-t="s" style='mso-number-format:"\\@";'>${veriTemizle(item.raporNo)}</td>
@@ -8226,16 +8382,15 @@
               return;
           }
 
-          let excelHTML = surveyExcelHtmlOlustur();
-          // UTF-8 BOM ile Excel'e bas
-          let url = 'data:application/vnd.ms-excel;charset=utf-8,' + encodeURIComponent("\uFEFF" + excelHTML);
-
-          let indirmeLinki = document.createElement("a");
-          document.body.appendChild(indirmeLinki);
-          indirmeLinki.href = url;
-          indirmeLinki.download = 'Detayli_Survey_Raporu.xls';
-          indirmeLinki.click();
-          document.body.removeChild(indirmeLinki);
+          let tempDiv = document.createElement('div');
+          tempDiv.innerHTML = surveyExcelHtmlOlustur();
+          
+          try {
+              let wb = XLSX.utils.table_to_book(tempDiv.firstChild, { sheet: "Rapor" });
+              XLSX.writeFile(wb, "Detayli_Survey_Raporu.xlsx");
+          } catch(e) {
+              alert("Excel dosyası oluşturulurken hata oluştu.");
+          }
         }
 
         function surveyPaylasExcel() {
