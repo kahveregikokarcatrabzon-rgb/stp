@@ -704,7 +704,7 @@
       </ul>
       <div class="footer-imza">
         © <span id="footerYil">2026</span> STP | Cloud Sürümü
-        <b id="appVersiyon" style="color: var(--bakanlik-kirmizi)">v22</b
+        <b id="appVersiyon" style="color: var(--bakanlik-kirmizi)">v23</b
         ><br />Geliştirici:
         <a
           href="mailto:mustafa.cavdar@tarimorman.gov.tr"
@@ -2428,6 +2428,21 @@
                  </div>
              </div>
 
+             <!-- YENİ EKLENEN TARİH FİLTRESİ -->
+             <div class="form-row" id="ziTarihFiltresi" style="margin-bottom: 20px; align-items: flex-end; background: #e3f2fd; padding: 15px; border-radius: 8px; border: 1px solid #90caf9;">
+                <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                    <label style="color: #1565c0; font-weight: bold;">📅 Başlangıç Tarihi</label>
+                    <input type="date" id="ziBasTarih" onchange="ziraiIlacRaporunuCiz()" style="padding: 8px;">
+                </div>
+                <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                    <label style="color: #1565c0; font-weight: bold;">📅 Bitiş Tarihi</label>
+                    <input type="date" id="ziBitTarih" onchange="ziraiIlacRaporunuCiz()" style="padding: 8px;">
+                </div>
+                <div class="form-group" style="flex: 0 0 auto; margin-bottom: 0;">
+                    <button onclick="ziTarihFiltresiniTemizle()" class="action-btn" style="background: #757575; padding: 10px 15px; width: auto;">🗑️ Temizle</button>
+                </div>
+             </div>
+
              <div id="ziOzetKartlari" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px;">
                   <!-- JS İle Otomatik Dolacak -->
              </div>
@@ -2436,7 +2451,6 @@
                  <table class="veri-tablosu" id="ziRaporTablosu">
                     <thead>
                        <tr>
-                         <th>Sistem Kayıt</th>
                          <th>Satış Tarihi</th>
                          <th>İlçe / Bayi</th>
                          <th>Personel</th>
@@ -2447,7 +2461,7 @@
                        </tr>
                     </thead>
                     <tbody id="ziRaporGovde">
-                       <tr><td colspan="8">Kayıt Yok veya Yükleniyor...</td></tr>
+                       <tr><td colspan="7">Kayıt Yok veya Yükleniyor...</td></tr>
                     </tbody>
                  </table>
              </div>
@@ -4662,6 +4676,28 @@
               if (sListYil) sListYil.value = maxYil.toString();
               if (sListAy) sListAy.value = (new Date().getMonth() + 1).toString();
               if (kRaporYil) kRaporYil.value = maxYil.toString();
+
+              // TAKVİM VE TARİH FİLTRELERİNİ VARSAYILAN OLARAK ŞU ANKİ AYA AYARLAMA
+              let bugun = new Date();
+              let ilkGun = new Date(bugun.getFullYear(), bugun.getMonth(), 1);
+              let sonGun = new Date(bugun.getFullYear(), bugun.getMonth() + 1, 0);
+              let fnFormatDate = (dt) => {
+                  return dt.getFullYear() + "-" + ("0" + (dt.getMonth() + 1)).slice(-2) + "-" + ("0" + dt.getDate()).slice(-2);
+              };
+              let ilkGunStr = fnFormatDate(ilkGun);
+              let sonGunStr = fnFormatDate(sonGun);
+
+              // Kokarca Raporu için:
+              let kBas = document.getElementById("kokarcaBasTarih");
+              let kBit = document.getElementById("kokarcaBitTarih");
+              if (kBas && !kBas.value) kBas.value = ilkGunStr;
+              if (kBit && !kBit.value) kBit.value = sonGunStr;
+              
+              // Zirai İlaç Raporu için:
+              let zBas = document.getElementById("ziBasTarih");
+              let zBit = document.getElementById("ziBitTarih");
+              if (zBas && !zBas.value) zBas.value = ilkGunStr;
+              if (zBit && !zBit.value) zBit.value = sonGunStr;
 
             // GÖREV PANOSU YETKİ KİLİDİ VE DOLDURMA
             let pFiltre = document.getElementById("panoFiltreIlce");
@@ -8629,16 +8665,41 @@
           }).catch(e => { govde.innerHTML = "<tr><td colspan='8' style='color:red;'>Bağlantı Hatası</td></tr>"; });
       }
 
+      function ziTarihFiltresiniTemizle() {
+          document.getElementById("ziBasTarih").value = "";
+          document.getElementById("ziBitTarih").value = "";
+          ziraiIlacRaporunuCiz();
+      }
+
       function ziraiIlacRaporunuCiz() {
           let fIlce = document.getElementById('ziRaporIlce').value;
           let govde = document.getElementById("ziRaporGovde");
           let kartlarAlani = document.getElementById("ziOzetKartlari");
           govde.innerHTML = ""; kartlarAlani.innerHTML = "";
           
-          let filtrelenmis = ziRaporVerisi.filter(item => fIlce === "Tümü" || temizle(item.ilce) === temizle(fIlce));
+          let basTarihStr = document.getElementById("ziBasTarih") ? document.getElementById("ziBasTarih").value : "";
+          let bitTarihStr = document.getElementById("ziBitTarih") ? document.getElementById("ziBitTarih").value : "";
+          let basTarih = basTarihStr ? new Date(basTarihStr) : null;
+          if (basTarih) basTarih.setHours(0,0,0,0);
+          let bitTarih = bitTarihStr ? new Date(bitTarihStr) : null;
+          if (bitTarih) bitTarih.setHours(23,59,59,999);
+          
+          let filtrelenmis = ziRaporVerisi.filter(item => {
+              let ilceSarti = (fIlce === "Tümü" || temizle(item.ilce) === temizle(fIlce));
+              let tarihSarti = true;
+              
+              if (basTarih || bitTarih) {
+                  let itemDate = new Date(item.tarih);
+                  if (!isNaN(itemDate.getTime())) {
+                      if (basTarih && itemDate < basTarih) tarihSarti = false;
+                      if (bitTarih && itemDate > bitTarih) tarihSarti = false;
+                  }
+              }
+              return ilceSarti && tarihSarti;
+          });
           
           if (filtrelenmis.length === 0) {
-              govde.innerHTML = "<tr><td colspan='8' style='color:red; text-align:center;'>Bu bölgede henüz satış kaydı yok.</td></tr>";
+              govde.innerHTML = "<tr><td colspan='7' style='color:red; text-align:center;'>Bu bölgede veya seçili tarihlerde henüz satış kaydı yok.</td></tr>";
               return;
           }
 
@@ -8667,11 +8728,18 @@
           // Tabloyu Bas (Ters çevirerek en yeni kayıtlar üstte)
           filtrelenmis.slice().reverse().forEach(item => {
               let dt = item.tarih;
-              if (dt.includes('-')) { let p = dt.split('-'); dt = `${p[2]}.${p[1]}.${p[0]}`; } // YYYY-MM-DD -> DD.MM.YYYY
+              let dateObj = new Date(dt);
+              if (!isNaN(dateObj.getTime())) {
+                  let d = ("0" + dateObj.getDate()).slice(-2);
+                  let m = ("0" + (dateObj.getMonth() + 1)).slice(-2);
+                  let y = dateObj.getFullYear();
+                  dt = `${d}/${m}/${y}`;
+              } else if (dt.includes('-')) { 
+                  let p = dt.split('-'); dt = `${p[2]}/${p[1]}/${p[0]}`; 
+              }
               
               govde.innerHTML += `
               <tr>
-                  <td style="font-size:11px;">${guvenliMetin(item.sistemTarihi)}</td>
                   <td style="font-weight:bold; color:#d32f2f;">${guvenliMetin(dt)}</td>
                   <td><b>${guvenliMetin(item.ilce)}</b><br><span style="font-size:11px; color:#555;">${guvenliMetin(item.bayi)}</span></td>
                   <td>${guvenliMetin(item.personel)}</td>
