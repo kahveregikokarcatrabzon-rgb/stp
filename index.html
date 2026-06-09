@@ -658,6 +658,7 @@
           >
             📊 Raporlar (İlçe/İl)
           </li>
+          <li onclick="modulAc('modulZiraiIlac')">🧪 İlaç Satış & Kullanım</li>
           <li
             id="menuKokarcaHarita"
             class="hidden"
@@ -703,7 +704,7 @@
       </ul>
       <div class="footer-imza">
         © <span id="footerYil">2026</span> STP | Cloud Sürümü
-        <b id="appVersiyon" style="color: var(--bakanlik-kirmizi)">v21</b
+        <b id="appVersiyon" style="color: var(--bakanlik-kirmizi)">v22</b
         ><br />Geliştirici:
         <a
           href="mailto:mustafa.cavdar@tarimorman.gov.tr"
@@ -1441,6 +1442,10 @@
           <div class="modul-icon">🎯</div>
           <div class="modul-text">Görev Panosu</div>
         </div>
+        <div class="kare-modul" onclick="modulAc('modulZiraiIlac')">
+          <div class="modul-icon">🧪</div>
+          <div class="modul-text">İlaç Kullanım / Satış</div>
+        </div>
         <div
           id="kareKokarcaRapor"
           class="kare-modul hidden"
@@ -1746,6 +1751,10 @@
             <label>Hangi Rapor?</label
             ><select id="raporIlceSecim" onchange="raporCekveCiz()"></select>
           </div>
+          <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 120px">
+            <label>Yıl Seçimi</label>
+            <select id="kokarcaRaporYil" onchange="raporIceriginiGuncelle()"><option value="Tümü">Tüm Yıllar</option></select>
+          </div>
           <div style="display: flex; gap: 10px; margin-top: 10px">
             <button
               onclick="raporCekveCiz()"
@@ -1781,6 +1790,21 @@
           </div>
         </div>
         <div id="raporDurum" style="text-align: center"></div>
+        
+        <div id="raporTarihFiltresi" class="form-row hidden" style="margin-bottom: 20px; align-items: flex-end; background: #e3f2fd; padding: 15px; border-radius: 8px; border: 1px solid #90caf9;">
+            <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                <label style="color: #1565c0; font-weight: bold;">📅 Başlangıç Tarihi</label>
+                <input type="date" id="kokarcaBasTarih" onchange="raporIceriginiGuncelle()" style="padding: 8px;">
+            </div>
+            <div class="form-group" style="flex: 1; margin-bottom: 0;">
+                <label style="color: #1565c0; font-weight: bold;">📅 Bitiş Tarihi</label>
+                <input type="date" id="kokarcaBitTarih" onchange="raporIceriginiGuncelle()" style="padding: 8px;">
+            </div>
+            <div class="form-group" style="flex: 0 0 auto; margin-bottom: 0;">
+                <button onclick="tarihFiltresiniTemizle()" class="action-btn" style="background: #757575; padding: 10px 15px; width: auto;">🗑️ Temizle</button>
+            </div>
+        </div>
+
         <div
           id="istatistikPanosu"
           class="form-row hidden"
@@ -2342,6 +2366,125 @@
           >
             💾 Surveyi Kaydet
           </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- YENİ MODÜL: ZİRAİ İLAÇ (KOKARCA) -->
+    <div id="modulZiraiIlac" class="container hidden" style="max-width: 900px;">
+      <button class="back-btn" onclick="modulAc('dashboardKokarca')">⬅ Kokarca Menüsüne Dön</button>
+      <div class="form-container" style="background:#fdfdfd;">
+        <h3 style="color: var(--bakanlik-kirmizi); margin-top: 0; border-bottom: 2px solid var(--bakanlik-kirmizi); padding-bottom: 10px;">
+          🧪 Zirai İlaç Kullanım ve Satış Kayıtları
+        </h3>
+        
+        <div class="tab-container">
+          <button class="tab-btn active" id="tabZilacGiris" onclick="ziraiIlacSekmeDegistir('Giris')">📝 Veri Girişi</button>
+          <button class="tab-btn" id="tabZilacRapor" onclick="ziraiIlacSekmeDegistir('Rapor')">📊 İlaç Raporları</button>
+        </div>
+
+        <!-- VERİ GİRİŞİ BÖLÜMÜ (ADIM ADIM SİHİRBAZ) -->
+        <div id="zilacGirisAlani">
+            
+            <!-- ADIM 1: BAYİ SEÇİMİ -->
+            <div id="ziAdim1">
+                <h4 style="color:#1976d2; text-align:center;">1️⃣ Adım: Lütfen Bulunduğunuz Bayiyi Seçin</h4>
+                <div class="form-group" id="ziAdminIlceSecici" style="display:none; background:#e3f2fd; padding:10px; border-radius:6px;">
+                   <label>Filtre (Yönetici):</label>
+                   <select id="ziIlceFiltre" onchange="ziraiIlacBayileriCiz()"></select>
+                </div>
+                <div id="ziBayiListesi" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;"></div>
+            </div>
+
+            <!-- ADIM 2: İLAÇ VE HACİM SEÇİMİ -->
+            <div id="ziAdim2" class="hidden">
+                <button onclick="ziraiIlacAdimGec(1)" style="background:#757575; color:white; border:none; padding:5px 10px; border-radius:4px; margin-bottom:15px; cursor:pointer;">🔙 Bayi Seçimine Dön</button>
+                
+                <div style="background:#e8f5e9; padding:15px; border-radius:8px; border:2px solid #2e7d32; margin-bottom:15px;">
+                    <h4 style="margin:0 0 10px 0; color:#2e7d32;">📍 Seçili Bayi: <span id="ziSeciliBayiAd" style="color:#d32f2f;"></span></h4>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label>Satış/Kayıt Tarihi</label>
+                        <input type="date" id="ziSatisTarihi" style="border:1px solid #2e7d32;">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label style="color:#d32f2f; font-size:16px;">💊 Satılan İlaç Adı <span style="color:red">*</span></label>
+                    <div id="ziIlacButonlari" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- RAPOR BÖLÜMÜ -->
+        <div id="zilacRaporAlani" class="hidden">
+             <div class="form-row" style="margin-bottom:15px;">
+                 <div class="form-group half-width" style="margin-bottom:0;">
+                     <label>İlçe Filtresi</label>
+                     <select id="ziRaporIlce" onchange="ziraiIlacRaporuCek()"><option value="Tümü">Tümü</option></select>
+                 </div>
+                 <div class="form-group half-width" style="display:flex; align-items:flex-end; gap:10px; margin-bottom:0;">
+                     <button onclick="ziraiIlacRaporuCek()" class="action-btn" style="background:#1976d2; padding:12px;">🔄 Yenile</button>
+                     <button onclick="ziraiIlacExcelIndir()" class="action-btn" style="background:#2e7d32; padding:12px;">📥 Excel İndir</button>
+                 </div>
+             </div>
+
+             <div id="ziOzetKartlari" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 20px;">
+                  <!-- JS İle Otomatik Dolacak -->
+             </div>
+
+             <div class="table-responsive">
+                 <table class="veri-tablosu" id="ziRaporTablosu">
+                    <thead>
+                       <tr>
+                         <th>Sistem Kayıt</th>
+                         <th>Satış Tarihi</th>
+                         <th>İlçe / Bayi</th>
+                         <th>Personel</th>
+                         <th>İlaç Adı</th>
+                         <th>Hacim / Kutu</th>
+                         <th style="background:#2e7d32;">Top. Litre</th>
+                         <th>Notlar</th>
+                       </tr>
+                    </thead>
+                    <tbody id="ziRaporGovde">
+                       <tr><td colspan="8">Kayıt Yok veya Yükleniyor...</td></tr>
+                    </tbody>
+                 </table>
+             </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- YENİ: ZİRAİ İLAÇ HACİM VE KUTU SİHİRBAZ MODALLARI -->
+    <div id="ziHacimModal" class="sidebar-overlay" style="z-index: 4005;">
+      <div class="duzenle-modal-icerik" style="text-align: center; max-width: 400px; padding: 20px;">
+        <h3 style="color: #e65100; margin-top: 0; border-bottom: 2px solid #e65100; padding-bottom: 10px;">📦 Hacim / Ambalaj Seçin</h3>
+        <p style="font-size: 14px; color: #555; margin-bottom: 15px;">Seçilen İlaç: <b id="ziModalSeciliIlac" style="color:#d32f2f;"></b></p>
+        <div id="ziHacimButonlari" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+            <!-- JS İle Dolacak -->
+        </div>
+        <button onclick="document.getElementById('ziHacimModal').classList.remove('show')" class="action-btn" style="background: #757575;">❌ İptal</button>
+      </div>
+    </div>
+
+    <div id="ziKutuModal" class="sidebar-overlay" style="z-index: 4006;">
+      <div class="duzenle-modal-icerik" style="text-align: center; max-width: 400px; padding: 20px;">
+        <h3 style="color: #d32f2f; margin-top: 0; border-bottom: 2px solid #d32f2f; padding-bottom: 10px;">🛒 Kutu Adeti ve Notlar</h3>
+        <div style="background:#fff3e0; padding:10px; border-radius:6px; margin-bottom:15px; font-size:14px;">
+            <b id="ziModalOzet"></b>
+        </div>
+        <div class="form-group" style="text-align:left;">
+            <label>Satılan Kutu Adeti <span style="color:red">*</span></label>
+            <input type="number" id="ziKutuAdeti" placeholder="Örn: 5" style="border-color:#f57c00; font-weight:bold; color:#d32f2f; font-size:18px; text-align:center;">
+        </div>
+        <div class="form-group" style="text-align:left;">
+            <label>Açıklama / Alan Kişi Bilgisi (Opsiyonel)</label>
+            <textarea id="ziNotlar" rows="2" placeholder="Örn: Fındık tarlası için alındı..."></textarea>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 15px;">
+            <button onclick="document.getElementById('ziKutuModal').classList.remove('show'); document.getElementById('ziHacimModal').classList.add('show');" class="action-btn" style="background: #757575; flex: 1;">🔙 Geri</button>
+            <button id="btnZiKaydet" onclick="ziraiIlacKaydet()" class="action-btn" style="background:#d32f2f; flex: 2;">💾 Kaydet</button>
         </div>
       </div>
     </div>
@@ -3505,12 +3648,12 @@
           let islenmisVeri = veri;
           // Eğer veri tarih olarak istenmişse, metni Gerçek Tarihe çevirip Gün-Ay-Yıl olarak formatla
           if (tip === "tarih") {
-              let d = new Date(veri);
-              if (!isNaN(d.getTime())) {
+              let d = zekiTarihOku(veri);
+              if (d && !isNaN(d.getTime())) {
                   let gun = String(d.getDate()).padStart(2, '0');
                   let ay = String(d.getMonth() + 1).padStart(2, '0');
                   let yil = d.getFullYear();
-                  islenmisVeri = gun + "-" + ay + "-" + yil; // 01-04-2026 formatı
+                  islenmisVeri = gun + "." + ay + "." + yil; // 01.06.2026 formatı
               }
           }
           // 🛡️ XSS KORUMASI: Gelen tüm verileri (özellikle Tabloya ve Excel'e basılanları) sterilize et
@@ -4394,8 +4537,8 @@
               if (isYonetici || isIlYetkilisi || isGhost) {
                 goster("kareKokarcaHarita");
                 goster("menuKokarcaHarita");
-                goster("menuKokarcaYukseklik");
-                goster("kareKokarcaYukseklik");
+                // goster("menuKokarcaYukseklik"); // Geçici olarak gizlendi (v22)
+                // goster("kareKokarcaYukseklik"); // Geçici olarak gizlendi (v22)
               }
             if (isYonetici) {
               goster("menuLoglar");
@@ -4509,11 +4652,16 @@
               if (sListYil && sListYil.options.length <= 1) {
                   for(let y = 2026; y <= maxYil; y++) { sListYil.innerHTML += `<option value="${y}">${y}</option>`; }
               }
+              let kRaporYil = document.getElementById("kokarcaRaporYil");
+              if (kRaporYil && kRaporYil.options.length <= 1) {
+                  for(let y = 2026; y <= maxYil; y++) { kRaporYil.innerHTML += `<option value="${y}">${y}</option>`; }
+              }
               
               if (fYil) fYil.value = maxYil.toString();
               if (fAy) fAy.value = (new Date().getMonth() + 1).toString();
               if (sListYil) sListYil.value = maxYil.toString();
               if (sListAy) sListAy.value = (new Date().getMonth() + 1).toString();
+              if (kRaporYil) kRaporYil.value = maxYil.toString();
 
             // GÖREV PANOSU YETKİ KİLİDİ VE DOLDURMA
             let pFiltre = document.getElementById("panoFiltreIlce");
@@ -4583,8 +4731,8 @@
               let b = new Set();
               globalMahalleler.forEach((i) => {
                 // Gelen verideki property adının (ilce/Ilce, mahalle/Mahalle) küçük/büyük harf sorununu çözmek için ikisini de kontrol et
-                const ilceAdi = i.ilce || i.Ilce;
-                const mahalleAdi = i.mahalle || i.Mahalle;
+                const ilceAdi = i.ilce || i.Ilce || i.ILCE || i.İLÇE;
+                const mahalleAdi = i.mahalle || i.Mahalle || i.MAHALLE;
                 if (ilceAdi && temizle(ilceAdi) === f && mahalleAdi) {
                   b.add(formatKelime(mahalleAdi));
                 }
@@ -4690,6 +4838,9 @@
                 }, 400);
               if (hedefID === "modulSurveyListe") kayitliSurveylerimiGetir();
           if (hedefID === "modulLoglar") loglariGetir();
+          if (hedefID === "modulZiraiIlac") {
+              ziraiIlacModulunuBaslat();
+          }
             }
 
             async function zekiKonumBul(lat, lng, formTipi) {
@@ -4764,10 +4915,9 @@
 
                 ilceKutu.value = bulunanIlce;
                 mahalleListesiDoldur(
-                  formTipi === "survey"
-                    ? "surveyMahalleListesi" : (formTipi === "samuray" ? "samurayMahalleListesi"
-                    : "tuzakMahalleListesi",
-                  bulunanIlce),
+                  formTipi === "survey" ? "surveyMahalleListesi" : 
+                  (formTipi === "samuray" ? "samurayMahalleListesi" : "tuzakMahalleListesi"),
+                  bulunanIlce
                 );
 
                 let link = HARITA_LINKLERI[bulunanIlce];
@@ -4790,17 +4940,28 @@
                 let bulunanMahalle = "";
                 // 👉 YENİ: GeoJSON içindeki mahalle poligonlarını tek tek tara
                 for (let feature of haritaHafiza[bulunanIlce].features) {
-                  if (turf.booleanPointInPolygon(point, feature)) {
-                    bulunanMahalle =
-                      feature.properties.Mahalle ||
-                      feature.properties.name ||
-                      feature.properties.Name;
-                    // 👉 YENİ: Haritada poligonunu çiz
-                    poligonCiz(
-                      formTipi === "survey" ? "mapSurvey" : (formTipi === "samuray" ? "mapSamuray" : "mapTuzak"),
-                      feature,
-                    );
-                    break;
+                  try {
+                    if (feature.geometry && turf.booleanPointInPolygon(point, feature)) {
+                      bulunanMahalle =
+                        feature.properties.Mahalle ||
+                        feature.properties.MAHALLE ||
+                        feature.properties.mahalle ||
+                        feature.properties.name ||
+                        feature.properties.Name ||
+                        feature.properties.NAME ||
+                        feature.properties.Ad ||
+                        feature.properties.AD ||
+                        feature.properties.adi ||
+                        feature.properties.ADI;
+                      // 👉 YENİ: Haritada poligonunu çiz
+                      poligonCiz(
+                        formTipi === "survey" ? "mapSurvey" : (formTipi === "samuray" ? "mapSamuray" : "mapTuzak"),
+                        feature,
+                      );
+                      break;
+                    }
+                  } catch (err) {
+                    console.warn("Harita poligon işleme atlandı:", err);
                   }
                 }
 
@@ -4813,6 +4974,10 @@
                     formatKelime(bulunanMahalle) +
                     " otomatik seçildi!";
                   durumKutusu.style.color = "green";
+                  
+                  // YENİ: Zeki harita mahalleyi bulduğunda ID'yi de otomatik olarak üret!
+                  if (formTipi === "tuzak" && typeof otomatikTuzakIDOlustur === "function") otomatikTuzakIDOlustur();
+                  if (formTipi === "samuray" && typeof otomatikSamurayIDOlustur === "function") otomatikSamurayIDOlustur();
                 } else {
                   durumKutusu.innerText =
                     "✅ İlçe: " +
@@ -4991,10 +5156,18 @@
                   let feature = haritaHafiza[ilce].features[i];
                   let mAd =
                     feature.properties.Mahalle ||
+                    feature.properties.MAHALLE ||
+                    feature.properties.mahalle ||
                     feature.properties.name ||
-                    feature.properties.Name;
+                    feature.properties.Name ||
+                    feature.properties.NAME ||
+                    feature.properties.Ad ||
+                    feature.properties.AD ||
+                    feature.properties.adi ||
+                    feature.properties.ADI;
                   // 👉 YENİ: Karşılaştırmayı Türkçe karakterleri temizleyerek yap
                   if (
+                    mAd && 
                     turkceKarakterleriTemizle(mAd) ===
                     turkceKarakterleriTemizle(mahalle)
                   ) {
@@ -5536,7 +5709,7 @@
 
                   let yetki = personelinYetkisi || "";
                   let temizIlce = temizle(personelinIlcesi);
-                  let ilceKilidiAcik = (yetki === "yonetici" || yetki === "il yetkilisi" || temizIlce === "merkez" || temizIlce === "il" || temizIlce === "trabzon" || temizIlce === "");
+                  let ilceKilidiAcik = (yetki === "yonetici" || yetki === "il yetkilisi" || yetki === "ghost" || temizIlce === "merkez" || temizIlce === "il" || temizIlce === "trabzon" || temizIlce === "");
 
                   if(!ilceKilidiAcik) {
                       ilceKutu.disabled = true;
@@ -5833,15 +6006,6 @@
                 let eskiSayimX = aktifSayim.sonBocek || 0; // Sunucudan gelen en son sayım
                 let yeniSayim = parseInt(paket.bocekSayisi) || 0;
 
-                // 1. AYNI GÜN SAYIM GİRİLMİŞ Mİ KONTROLÜ
-                if (aktifSayim.gecenGun === 0) {
-                    let mesajGun = "⚠️ DİKKAT!\nBugün bu tuzak için zaten bir sayım girilmiş.\nTekrar sayım girmek istediğinize emin misiniz?";
-                    let onayGun = confirm(mesajGun);
-                    if (!onayGun) {
-                        return; // Kullanıcı "İptal" derse işlemi durdur
-                    }
-                }
-
                 // 2. AŞIRI ARTIŞ KONTROLÜ
                 if (eskiSayimX > 9 && yeniSayim >= (3 * eskiSayimX)) {
                     let mesaj = "⚠️ DİKKAT!\nGirdiğiniz veri bir önceki sayım verisinden çok fazla.\n(Önceki: " + eskiSayimX + " ➔ Yeni Girdiğiniz: " + yeniSayim + ")\n\nEmin misiniz? Kaydetmek istiyor musunuz?";
@@ -5850,6 +6014,10 @@
                         return; // Kullanıcı "İptal" derse işlemi durdur
                     }
                 }
+
+                // ÇİFT TIKLAMAYI (DOUBLE SUBMIT) ENGELLEMEK İÇİN BUTONU HEMEN PASİFE AL
+                btn.innerText = "⏳ Konum Alınıyor...";
+                btn.disabled = true;
 
                 if ("geolocation" in navigator) {
                   navigator.geolocation.getCurrentPosition(
@@ -6175,30 +6343,116 @@
                 let btn = document.getElementById("btnTopluPdf");
                 let eskiMetin = btn.innerText;
                 btn.innerText = "⏳ Hazırlanıyor...";
+                
+                let sYil = document.getElementById("surveyListeYil") ? document.getElementById("surveyListeYil").value : "Tümü";
+                let sAyMenu = document.getElementById("surveyListeAy");
+                let ayAdi = (sAyMenu && sAyMenu.value !== "Tümü") ? sAyMenu.options[sAyMenu.selectedIndex].text : "Tum_Aylar";
+                let indirilecekDosyaAdi = `Toplu_Survey_Raporlari_${sYil}_${ayAdi}.pdf`;
 
                 let tempContainer = document.createElement("div");
-                tempContainer.style.padding = "20px";
-                tempContainer.style.fontFamily = "sans-serif";
-                tempContainer.innerHTML = "<h2 style='text-align:center; color:#1976d2;'>Genel Sürvey Kayıtları Listesi</h2>";
+                tempContainer.style.background = "white";
+                tempContainer.style.color = "black";
+                tempContainer.style.fontFamily = '"Times New Roman", Times, serif';
+                tempContainer.style.lineHeight = "1.5";
 
-                let tabloHTML = "<table style='width:100%; border-collapse:collapse; font-size:12px;' border='1'><thead><tr style='background:#1976d2; color:white;'>";
-                tabloHTML += "<th style='padding:8px;'>Tarih / Örnek No</th><th style='padding:8px;'>İlçe / Mahalle</th><th style='padding:8px;'>Ada / Parsel</th><th style='padding:8px;'>Zararlı</th><th style='padding:8px;'>Program</th><th style='padding:8px;'>Durum</th></tr></thead><tbody>";
+                let htmlContent = "";
 
-                window.globalBenimSurveylerim.forEach(s => {
-                     let zDurum = s.zararliDurumu === "Var" ? "Var" : "Yok";
-                     tabloHTML += `<tr>
-                        <td style='padding:5px; text-align:center;'>${tarihFormatlaGuzel(s.surveyTarihi)}<br><small>${guvenliMetin(s.ornekNo||'-')}</small></td>
-                        <td style='padding:5px; text-align:center;'>${guvenliMetin(s.ilce)} / ${guvenliMetin(s.mahalle)}</td>
-                        <td style='padding:5px; text-align:center;'>${guvenliMetin(s.ada)} / ${guvenliMetin(s.parsel)}</td>
-                        <td style='padding:5px; text-align:center;'>${guvenliMetin(s.hastalik)}</td>
-                        <td style='padding:5px; text-align:center;'>${guvenliMetin(s.program)}</td>
-                        <td style='padding:5px; text-align:center;'>${zDurum}</td>
-                     </tr>`;
+                window.globalBenimSurveylerim.forEach((s, index) => {
+                    let baslikHastalik = s.hastalik && s.hastalik !== "Belirtilmedi" ? s.hastalik.toLocaleUpperCase("tr-TR") : "GENEL";
+                    let guzelTarih = tarihFormatlaGuzel(s.surveyTarihi);
+                    let zDurum = s.zararliDurumu || "Belirtilmedi";
+                    let gosterimAlan = s.alan ? String(s.alan).replace(/\./g, ',') : "";
+                    
+                    let fProgram = s.program || "Belirtilmedi";
+                    let fSahip = s.sahibi || "Belirtilmedi";
+                    let fYogunluk = s.yogunluk || "-";
+                    let fBitki = s.bitki || "Belirtilmedi";
+                    let fFenoloji = s.fenoloji || "Belirtilmedi";
+                    let fIslem = s.islem || "Belirtilmedi";
+                    let fFaydali = s.faydali || "Belirtilmedi";
+                    let fOneri = s.oneri || "Belirtilmedi";
+
+                    let formHtml = `
+                    <div style="padding: 20px 40px; box-sizing: border-box; width: 100%; page-break-inside: avoid;">
+                        <div style="text-align: center; margin-bottom: 20px; border-bottom: 2px solid black; padding-bottom: 10px;">
+                            <h2 style="margin: 0; font-size: 20px; text-transform: uppercase">${guvenliMetin(baslikHastalik)} Survey FORMU</h2>
+                        </div>
+                        <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 14px;" border="1" cellpadding="8">
+                            <tr>
+                                <td style="width: 30%; font-weight: bold; background: #f9f9f9">Survey Tarihi</td>
+                                <td>${guvenliMetin(guzelTarih)}</td>
+                                <td style="width: 20%; font-weight: bold; background: #f9f9f9">Program Tipi</td>
+                                <td>${guvenliMetin(fProgram)}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold; background: #f9f9f9">İlçe / Mahalle</td>
+                                <td colspan="3">${guvenliMetin(s.ilce)} / ${guvenliMetin(s.mahalle)}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold; background: #f9f9f9">Ada / Parsel / Alan</td>
+                                <td colspan="3">${guvenliMetin(s.ada)} Ada / ${guvenliMetin(s.parsel)} Parsel / ${guvenliMetin(gosterimAlan)} da.</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold; background: #f9f9f9">GPS Koordinatı</td>
+                                <td colspan="3">${guvenliMetin(s.koordinat)}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold; background: #f9f9f9">Üretici / Sahibi</td>
+                                <td colspan="3">${guvenliMetin(fSahip)}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold; background: #f9f9f9">Örnek No</td>
+                                <td colspan="3">${guvenliMetin(s.ornekNo || "-")}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold; background: #f9f9f9">Zararlı Durumu</td>
+                                <td>${guvenliMetin(zDurum)}</td>
+                                <td style="font-weight: bold; background: #f9f9f9">Yoğunluk</td>
+                                <td>${guvenliMetin(fYogunluk)}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold; background: #f9f9f9">Konukçu Bitki</td>
+                                <td>${guvenliMetin(fBitki)}</td>
+                                <td style="font-weight: bold; background: #f9f9f9">Fenolojisi</td>
+                                <td>${guvenliMetin(fFenoloji)}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold; background: #f9f9f9">Yapılan İşlem</td>
+                                <td colspan="3">${guvenliMetin(fIslem)}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold; background: #f9f9f9">Faydalı böcekler, varlığı ve yoğunluğu</td>
+                                <td colspan="3">${guvenliMetin(fFaydali)}</td>
+                            </tr>
+                            <tr>
+                                <td style="font-weight: bold; background: #f9f9f9">Öneriler</td>
+                                <td colspan="3">${guvenliMetin(fOneri)}</td>
+                            </tr>
+                        </table>
+                        <div style="margin-top: 50px; display: flex; justify-content: flex-end; font-weight: bold; text-align: center;">
+                            <div style="width: 40%">
+                                <p style="margin: 0">Surveyi Yapan Teknik Eleman</p>
+                                <p style="margin: 60px 0 0 0; text-decoration: underline">${guvenliMetin(formatAdSoyad(s.personel))}</p>
+                            </div>
+                        </div>
+                    </div>`;
+
+                    htmlContent += formHtml;
+                    // Son kayıt değilse sayfayı böl (page-break)
+                    if (index < window.globalBenimSurveylerim.length - 1) {
+                        htmlContent += `<div class="html2pdf__page-break" style="page-break-before: always;"></div>`;
+                    }
                 });
-                tabloHTML += "</tbody></table>";
-                tempContainer.innerHTML += tabloHTML;
+                tempContainer.innerHTML = htmlContent;
 
-                let opt = { margin: 0.3, filename: "Toplu_Survey_Kayitlari.pdf", image: { type: "jpeg", quality: 1 }, html2canvas: { scale: 2 }, jsPDF: { unit: "in", format: "a4", orientation: "portrait" } };
+                let opt = { 
+                    margin: 0.2, 
+                    filename: indirilecekDosyaAdi, 
+                    image: { type: "jpeg", quality: 0.98 }, 
+                    html2canvas: { scale: 2 }, 
+                    jsPDF: { unit: "in", format: "a4", orientation: "portrait" },
+                    pagebreak: { mode: 'css', before: '.html2pdf__page-break' }
+                };
 
                 html2pdf().set(opt).from(tempContainer).save().then(() => {
                     btn.innerText = eskiMetin;
@@ -6346,6 +6600,14 @@
               }
               // -----------------------------------------
 
+              // YENİ: AYNI GÜN KAYIT DÜZELTME KONTROLÜ
+              if (parseInt(gecenGun) === 0) {
+                  let onay = confirm("⚠️ DİKKAT!\nAynı ada parsele aynı gün veri girişi yapıldı.\nSon veri girişini düzeltmek ister misiniz?\n\n(Tamam = Düzelt, İptal = İşlemi İptal Et)");
+                  if (!onay) {
+                      return; // Kullanıcı iptal etti, formu açma
+                  }
+              }
+
               aktifSayim = {
                 id: id,
                 ilce: ilce,
@@ -6358,6 +6620,14 @@
                 gecenGun: parseInt(gecenGun)
               };
               document.getElementById("secilenTuzakBaslik").innerText = id;
+
+              // YENİ: DÜZELTME MODUYSA ESKİ VERİYİ KUTUYA YAZ
+              if (aktifSayim.gecenGun === 0) {
+                  document.getElementById("sayimBocek").value = aktifSayim.sonBocek;
+              } else {
+                  document.getElementById("sayimBocek").value = "";
+              }
+              document.getElementById("sayimNot").value = "";
 
               // Sayım formunu göstermeden önce ait olduğu sekmeyi (modülü) aktif et!
               let formAlaniModulu = document.getElementById('modulKokarcaSayim');
@@ -6415,24 +6685,13 @@
                   if (btnE) btnE.classList.remove("hidden");
                   if (btnP) btnP.classList.remove("hidden");
                   if (btnM) btnM.classList.remove("hidden");
-                  let eTuzak = new Set();
-                  let sSayisi = 0;
-                  let bSayisi = 0;
-                  suAnkiRaporVerisi.forEach((x) => {
-                    if (x.islem === "Tuzak Kaydı") eTuzak.add(x.id);
-                    if (x.islem === "Sayım") {
-                      sSayisi++;
-                      bSayisi += parseInt(x.bocek) || 0;
-                      eTuzak.add(x.id);
-                    }
-                  });
-                  document.getElementById("istTuzak").innerText = eTuzak.size;
-                  document.getElementById("istSayim").innerText = sSayisi;
-                  document.getElementById("istErgin").innerText = bSayisi;
+            
+            let tarihFiltresi = document.getElementById("raporTarihFiltresi");
+            if (tarihFiltresi) tarihFiltresi.classList.remove("hidden");
                   if (istPano) istPano.classList.remove("hidden");
                   if (d) d.innerText = "";
                   if (sekmeler) sekmeler.style.display = "flex";
-                  raporTabiniDegistir(aktifTab);
+            raporIceriginiGuncelle();
                 })
                 .catch((err) => {
                   if (d)
@@ -6440,17 +6699,80 @@
                       "<span style='color:red; font-weight:bold;'>🚨 Bağlantı Koptu!</span>";
                 });
             }
-            function raporTabiniDegistir(tabAdi) {
+      
+      function tarihFiltresiniTemizle() {
+          document.getElementById("kokarcaBasTarih").value = "";
+          document.getElementById("kokarcaBitTarih").value = "";
+          raporIceriginiGuncelle();
+      }
+
+      function getFiltrelenmisKokarcaRaporu() {
+          let secilenYil = document.getElementById("kokarcaRaporYil") ? document.getElementById("kokarcaRaporYil").value : "Tümü";
+          let basTarihStr = document.getElementById("kokarcaBasTarih") ? document.getElementById("kokarcaBasTarih").value : "";
+          let bitTarihStr = document.getElementById("kokarcaBitTarih") ? document.getElementById("kokarcaBitTarih").value : "";
+
+          let basTarih = basTarihStr ? new Date(basTarihStr) : null;
+          if (basTarih) basTarih.setHours(0,0,0,0);
+          let bitTarih = bitTarihStr ? new Date(bitTarihStr) : null;
+          if (bitTarih) bitTarih.setHours(23,59,59,999);
+
+          return suAnkiRaporVerisi.filter(s => {
+              if (s.islem !== "Sayım") return true; 
+              
+              let sDate = zekiTarihOku(s.tarih);
+              if (!sDate) return true;
+
+              if (secilenYil !== "Tümü" && sDate.getFullYear().toString() !== secilenYil) return false;
+              if (basTarih && sDate < basTarih) return false;
+              if (bitTarih && sDate > bitTarih) return false;
+
+              return true;
+          });
+      }
+
+      function raporIceriginiGuncelle() {
+          let filtrelenmisVeri = getFiltrelenmisKokarcaRaporu();
+          
+          let eTuzak = new Set();
+          let sSayisi = 0;
+          let bSayisi = 0;
+          
+          filtrelenmisVeri.forEach((x) => {
+            if (x.islem === "Tuzak Kaydı") eTuzak.add(x.id);
+            if (x.islem === "Sayım") {
+              sSayisi++;
+              bSayisi += parseInt(x.bocek) || 0;
+              eTuzak.add(x.id);
+            }
+          });
+          
+          let eTuzakDom = document.getElementById("istTuzak");
+          if(eTuzakDom) eTuzakDom.innerText = eTuzak.size;
+          let eSayimDom = document.getElementById("istSayim");
+          if(eSayimDom) eSayimDom.innerText = sSayisi;
+          let eErginDom = document.getElementById("istErgin");
+          if(eErginDom) eErginDom.innerText = bSayisi;
+
+          raporTabiniDegistir(aktifTab, filtrelenmisVeri);
+      }
+
+      function raporTabiniDegistir(tabAdi, data = null) {
               aktifTab = tabAdi;
               document.getElementById("tabGenel").classList.remove("active");
               document.getElementById("tabDetay").classList.remove("active");
               document.getElementById("tab" + tabAdi).classList.add("active");
               let tAlani = document.getElementById("raporTabloAlani");
               if (!tAlani) return;
-              if (suAnkiRaporVerisi.length > 0) {
-                if (tabAdi === "Genel") genelOzetCiz(suAnkiRaporVerisi, tAlani);
-                else detayliFormRaporuCiz(suAnkiRaporVerisi, tAlani);
+        
+        let islenecekVeri = data || getFiltrelenmisKokarcaRaporu();
+        
+        if (islenecekVeri.length > 0) {
+          if (tabAdi === "Genel") genelOzetCiz(islenecekVeri, tAlani);
+          else detayliFormRaporuCiz(islenecekVeri, tAlani);
                 tAlani.classList.remove("hidden");
+        } else {
+          tAlani.innerHTML = "<p style='padding:20px; font-weight:bold; color:red;'>Bu kriterlere uygun kayıt bulunmuyor.</p>";
+          tAlani.classList.remove("hidden");
               }
             }
             function genelOzetCiz(data, tabloAlani) {
@@ -7062,15 +7384,22 @@
                           let fAd = "";
                           let rawAd = "";
                           if (secim === "TÜM İL") {
-                            rawAd = feature.properties.name;
+                            rawAd = feature.properties.name || feature.properties.Name || feature.properties.NAME || feature.properties.Ilce || feature.properties.ILCE;
                             fAd = formatKelime(rawAd);
                             layer.featureName = temizle(rawAd);
                             layer.displayTitle = fAd + " İlçesi";
                           } else {
                             rawAd =
                               feature.properties.Mahalle ||
+                              feature.properties.MAHALLE ||
+                              feature.properties.mahalle ||
                               feature.properties.name ||
-                              feature.properties.Name;
+                              feature.properties.Name ||
+                              feature.properties.NAME ||
+                              feature.properties.Ad ||
+                              feature.properties.AD ||
+                              feature.properties.adi ||
+                              feature.properties.ADI;
                             fAd = formatKelime(rawAd);
                             layer.featureName = turkceKarakterleriTemizle(rawAd);
                             layer.displayTitle = fAd + " Mah.";
@@ -7299,11 +7628,11 @@
                                 let fAd = "";
                                 let rawAd = "";
                                 if (secim === "TÜM İL") {
-                                    rawAd = feature.properties.name;
+                                    rawAd = feature.properties.name || feature.properties.Name || feature.properties.NAME || feature.properties.Ilce || feature.properties.ILCE;
                                     fAd = formatKelime(rawAd);
                                     layer.bindTooltip("<b>" + fAd + " İlçesi</b>", { direction: "center", sticky: true });
                                 } else {
-                                    rawAd = feature.properties.Mahalle || feature.properties.name || feature.properties.Name;
+                                    rawAd = feature.properties.Mahalle || feature.properties.MAHALLE || feature.properties.mahalle || feature.properties.name || feature.properties.Name || feature.properties.NAME || feature.properties.Ad || feature.properties.AD || feature.properties.adi || feature.properties.ADI;
                                     fAd = formatKelime(rawAd);
                                     layer.bindTooltip("<b>" + fAd + " Mah.</b>", { direction: "center", sticky: true });
                                 }
@@ -8034,6 +8363,333 @@
           });
       }
 
+      // =========================================================================
+      // 🧪 ZİRAİ İLAÇ SATIŞ VE KULLANIM MOTORU
+      // =========================================================================
+      const ZI_BAYILER = {
+          "Akçaabat": ["BALCI TARIM VE ARICILIK ÜRÜNLERİ", "EMEK ZİRAİ ÜRÜNLER LTD.ŞTİ.", "KUZEY TARIM ÜRÜNLERİ SAN.VE TİC.LTD.ŞTİ.", "ÖZÇAKIR ZİRAİ ÜRÜNLER VE TİCARET LİMİTED ŞİRKETİ", "TOPSAKAL PEYZAJ ÇİÇ. TİC.LTD.ŞTİ."],
+          "Araklı": ["ERTÜRK TARIM ÜRÜNLERİ"],
+          "Arsin": ["ÖZEL TARIM"],
+          "Beşikdüzü": ["KARAR TURİZM LTD.ŞTİ."],
+          "Çarşıbaşı": ["1694 SAYILI ÇARŞIBAŞI TARIM KREDİ KOOPERATİFİ"],
+          "Of": ["310 SAYILI OF TARIM KREDİ KOOPERATİFİ"],
+          "Ortahisar": ["ALİMAN NAK. VE TİC. LTD. ŞTİ.", "BAŞAK TARIM", "KUVVETLER ECZA TARIM ÜRÜNLERİ İNŞ. TİC. LTD. ŞTİ.", "TOPRAK TARIM ÜRÜNLERİ SAN. TİC. LTD. ŞTİ", "TOPRAK TARIM ÜRÜNLERİ SANAYİ NAKLİYE TİC LTD ŞTİ", "TÜM MAKİNA KİMYA SANAYİ VE TİCARET ANONİM ŞİRKETİ", "YAVUZ BAYRAM"],
+          "Vakfıkebir": ["2458 SAYILI VAKFIKEBİR TARIM KREDİ KOOPERATİFİ", "OKYA TARIM SANAYİ TİCARET LİMİTED ŞİRKETİ"],
+          "Yomra": ["DOĞU KARADENİZ GÜBRE ZİRAİ İLAÇ LTD.ŞTİ"]
+      };
+
+      const ZI_ILACLAR = ["AMPLİGO 150 ZC (İTHAL)", "RELAXIA (İTHAL)", "SANCTUM (İTHAL)", "VANTEX 60 CS (İTHAL)", "DİĞER"];
+      
+      // Hacim Listesi (Metin -> Litre Çarpanı)
+      const ZI_HACIMLER = {
+          "50 ml": 0.05,
+          "100 ml": 0.1,
+          "200 ml": 0.2,
+          "250 ml": 0.25,
+          "400 ml": 0.4,
+          "500 ml": 0.5,
+          "1 Litre": 1.0,
+          "5 Litre": 5.0
+      };
+
+      let ziSeciliIlce = "";
+      let ziSeciliBayi = "";
+      let ziSeciliIlac = "";
+      let ziSeciliHacim = "";
+      let ziRaporVerisi = [];
+
+      function ziraiIlacModulunuBaslat() {
+          // Tarihi bugüne kur
+          let bugun = new Date();
+          let gun = ("0" + bugun.getDate()).slice(-2);
+          let ay = ("0" + (bugun.getMonth() + 1)).slice(-2);
+          document.getElementById('ziSatisTarihi').value = `${bugun.getFullYear()}-${ay}-${gun}`;
+          
+          // Yetki ayarlaması ve Filtre
+          let yetki = personelinYetkisi || "";
+          let kIlce = temizle(personelinIlcesi);
+          let isYonetici = (yetki === "yonetici" || yetki === "il yetkilisi" || yetki === "ghost" || kIlce === "merkez" || kIlce === "il" || kIlce === "trabzon" || kIlce === "");
+          
+          let fAdmin = document.getElementById('ziAdminIlceSecici');
+          let sAdmin = document.getElementById('ziIlceFiltre');
+          let rAdmin = document.getElementById('ziRaporIlce');
+          
+          sAdmin.innerHTML = '<option value="">-- Tüm İlçeler --</option>';
+          rAdmin.innerHTML = '<option value="Tümü">Tüm İl</option>';
+          TRABZON_ILCELER.forEach(i => {
+              sAdmin.innerHTML += `<option value="${i}">${i}</option>`;
+              rAdmin.innerHTML += `<option value="${i}">${i}</option>`;
+          });
+
+          if (isYonetici) {
+              fAdmin.style.display = "block";
+              ziSeciliIlce = sAdmin.value || "";
+          } else {
+              fAdmin.style.display = "none";
+              ziSeciliIlce = personelinIlcesi;
+              rAdmin.value = personelinIlcesi;
+              rAdmin.disabled = true;
+          }
+          
+          // İlaç ve Hacim Listelerini Çiz
+          let bIlac = document.getElementById('ziIlacButonlari');
+          bIlac.innerHTML = "";
+          ZI_ILACLAR.forEach(ilac => {
+              bIlac.innerHTML += `<button onclick="ziraiIlacSec('${ilac}')" class="action-btn" style="background:#e0e0e0; color:#333; padding:15px; border:2px solid #ccc; font-size:14px;">${ilac}</button>`;
+          });
+
+          let bHacim = document.getElementById('ziHacimButonlari');
+          if (bHacim) {
+              bHacim.innerHTML = "";
+              Object.keys(ZI_HACIMLER).forEach(h => {
+                  bHacim.innerHTML += `<button onclick="ziraiHacimSec('${h}')" class="action-btn" style="background:#fff8e1; color:#e65100; border:2px solid #ffb74d; padding:12px; font-size:14px;">📏 ${h}</button>`;
+              });
+          }
+          
+          ziraiIlacBayileriCiz();
+          ziraiIlacAdimGec(1);
+      }
+
+      function ziraiIlacBayileriCiz() {
+          let ilce = document.getElementById('ziIlceFiltre').value || ziSeciliIlce;
+          let listeKutu = document.getElementById('ziBayiListesi');
+          listeKutu.innerHTML = "";
+          
+          let gosterilecekBayiler = [];
+          if (ilce && ZI_BAYILER[formatKelime(ilce)]) {
+              gosterilecekBayiler = ZI_BAYILER[formatKelime(ilce)];
+          } else if (!ilce) {
+              // Yönetici tümünü görürse, anahtarları birleştir
+              Object.values(ZI_BAYILER).forEach(bArr => gosterilecekBayiler.push(...bArr));
+          }
+          
+          if (gosterilecekBayiler.length === 0) {
+              listeKutu.innerHTML = `<div style="grid-column: span 2; padding:20px; text-align:center; background:#ffebee; color:red; border-radius:8px; font-weight:bold;">Bu ilçede kayıtlı bayi bulunamadı.</div>`;
+              return;
+          }
+
+          gosterilecekBayiler.forEach(bayi => {
+              // Tıklanan bayinin hangi ilçeden olduğunu bulmak için ufak zeka
+              let aitOlduguIlce = ilce;
+              if (!ilce) {
+                  for (const [key, value] of Object.entries(ZI_BAYILER)) {
+                      if (value.includes(bayi)) { aitOlduguIlce = key; break; }
+                  }
+              }
+              
+              listeKutu.innerHTML += `
+              <button onclick="ziraiBayiSec('${aitOlduguIlce}', '${bayi.replace(/'/g, "\\'")}')" 
+                      style="background:white; border:2px solid #1976d2; border-radius:8px; padding:15px; cursor:pointer; box-shadow:0 2px 4px rgba(0,0,0,0.1); font-weight:bold; color:#1976d2; text-align:left; transition:0.2s;">
+                  🏪 ${bayi} <br><small style="color:#757575;">📍 ${aitOlduguIlce}</small>
+              </button>`;
+          });
+      }
+
+      function ziraiBayiSec(ilce, bayi) {
+          ziSeciliIlce = ilce;
+          ziSeciliBayi = bayi;
+          document.getElementById('ziSeciliBayiAd').innerText = bayi + " (" + ilce + ")";
+          ziraiIlacAdimGec(2);
+      }
+
+      function ziraiIlacSec(ilac) {
+          ziSeciliIlac = ilac;
+          document.getElementById('ziModalSeciliIlac').innerText = ilac;
+          
+          // Tüm ilaç butonlarının rengini sıfırla, seçileni yeşil yap
+          let bIlacDivs = document.getElementById('ziIlacButonlari').children;
+          for(let i=0; i<bIlacDivs.length; i++) {
+              bIlacDivs[i].style.background = "#e0e0e0";
+              bIlacDivs[i].style.color = "#333";
+              bIlacDivs[i].style.borderColor = "#ccc";
+          }
+          event.target.style.background = "#2e7d32";
+          event.target.style.color = "white";
+          event.target.style.borderColor = "#1b5e20";
+
+          // Yeni UX: Modalı aç
+          document.getElementById('ziHacimModal').classList.add('show');
+      }
+
+      function ziraiHacimSec(hacim) {
+          ziSeciliHacim = hacim;
+          document.getElementById('ziHacimModal').classList.remove('show');
+          document.getElementById('ziModalOzet').innerHTML = `💊 İlaç: <b>${ziSeciliIlac}</b><br>📏 Hacim: <b style="color:#d32f2f;">${hacim}</b>`;
+          document.getElementById('ziKutuAdeti').value = "";
+          document.getElementById('ziNotlar').value = "";
+          document.getElementById('ziKutuModal').classList.add('show');
+          
+          setTimeout(() => document.getElementById('ziKutuAdeti').focus(), 100);
+      }
+
+      function ziraiIlacAdimGec(adimNo) {
+          if (adimNo === 1) {
+              document.getElementById('ziAdim1').classList.remove('hidden');
+              document.getElementById('ziAdim2').classList.add('hidden');
+              ziSeciliIlac = "";
+              document.getElementById('ziKutuAdeti').value = "";
+              document.getElementById('ziNotlar').value = "";
+          } else if (adimNo === 2) {
+              document.getElementById('ziAdim1').classList.add('hidden');
+              document.getElementById('ziAdim2').classList.remove('hidden');
+          }
+      }
+
+      function ziraiIlacKaydet() {
+          let tarih = document.getElementById('ziSatisTarihi').value;
+          let hacim = ziSeciliHacim;
+          let kutu = document.getElementById('ziKutuAdeti').value;
+          let notlar = document.getElementById('ziNotlar').value;
+
+          if (!tarih || !ziSeciliIlac || !hacim || !kutu) {
+              alert("⚠️ Lütfen Kutu Adeti bilgisini girin!");
+              return;
+          }
+          
+          let onayMesaji = `⚠️ DİKKAT!\n\nSatılan İlaç: ${ziSeciliIlac}\nHacim: ${hacim}\nAdet: ${kutu} Kutu\n\nSisteme veri girişini onaylıyor musunuz?`;
+          if(!confirm(onayMesaji)) return;
+          
+          // Litre hesaplaması (Arka planda kullanılacak)
+          let carpan = ZI_HACIMLER[hacim] || 0;
+          let toplamLitre = (parseFloat(kutu) * carpan).toFixed(2);
+
+          let btn = document.getElementById('btnZiKaydet');
+          btn.innerText = "⏳ Kaydediliyor...";
+          btn.disabled = true;
+
+          let paket = {
+              islemTipi: "Zirai Ilac Kaydi",
+              personel: localStorage.getItem("kktp_adSoyad"),
+              tarih: tarih,
+              ilce: ziSeciliIlce,
+              bayi: ziSeciliBayi,
+              ilac: ziSeciliIlac,
+              hacim: hacim,
+              kutu: kutu,
+              toplamLt: toplamLitre,
+              notlar: notlar,
+              token: localStorage.getItem("kktp_token")
+          };
+
+          if (personelinYetkisi === "ghost") {
+              setTimeout(() => {
+                  vipBildirim("👻 [GHOST MOD] İlaç kaydı simülasyonu başarılı!", "basarili");
+                  document.getElementById('ziKutuModal').classList.remove('show');
+                  btn.innerText = "💾 İlaç Satışını Kaydet"; btn.disabled = false;
+              }, 800);
+              return;
+          }
+
+          fetch(GOOGLE_SCRIPT_URL, {
+              method: "POST", body: JSON.stringify(paket), headers: { "Content-Type": "text/plain;charset=utf-8" }
+          }).then(r => r.json()).then(data => {
+              if(data.durum === "basarili") {
+                  vipBildirim("✅ İlaç Satışı Başarıyla Kaydedildi!", "basarili");
+                  sistemeLogYaz("Zirai İlaç Kaydı", `${ziSeciliBayi} bayisine ${kutu} kutu ${ziSeciliIlac} girildi.`);
+                  
+                  document.getElementById('ziKutuModal').classList.remove('show');
+              } else {
+                  vipBildirim("❌ " + data.mesaj, "hata");
+              }
+              btn.innerText = "💾 İlaç Satışını Kaydet"; btn.disabled = false;
+          }).catch(e => {
+              vipBildirim("Bağlantı hatası", "hata");
+              btn.innerText = "💾 İlaç Satışını Kaydet"; btn.disabled = false;
+          });
+      }
+
+      function ziraiIlacSekmeDegistir(sekme) {
+          document.getElementById('tabZilacGiris').classList.remove('active');
+          document.getElementById('tabZilacRapor').classList.remove('active');
+          document.getElementById('zilacGirisAlani').classList.add('hidden');
+          document.getElementById('zilacRaporAlani').classList.add('hidden');
+          
+          if (sekme === 'Giris') {
+              document.getElementById('tabZilacGiris').classList.add('active');
+              document.getElementById('zilacGirisAlani').classList.remove('hidden');
+          } else {
+              document.getElementById('tabZilacRapor').classList.add('active');
+              document.getElementById('zilacRaporAlani').classList.remove('hidden');
+              if (ziRaporVerisi.length === 0) ziraiIlacRaporuCek(); // İlk kez açılıyorsa veriyi çek
+          }
+      }
+
+      function ziraiIlacRaporuCek() {
+          let govde = document.getElementById("ziRaporGovde");
+          govde.innerHTML = "<tr><td colspan='8' style='text-align:center;'>⏳ Veriler Çekiliyor...</td></tr>";
+          
+          fetch(GOOGLE_SCRIPT_URL, {
+              method: 'POST',
+              body: JSON.stringify({ islemTipi: "Zirai Ilac Raporu Getir", token: localStorage.getItem("kktp_token") }),
+              headers: { "Content-Type": "text/plain;charset=utf-8" }
+          }).then(r => r.json()).then(data => {
+              if (!tokenGecerlilikKontrolu(data)) return;
+              ziRaporVerisi = data.veriler || [];
+              ziraiIlacRaporunuCiz();
+          }).catch(e => { govde.innerHTML = "<tr><td colspan='8' style='color:red;'>Bağlantı Hatası</td></tr>"; });
+      }
+
+      function ziraiIlacRaporunuCiz() {
+          let fIlce = document.getElementById('ziRaporIlce').value;
+          let govde = document.getElementById("ziRaporGovde");
+          let kartlarAlani = document.getElementById("ziOzetKartlari");
+          govde.innerHTML = ""; kartlarAlani.innerHTML = "";
+          
+          let filtrelenmis = ziRaporVerisi.filter(item => fIlce === "Tümü" || temizle(item.ilce) === temizle(fIlce));
+          
+          if (filtrelenmis.length === 0) {
+              govde.innerHTML = "<tr><td colspan='8' style='color:red; text-align:center;'>Bu bölgede henüz satış kaydı yok.</td></tr>";
+              return;
+          }
+
+          // İlaçlara göre Toplam Litre Hesapla
+          let ilacOzet = {};
+          filtrelenmis.forEach(item => {
+              let ad = item.ilac || "Diğer";
+              let lt = parseFloat(item.toplamLt) || 0;
+              if (!ilacOzet[ad]) ilacOzet[ad] = 0;
+              ilacOzet[ad] += lt;
+          });
+          
+          // Özet Kartlarını Bas
+          let renkler = ["#1976d2", "#2e7d32", "#d32f2f", "#f57c00", "#6a1b9a", "#00838f"];
+          let renkIndex = 0;
+          for (const [ilac, toplamLt] of Object.entries(ilacOzet)) {
+              let kRenk = renkler[renkIndex % renkler.length];
+              kartlarAlani.innerHTML += `
+              <div style="background:white; border:2px solid ${kRenk}; border-radius:8px; padding:15px; text-align:center; box-shadow:0 2px 5px rgba(0,0,0,0.1);">
+                  <div style="font-size:20px; font-weight:bold; color:${kRenk};">${toplamLt.toFixed(2)} Lt</div>
+                  <div style="font-size:11px; font-weight:bold; color:#555; margin-top:5px; text-transform:uppercase;">${ilac}</div>
+              </div>`;
+              renkIndex++;
+          }
+
+          // Tabloyu Bas (Ters çevirerek en yeni kayıtlar üstte)
+          filtrelenmis.slice().reverse().forEach(item => {
+              let dt = item.tarih;
+              if (dt.includes('-')) { let p = dt.split('-'); dt = `${p[2]}.${p[1]}.${p[0]}`; } // YYYY-MM-DD -> DD.MM.YYYY
+              
+              govde.innerHTML += `
+              <tr>
+                  <td style="font-size:11px;">${guvenliMetin(item.sistemTarihi)}</td>
+                  <td style="font-weight:bold; color:#d32f2f;">${guvenliMetin(dt)}</td>
+                  <td><b>${guvenliMetin(item.ilce)}</b><br><span style="font-size:11px; color:#555;">${guvenliMetin(item.bayi)}</span></td>
+                  <td>${guvenliMetin(item.personel)}</td>
+                  <td style="color:#1976d2; font-weight:bold;">${guvenliMetin(item.ilac)}</td>
+                  <td>${guvenliMetin(item.kutu)} Kutu <br><span style="font-size:10px;">(${guvenliMetin(item.hacim)})</span></td>
+                  <td style="font-weight:bold; font-size:14px;">${guvenliMetin(item.toplamLt)} Lt</td>
+                  <td style="font-size:11px; text-align:left;">${guvenliMetin(item.notlar)}</td>
+              </tr>`;
+          });
+      }
+
+      function ziraiIlacExcelIndir() {
+          let tablo = document.getElementById("ziRaporTablosu");
+          if (!tablo) return;
+          let wb = XLSX.utils.table_to_book(tablo, { sheet: "Zirai_Ilac_Satis" });
+          XLSX.writeFile(wb, "Zirai_Ilac_Satis_Raporu.xlsx");
+      }
+
       // 🚨 GÖREV PANOSU MOTORU (VERİ ÇEKME VE EKRANA ÇİZME) 🚨
       // =========================================================================
 
@@ -8351,7 +9007,8 @@
 
                   excelHTML += `<tr>
                       <td data-t="s" style='mso-number-format:"\\@";'>${veriTemizle(item.raporNo)}</td>
-                      <td>${veriTemizle(item.tarih, "tarih")}</td> <td style='font-weight:bold;'>${veriTemizle(item.ilce)}</td>
+                      <td data-t="s" style='mso-number-format:"\\@";'>${veriTemizle(item.tarih, "tarih")}</td>
+                      <td style='font-weight:bold;'>${veriTemizle(item.ilce)}</td>
 
                   <td>${veriTemizle(item.mahalle)}</td>
                   <td data-t="s" style='mso-number-format:"\\@";'>${veriTemizle(item.ada)}</td>
@@ -8386,8 +9043,10 @@
           tempDiv.innerHTML = surveyExcelHtmlOlustur();
           
           try {
+              let d = new Date();
+              let tarihYazi = ("0" + d.getDate()).slice(-2) + "_" + ("0" + (d.getMonth() + 1)).slice(-2) + "_" + d.getFullYear();
               let wb = XLSX.utils.table_to_book(tempDiv.firstChild, { sheet: "Rapor" });
-              XLSX.writeFile(wb, "Detayli_Survey_Raporu.xlsx");
+              XLSX.writeFile(wb, `Detayli_Survey_Raporu_${tarihYazi}.xlsx`);
           } catch(e) {
               alert("Excel dosyası oluşturulurken hata oluştu.");
           }
@@ -8406,10 +9065,12 @@
             tempDiv.innerHTML = surveyExcelHtmlOlustur();
 
             try {
+                let d = new Date();
+                let tarihYazi = ("0" + d.getDate()).slice(-2) + "_" + ("0" + (d.getMonth() + 1)).slice(-2) + "_" + d.getFullYear();
                 let wb = XLSX.utils.table_to_book(tempDiv.firstChild, { sheet: "Rapor" });
                 let wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
                 let blob = new Blob([wbout], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-                let file = new File([blob], "Survey_Raporu.xlsx", { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+                let file = new File([blob], `Survey_Raporu_${tarihYazi}.xlsx`, { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
 
                 if (navigator.canShare && navigator.canShare({ files: [file] })) {
                     navigator.share({ title: 'Genel Sürvey Raporu', text: 'İlgili döneme ait Genel Sürvey Raporu (Excel) ektedir.', files: [file] })
@@ -8419,7 +9080,7 @@
                     let url = URL.createObjectURL(blob);
                     let a = document.createElement("a");
                     a.href = url;
-                    a.download = "Survey_Raporu.xlsx";
+                    a.download = `Survey_Raporu_${tarihYazi}.xlsx`;
                     document.body.appendChild(a);
                     a.click();
                     document.body.removeChild(a);
