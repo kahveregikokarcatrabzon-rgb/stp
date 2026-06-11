@@ -704,7 +704,7 @@
       </ul>
       <div class="footer-imza">
         © <span id="footerYil">2026</span> STP | Cloud Sürümü
-        <b id="appVersiyon" style="color: var(--bakanlik-kirmizi)">v24</b
+        <b id="appVersiyon" style="color: var(--bakanlik-kirmizi)">v25</b
         ><br />Geliştirici:
         <a
           href="mailto:mustafa.cavdar@tarimorman.gov.tr"
@@ -3262,6 +3262,10 @@
           <label>Yeni Şifreniz</label
           ><input type="password" id="yeniSifre_M6" />
         </div>
+        <div class="form-group">
+          <label>Yeni Şifreniz (Tekrar)</label>
+          <input type="password" id="yeniSifre_M6_tekrar" />
+        </div>
         <button
           id="btnSifreDegistir_M6"
           onclick="sifreyiGuncelleM6()"
@@ -4136,19 +4140,6 @@
               if (pKutu) pKutu.addEventListener("input", otomatikTuzakIDOlustur);
             });
 
-            function turkceKarakterleriTemizle(text) {
-              if (!text) return "";
-              return String(text)
-                .trim()
-                .toLocaleLowerCase("tr-TR") // Önce Türkçe kurallarına göre küçük harf yap
-                .replace(/ğ/g, "g")
-                .replace(/ü/g, "u")
-                .replace(/ş/g, "s")
-                .replace(/ö/g, "o")
-                .replace(/ç/g, "c")
-                .replace(/ı/g, "i"); // En kritik nokta burası: 'ı' -> 'i' olur, 'İ' -> 'i' olur.
-            }
-
             const HARITA_LINKLERI = {
               Akçaabat:
                 "https://gist.githubusercontent.com/kahveregikokarcatrabzon-rgb/b5bf02cd18ce7848ef0120aa3ab53de2/raw/30c08d85f5eebdf9c3c59171944fe46993af9588/akcaabat.geojson",
@@ -4408,7 +4399,7 @@
               r.readAsDataURL(file);
             }
 
-            window.onload = function () {
+            window.addEventListener("load", function () {
               let kayitliAd = localStorage.getItem("kktp_adSoyad");
               let kayitliYetki = localStorage.getItem("kktp_yetki");
               let kayitliIlce = localStorage.getItem("kktp_ilce");
@@ -4427,7 +4418,7 @@
                 if (sKutu) sKutu.value = hatirlananSifre;
                 if (cKutu) cKutu.checked = true;
               }
-            };
+            });
 
             function sistemeGirisYap() {
               let kulAdi = document.getElementById("loginKullanici").value.trim();
@@ -5204,8 +5195,8 @@
                   // 👉 YENİ: Karşılaştırmayı Türkçe karakterleri temizleyerek yap
                   if (
                     mAd && 
-                    turkceKarakterleriTemizle(mAd) ===
-                    turkceKarakterleriTemizle(mahalle)
+                    temizle(mAd) ===
+                    temizle(mahalle)
                   ) {
                     hedefFeature = feature;
                     break;
@@ -5282,208 +5273,102 @@
               }
             }
 
-            function konumAlSurvey() {
-              const d = document.getElementById("surveyKonumDurum");
-              const gpsKutu = document.getElementById("surveyGPS");
-              if (d) {
-                d.style.color = "#1976d2";
-                d.innerText = "GPS aranıyor...";
+            function konumAlGps(tur) {
+              let dId, gpsKutuId, mapId, formAlaniId, ilceKutusuId;
+              if (tur === "survey") {
+                  dId = "surveyKonumDurum"; gpsKutuId = "surveyGPS"; mapId = "mapSurvey";
+                  formAlaniId = "surveyFormu"; ilceKutusuId = "surveyIlce";
+              } else if (tur === "tuzak") {
+                  dId = "tuzakKonumDurum"; gpsKutuId = "tuzakGPS"; mapId = "mapTuzak";
+                  formAlaniId = "tuzakFormAlani"; ilceKutusuId = "tuzakIlce";
+              } else if (tur === "samuray") {
+                  dId = "samurayKonumDurum"; gpsKutuId = "samurayGPS"; mapId = "mapSamuray";
+                  formAlaniId = "samurayFormAlani"; ilceKutusuId = "samurayIlce";
               }
+
+              const d = document.getElementById(dId);
+              const gpsKutu = document.getElementById(gpsKutuId);
+              if (d) { d.style.color = "#1976d2"; d.innerText = "GPS aranıyor..."; }
+
               if ("geolocation" in navigator) {
-                navigator.geolocation.getCurrentPosition(
-                  function (pos) {
-                    const e = pos.coords.latitude;
-                    const b = pos.coords.longitude;
-                    anlikKoordinatSurvey = e + ", " + b;
-                    if (gpsKutu) gpsKutu.value = anlikKoordinatSurvey;
-                    let mp = document.getElementById("mapSurvey");
-                    if (mp) mp.style.display = "block";
-                    if (!haritaSurvey && mp) {
-                      haritaSurvey = L.map("mapSurvey").setView([e, b], 18);
-                      L.tileLayer(
-                        "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
-                        { maxZoom: 20 },
-                      ).addTo(haritaSurvey);
-                      haritayaTamEkranEkle(haritaSurvey);
-                      haritayaKonumButonuEkle(haritaSurvey);
-                    } else if (haritaSurvey) {
-                      haritaSurvey.setView([e, b], 18);
-                    }
-                    if (isaretciSurvey && haritaSurvey)
-                      haritaSurvey.removeLayer(isaretciSurvey);
-                    if (haritaSurvey) {
-                      isaretciSurvey = L.marker([e, b], { draggable: true }).addTo(
-                        haritaSurvey,
-                      );
-                      isaretciSurvey.on("dragend", function (event) {
-                        let y = event.target.getLatLng();
-                        anlikKoordinatSurvey = y.lat + ", " + y.lng;
-                        if (gpsKutu) gpsKutu.value = anlikKoordinatSurvey;
-                        zekiKonumBul(y.lat, y.lng, "survey");
-                      });
-                      setTimeout(() => {
-                        haritaSurvey.invalidateSize();
-                      }, 200);
-                    }
-                    document.getElementById("surveyFormu").classList.remove("hidden");
-                    zekiKonumBul(e, b, "survey");
-                  },
-                  function (error) {
-                    document.getElementById("surveyFormu").classList.remove("hidden");
-                    let ilceKutusu = document.getElementById("surveyIlce");
-                    if (ilceKutusu && ilceKutusu.value) {
-                      haritayiManuelOdakla("mapSurvey", ilceKutusu.value);
-                      if (d) {
-                        d.style.color = "#f57c00";
-                        d.innerText =
-                          "📍 GPS alınamadı. Harita ilçe merkezine odaklandı, lütfen iğneyi elinizle kaydırın.";
-                      }
-                    } else {
-                      if (d) {
-                        d.style.color = "red";
-                        d.innerText =
-                          "📍 GPS alınamadı. Haritayı açmak için lütfen aşağıdaki formdan 'İlçe' seçiniz.";
-                      }
-                    }
-                  },
-                  { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-                );
+                  navigator.geolocation.getCurrentPosition(
+                      function (pos) {
+                          const e = pos.coords.latitude;
+                          const b = pos.coords.longitude;
+                          let rakim = pos.coords.altitude ? Math.round(pos.coords.altitude) : "";
+                          let anlik = e + ", " + b;
+                          
+                          if (tur === "survey") anlikKoordinatSurvey = anlik;
+                          else if (tur === "tuzak") anlikKoordinatTuzak = anlik;
+                          else if (tur === "samuray") anlikKoordinatSamuray = anlik;
+
+                          if (gpsKutu) gpsKutu.value = anlik;
+
+                          if (tur === "tuzak" || tur === "samuray") {
+                              let rakimKutu = document.getElementById(tur === "tuzak" ? "tuzakRakim" : "samurayRakim");
+                              if (rakimKutu && rakim !== "") rakimKutu.value = rakim;
+                          }
+
+                          let mp = document.getElementById(mapId);
+                          if (mp) mp.style.display = "block";
+
+                          let h = tur === "survey" ? haritaSurvey : (tur === "tuzak" ? haritaTuzak : haritaSamuray);
+                          let isrt = tur === "survey" ? isaretciSurvey : (tur === "tuzak" ? isaretciTuzak : isaretciSamuray);
+
+                          if (!h && mp) {
+                              h = L.map(mapId).setView([e, b], 18);
+                              L.tileLayer("https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}", { maxZoom: 20 }).addTo(h);
+                              haritayaTamEkranEkle(h);
+                              haritayaKonumButonuEkle(h);
+                              
+                              if (tur === "survey") haritaSurvey = h;
+                              else if (tur === "tuzak") haritaTuzak = h;
+                              else if (tur === "samuray") haritaSamuray = h;
+                          } else if (h) {
+                              h.setView([e, b], 18);
+                          }
+
+                          if (isrt && h) h.removeLayer(isrt);
+                          
+                          if (h) {
+                              isrt = L.marker([e, b], { draggable: true }).addTo(h);
+                              isrt.on("dragend", function (event) {
+                                  let y = event.target.getLatLng();
+                                  let yeniAnlik = y.lat + ", " + y.lng;
+                                  if (tur === "survey") anlikKoordinatSurvey = yeniAnlik;
+                                  else if (tur === "tuzak") anlikKoordinatTuzak = yeniAnlik;
+                                  else if (tur === "samuray") anlikKoordinatSamuray = yeniAnlik;
+                                  if (gpsKutu) gpsKutu.value = yeniAnlik;
+                                  zekiKonumBul(y.lat, y.lng, tur);
+                              });
+                              
+                              if (tur === "survey") isaretciSurvey = isrt;
+                              else if (tur === "tuzak") isaretciTuzak = isrt;
+                              else if (tur === "samuray") isaretciSamuray = isrt;
+
+                              setTimeout(() => { h.invalidateSize(); }, 200);
+                          }
+                          document.getElementById(formAlaniId).classList.remove("hidden");
+                          zekiKonumBul(e, b, tur);
+                      },
+                      function (error) {
+                          document.getElementById(formAlaniId).classList.remove("hidden");
+                          let ilceKutusu = document.getElementById(ilceKutusuId);
+                          if (ilceKutusu && ilceKutusu.value) {
+                              haritayiManuelOdakla(mapId, ilceKutusu.value);
+                              if (d) { d.style.color = "#f57c00"; d.innerText = "📍 GPS alınamadı. Harita ilçe merkezine odaklandı, lütfen iğneyi elinizle kaydırın."; }
+                          } else {
+                              if (d) { d.style.color = "red"; d.innerText = "📍 GPS alınamadı. Haritayı açmak için lütfen aşağıdaki formdan 'İlçe' seçiniz."; }
+                          }
+                      },
+                      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+                  );
               }
             }
 
-            function konumAlTuzak() {
-              const d = document.getElementById("tuzakKonumDurum");
-              const gpsKutu = document.getElementById("tuzakGPS");
-              if (d) {
-                d.style.color = "#f57c00";
-                d.innerText = "GPS aranıyor...";
-              }
-              if ("geolocation" in navigator) {
-                navigator.geolocation.getCurrentPosition(
-                  function (pos) {
-                    const e = pos.coords.latitude;
-                    const b = pos.coords.longitude;
-                    const rakim = pos.coords.altitude
-                      ? Math.round(pos.coords.altitude)
-                      : "";
-                    anlikKoordinatTuzak = e + ", " + b;
-                    if (gpsKutu) gpsKutu.value = anlikKoordinatTuzak;
-                    let rakimKutu = document.getElementById("tuzakRakim");
-                    if (rakimKutu && rakim !== "") rakimKutu.value = rakim;
-                    let mp = document.getElementById("mapTuzak");
-                    if (mp) mp.style.display = "block";
-                    if (!haritaTuzak && mp) {
-                      haritaTuzak = L.map("mapTuzak").setView([e, b], 18);
-                      L.tileLayer(
-                        "https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}",
-                        { maxZoom: 20 },
-                      ).addTo(haritaTuzak);
-                      haritayaTamEkranEkle(haritaTuzak);
-                      haritayaKonumButonuEkle(haritaTuzak);
-                    } else if (haritaTuzak) {
-                      haritaTuzak.setView([e, b], 18);
-                    }
-                    if (isaretciTuzak && haritaTuzak)
-                      haritaTuzak.removeLayer(isaretciTuzak);
-                    if (haritaTuzak) {
-                      isaretciTuzak = L.marker([e, b], { draggable: true }).addTo(
-                        haritaTuzak,
-                      );
-                      isaretciTuzak.on("dragend", function (event) {
-                        let y = event.target.getLatLng();
-                        anlikKoordinatTuzak = y.lat + ", " + y.lng;
-                        if (gpsKutu) gpsKutu.value = anlikKoordinatTuzak;
-                        zekiKonumBul(y.lat, y.lng, "tuzak");
-                      });
-                      setTimeout(() => {
-                        haritaTuzak.invalidateSize();
-                      }, 200);
-                    }
-                    document
-                      .getElementById("tuzakFormAlani")
-                      .classList.remove("hidden");
-                    zekiKonumBul(e, b, "tuzak");
-                  },
-                  function (error) {
-                    document
-                      .getElementById("tuzakFormAlani")
-                      .classList.remove("hidden");
-                    let ilceKutusu = document.getElementById("tuzakIlce");
-                    if (ilceKutusu && ilceKutusu.value) {
-                      haritayiManuelOdakla("mapTuzak", ilceKutusu.value);
-                      if (d) {
-                        d.style.color = "#f57c00";
-                        d.innerText =
-                          "📍 GPS alınamadı. Harita ilçe merkezine odaklandı, lütfen iğneyi elinizle kaydırın.";
-                      }
-                    } else {
-                      if (d) {
-                        d.style.color = "red";
-                        d.innerText =
-                          "📍 GPS alınamadı. Haritayı açmak için lütfen aşağıdaki formdan 'İlçe' seçiniz.";
-                      }
-                    }
-                  },
-                  { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-                );
-              }
-            }
-
-            function konumAlSamuray() {
-              const d = document.getElementById("samurayKonumDurum");
-              const gpsKutu = document.getElementById("samurayGPS");
-              if (d) {
-                d.style.color = "#1976d2";
-                d.innerText = "GPS aranıyor...";
-              }
-              if ("geolocation" in navigator) {
-                navigator.geolocation.getCurrentPosition(
-                  function (pos) {
-                    const e = pos.coords.latitude;
-                    const b = pos.coords.longitude;
-                    const rakim = pos.coords.altitude ? Math.round(pos.coords.altitude) : "";
-                    anlikKoordinatSamuray = e + ", " + b;
-                    if (gpsKutu) gpsKutu.value = anlikKoordinatSamuray;
-                    let rakimKutu = document.getElementById("samurayRakim");
-                    if (rakimKutu && rakim !== "") rakimKutu.value = rakim;
-                    let mp = document.getElementById("mapSamuray");
-                    if (mp) mp.style.display = "block";
-                    if (!haritaSamuray && mp) {
-                      haritaSamuray = L.map("mapSamuray").setView([e, b], 18);
-                      L.tileLayer("https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}", { maxZoom: 20 }).addTo(haritaSamuray);
-                      haritayaTamEkranEkle(haritaSamuray);
-                      haritayaKonumButonuEkle(haritaSamuray);
-                    } else if (haritaSamuray) {
-                      haritaSamuray.setView([e, b], 18);
-                    }
-                    if (isaretciSamuray && haritaSamuray) haritaSamuray.removeLayer(isaretciSamuray);
-                    if (haritaSamuray) {
-                      isaretciSamuray = L.marker([e, b], { draggable: true }).addTo(haritaSamuray);
-                      isaretciSamuray.on("dragend", function (event) {
-                        let y = event.target.getLatLng();
-                        anlikKoordinatSamuray = y.lat + ", " + y.lng;
-                        if (gpsKutu) gpsKutu.value = anlikKoordinatSamuray;
-                        zekiKonumBul(y.lat, y.lng, "samuray");
-                      });
-                      setTimeout(() => { haritaSamuray.invalidateSize(); }, 200);
-                    }
-                    document.getElementById("samurayFormAlani").classList.remove("hidden");
-                    zekiKonumBul(e, b, "samuray");
-                  },
-                  function (error) {
-                    document.getElementById("samurayFormAlani").classList.remove("hidden");
-                    let ilceKutusu = document.getElementById("samurayIlce");
-                    if (ilceKutusu && ilceKutusu.value) {
-                      haritayiManuelOdakla("mapSamuray", ilceKutusu.value);
-                      if (d) { d.style.color = "#f57c00"; d.innerText = "📍 GPS alınamadı. Harita ilçe merkezine odaklandı, lütfen iğneyi elinizle kaydırın."; }
-                    } else {
-                      if (d) { d.style.color = "red"; d.innerText = "📍 GPS alınamadı. Haritayı açmak için lütfen aşağıdaki formdan 'İlçe' seçiniz."; }
-                    }
-                  },
-                  { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-                );
-              }
-            }
+            function konumAlSurvey() { konumAlGps("survey"); }
+            function konumAlTuzak() { konumAlGps("tuzak"); }
+            function konumAlSamuray() { konumAlGps("samuray"); }
 
             function otomatikSamurayIDOlustur() {
               let mahalle = document.getElementById("samurayMahalle").value;
@@ -6243,6 +6128,7 @@
                     return;
                   }
 
+                  let tabloHTML = "";
                   globalBenimSurveylerim.forEach((s, index) => {
                     let resimLink =
                       s.foto && s.foto.indexOf("http") === 0
@@ -6255,7 +6141,7 @@
                         ? "<span style='color:red; font-weight:bold;'>Var</span>"
                         : "<span style='color:green; font-weight:bold;'>Yok</span>";
                     let guzelTarih = tarihFormatlaGuzel(s.surveyTarihi);
-                    govde.innerHTML +=
+                    tabloHTML +=
                       "<tr><td>" +
                       guzelTarih +
                       " <br><small style='color:#666; font-weight:bold;'>" +
@@ -6280,6 +6166,7 @@
                       index +
                       ")' class='btn-duzenle' style='background:#1976d2;'>📄 Detay</button></td></tr>";
                   });
+                  govde.innerHTML = tabloHTML;
                 })
                 .catch(() => {
                   govde.innerHTML =
@@ -6529,15 +6416,14 @@
                 });
             }
             function sayimHaritasiFiltrele() {
-              let sm = turkceKarakterleriTemizle(
+              let sm = temizle(
                 document.getElementById("sayimFiltreMahalle").value,
               );
               if (!sm) {
                 haritayaTuzaklariCiz(aktifIlceTuzaklari);
               } else {
                 let filtrelenmis = aktifIlceTuzaklari.filter(
-                  (t) =>
-                    t.Mahalle && turkceKarakterleriTemizle(t.Mahalle).includes(sm),
+                  (t) => t.Mahalle && temizle(t.Mahalle).includes(sm),
                 );
                 haritayaTuzaklariCiz(filtrelenmis);
               }
@@ -7351,7 +7237,7 @@
                       bolgeAdi = temizle(x.ilce);
                     } else {
                       if (temizle(x.ilce) === temizle(secim)) {
-                        bolgeAdi = turkceKarakterleriTemizle(x.mahalle);
+                        bolgeAdi = temizle(x.mahalle);
                       }
                     }
                     if (bolgeAdi) {
@@ -7437,7 +7323,7 @@
                               feature.properties.adi ||
                               feature.properties.ADI;
                             fAd = formatKelime(rawAd);
-                            layer.featureName = turkceKarakterleriTemizle(rawAd);
+                            layer.featureName = temizle(rawAd);
                             layer.displayTitle = fAd + " Mah.";
                           }
                           layer.on({
@@ -7976,6 +7862,7 @@
                   govde.innerHTML = "";
                   if (!tokenGecerlilikKontrolu(data)) return;
                   let sysIlce = temizle(personelinIlcesi);
+                  let tabloHTML = "";
                   data.forEach((p) => {
                     // 🔒 GÜVENLİK ZEKASI: Yönetici olmayanlara Yöneticileri tamamen gizle!
                     if (personelinYetkisi !== "yonetici" && temizle(p.yetki) === "yonetici") {
@@ -7995,7 +7882,7 @@
                           : "•••••";
                       // p.tel yerine boş string gönderiyoruz çünkü arka planda o sütunu 'ekleyenKisi' yaptık, 'undefined' yazmasın
                       let duzenleBtn = `<button class="btn-duzenle" onclick="personelDuzenleAc('${p.kulAdi}','${p.sifre}','${p.ad}','${p.ilce}','','${p.yetki}','${p.durum}')">✏️</button>`;
-                      govde.innerHTML +=
+                      tabloHTML +=
                         // 🛡️ XSS KORUMASI EKLENDİ
                         "<tr><td>" +
                         guvenliMetin(p.kulAdi) +
@@ -8016,6 +7903,7 @@
                         "</td></tr>";
                     }
                   });
+                  govde.innerHTML = tabloHTML;
                 })
                 .catch(() => {
                   govde.innerHTML = "<tr><td colspan='7'>Liste çekilemedi!</td></tr>";
@@ -8150,9 +8038,18 @@
             function sifreyiGuncelleM6() {
               let e = document.getElementById("eskiSifre_M6").value;
               let y = document.getElementById("yeniSifre_M6").value;
+              let t = document.getElementById("yeniSifre_M6_tekrar").value;
               let b = document.getElementById("btnSifreDegistir_M6");
 
-              if (!e || !y) return;
+              if (!e || !y || !t) {
+                alert("Lütfen tüm alanları doldurun!");
+                return;
+              }
+              if (y !== t) {
+                alert("Yeni şifreler eşleşmiyor!");
+                return;
+              }
+
               if (b) {
                 b.innerText = "⏳...";
                 b.disabled = true;
@@ -8756,6 +8653,7 @@
               renkIndex++;
           }
 
+          let tabloHTML = "";
           // Tabloyu Bas (Ters çevirerek en yeni kayıtlar üstte)
           filtrelenmis.slice().reverse().forEach(item => {
               let dt = item.tarih;
@@ -8769,7 +8667,7 @@
                   let p = dt.split('-'); dt = `${p[2]}/${p[1]}/${p[0]}`; 
               }
               
-              govde.innerHTML += `
+              tabloHTML += `
               <tr>
                   <td style="font-weight:bold; color:#d32f2f;">${guvenliMetin(dt)}</td>
                   <td><b>${guvenliMetin(item.ilce)}</b><br><span style="font-size:11px; color:#555;">${guvenliMetin(item.bayi)}</span></td>
@@ -8780,6 +8678,7 @@
                   <td style="font-size:11px; text-align:left;">${guvenliMetin(item.notlar)}</td>
               </tr>`;
           });
+          govde.innerHTML = tabloHTML;
       }
 
       function ziraiIlacExcelIndir() {
@@ -9063,17 +8962,24 @@
 
           window.globalFiltreliVeri = filtrelenmis;
 
+          let tabloHTML = "";
           filtrelenmis.forEach(item => {
-              gövde.innerHTML += `<tr>
+              tabloHTML += `<tr>
                   <td style="padding:8px; border:1px solid #ddd;">${veriTemizle(item.raporNo)}</td>
                   <td style="padding:8px; border:1px solid #ddd;">${veriTemizle(item.tarih, "tarih")}</td>
                   <td style="padding:8px; border:1px solid #ddd; color:#d32f2f;"><b>${veriTemizle(item.ilce)}</b><br><span style="color:#555; font-size:11px;">${veriTemizle(item.mahalle)}</span></td>
                   <td style="padding:8px; border:1px solid #ddd;">${veriTemizle(item.ada)}/${veriTemizle(item.parsel)}</td>
                   <td style="padding:8px; border:1px solid #ddd;">${veriTemizle(item.personel)}</td>
-                      <td style="padding:8px; border:1px solid #ddd;">${veriTemizle(item.alan ? String(item.alan).replace(/\./g, ',') : "")}</td>
+                  <td style="padding:8px; border:1px solid #ddd;">${veriTemizle(item.alan ? String(item.alan).replace(/\./g, ',') : "")}</td>
                   <td style="padding:8px; border:1px solid #ddd;">${veriTemizle(item.yogunluk)}</td>
               </tr>`;
           });
+          
+          if(tabloHTML === "") {
+              gövde.innerHTML = "<tr><td colspan='7' style='text-align:center; color:#d32f2f; padding:15px;'>Bu kriterlere uygun kayıt bulunamadı.</td></tr>";
+          } else {
+              gövde.innerHTML = tabloHTML;
+          }
       }
       // =======================================================
       // 📥 3. GİZLİ EXCEL ÇIKTISI MOTORU (Fazlalıklar Temizlendi)
@@ -9303,6 +9209,7 @@
               return;
           }
 
+          let tabloHTML = "";
           // Google Sheet verisi eskiden yeniye doğru iniyor. Biz UI'da en yeniler en üstte olsun diye ters çeviriyoruz.
           filtrelenmis.slice().reverse().forEach(log => {
               let islemRenk = "#333";
@@ -9313,13 +9220,14 @@
               else if(log.islem.includes("Kayd") || log.islem.includes("Eklendi")) { islemRenk = "#2e7d32"; ikon = "💾"; }
               else if(log.islem.includes("Güncellen") || log.islem.includes("Değiştirildi")) { islemRenk = "#f57c00"; ikon = "🔄"; }
 
-              govde.innerHTML += `<tr>
+              tabloHTML += `<tr>
                   <td style="font-size:12px;">${guvenliMetin(log.tarih)}</td>
                   <td style="font-weight:bold; color:#444;">${guvenliMetin(log.personel)}</td>
                   <td style="color:${islemRenk}; font-weight:bold; font-size:13px;">${ikon} ${guvenliMetin(log.islem)}</td>
                   <td style="font-size:13px; text-align:left;">${guvenliMetin(log.detay)}</td>
               </tr>`;
           });
+          govde.innerHTML = tabloHTML;
       }
 
       function loglariExcelIndir() {
@@ -9374,6 +9282,8 @@
               }
             });
           });
+        }).catch((err) => {
+          console.warn("Service Worker kaydı başarısız oldu:", err);
         });
       }
 
