@@ -686,8 +686,11 @@
           <li onclick="modulAc('modulSamurayYeniNokta')">
             📍 Yeni Salım Noktası
           </li>
+          <li onclick="modulAc('modulKKYumurtaTespiti')">
+            <svg width="1em" height="1em" viewBox="6 8 28 24" style="vertical-align: middle; margin-right: 5px;"><g fill="#9E9E9E" stroke="#FFFFFF" stroke-width="0.3"><circle cx="17" cy="11.6" r="1.6"/><circle cx="20" cy="11.6" r="1.6"/><circle cx="23" cy="11.6" r="1.6"/><circle cx="14" cy="14.4" r="1.6"/><circle cx="17" cy="14.4" r="1.6"/><circle cx="20" cy="14.4" r="1.6"/><circle cx="23" cy="14.4" r="1.6"/><circle cx="26" cy="14.4" r="1.6"/><circle cx="11" cy="17.2" r="1.6"/><circle cx="14" cy="17.2" r="1.6"/><circle cx="17" cy="17.2" r="1.6"/><circle cx="20" cy="17.2" r="1.6"/><circle cx="23" cy="17.2" r="1.6"/><circle cx="26" cy="17.2" r="1.6"/><circle cx="29" cy="17.2" r="1.6"/><circle cx="9.5" cy="20" r="1.6"/><circle cx="12.5" cy="20" r="1.6"/><circle cx="15.5" cy="20" r="1.6"/><circle cx="18.5" cy="20" r="1.6"/><circle cx="21.5" cy="20" r="1.6"/><circle cx="24.5" cy="20" r="1.6"/><circle cx="27.5" cy="20" r="1.6"/><circle cx="30.5" cy="20" r="1.6"/><circle cx="11" cy="22.8" r="1.6"/><circle cx="14" cy="22.8" r="1.6"/><circle cx="17" cy="22.8" r="1.6"/><circle cx="20" cy="22.8" r="1.6"/><circle cx="23" cy="22.8" r="1.6"/><circle cx="26" cy="22.8" r="1.6"/><circle cx="29" cy="22.8" r="1.6"/><circle cx="14" cy="25.6" r="1.6"/><circle cx="17" cy="25.6" r="1.6"/><circle cx="20" cy="25.6" r="1.6"/><circle cx="23" cy="25.6" r="1.6"/><circle cx="26" cy="25.6" r="1.6"/><circle cx="17" cy="28.4" r="1.6"/><circle cx="20" cy="28.4" r="1.6"/><circle cx="23" cy="28.4" r="1.6"/></g></svg> KK Yumurta Tespiti
+          </li>
           <li onclick="modulAc('modulSamurayHarita')">
-            🗺️ Salım Noktaları Haritası
+            🗺️ Samuray Arısı Etki Alanı
           </li>
         </ul>
 
@@ -704,7 +707,7 @@
       </ul>
       <div class="footer-imza">
         © <span id="footerYil">2026</span> STP | Cloud Sürümü
-        <b id="appVersiyon" style="color: var(--bakanlik-kirmizi)">v25</b
+        <b id="appVersiyon" style="color: var(--bakanlik-kirmizi)">v26</b
         ><br />Geliştirici:
         <a
           href="mailto:mustafa.cavdar@tarimorman.gov.tr"
@@ -2917,7 +2920,11 @@
         </div>
         <div class="kare-modul" onclick="modulAc('modulSamurayHarita')">
           <div class="modul-icon">🗺️</div>
-          <div class="modul-text">Salım Noktaları Haritası</div>
+          <div class="modul-text">Samuray Arısı Etki Alanı</div>
+        </div>
+        <div class="kare-modul" onclick="modulAc('modulKKYumurtaTespiti')">
+          <div class="modul-icon"><svg width="40" height="40" viewBox="6 8 28 24"><g fill="#9E9E9E" stroke="#FFFFFF" stroke-width="0.3"><circle cx="17" cy="11.6" r="1.6"/><circle cx="20" cy="11.6" r="1.6"/><circle cx="23" cy="11.6" r="1.6"/><circle cx="14" cy="14.4" r="1.6"/><circle cx="17" cy="14.4" r="1.6"/><circle cx="20" cy="14.4" r="1.6"/><circle cx="23" cy="14.4" r="1.6"/><circle cx="26" cy="14.4" r="1.6"/><circle cx="11" cy="17.2" r="1.6"/><circle cx="14" cy="17.2" r="1.6"/><circle cx="17" cy="17.2" r="1.6"/><circle cx="20" cy="17.2" r="1.6"/><circle cx="23" cy="17.2" r="1.6"/><circle cx="26" cy="17.2" r="1.6"/><circle cx="29" cy="17.2" r="1.6"/><circle cx="9.5" cy="20" r="1.6"/><circle cx="12.5" cy="20" r="1.6"/><circle cx="15.5" cy="20" r="1.6"/><circle cx="18.5" cy="20" r="1.6"/><circle cx="21.5" cy="20" r="1.6"/><circle cx="24.5" cy="20" r="1.6"/><circle cx="27.5" cy="20" r="1.6"/><circle cx="30.5" cy="20" r="1.6"/><circle cx="11" cy="22.8" r="1.6"/><circle cx="14" cy="22.8" r="1.6"/><circle cx="17" cy="22.8" r="1.6"/><circle cx="20" cy="22.8" r="1.6"/><circle cx="23" cy="22.8" r="1.6"/><circle cx="26" cy="22.8" r="1.6"/><circle cx="29" cy="22.8" r="1.6"/><circle cx="14" cy="25.6" r="1.6"/><circle cx="17" cy="25.6" r="1.6"/><circle cx="20" cy="25.6" r="1.6"/><circle cx="23" cy="25.6" r="1.6"/><circle cx="26" cy="25.6" r="1.6"/><circle cx="17" cy="28.4" r="1.6"/><circle cx="20" cy="28.4" r="1.6"/><circle cx="23" cy="28.4" r="1.6"/></g></svg></div>
+          <div class="modul-text">KK Yumurta Tespiti</div>
         </div>
       </div>
     </div>
@@ -2928,7 +2935,7 @@
       </button>
       <div class="form-container">
         <h3 style="color: #1976d2; margin-top: 0">
-          📍 Yeni Samuray Arısı Salım Noktası
+          📍 Samuray Arısı Salım Noktası
         </h3>
         <button
           id="btnSamurayKonum"
@@ -3094,16 +3101,7 @@
               />
             </div>
           </div>
-          <div class="form-row">
-            <div class="form-group half-width">
-              <label>Bahçe Yaşı</label>
-              <input type="text" id="samurayYas" />
-            </div>
-            <div class="form-group half-width">
-              <label>Fındık Çeşidi</label>
-              <input type="text" id="samurayCesit" />
-            </div>
-          </div>
+
           <button
             id="btnSamurayKaydet"
             onclick="veriKaydet('Samuray Kaydı')"
@@ -3111,6 +3109,142 @@
             style="background: #1976d2; margin-top: 15px"
           >
             💾 Salım Noktasını Kaydet
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="modulKKYumurtaTespiti" class="container hidden">
+      <button class="back-btn" onclick="modulAc('dashboardSamuray')">
+        ⬅ Samuray Menüsüne Dön
+      </button>
+      <div class="form-container">
+        <h3 style="color: #1976d2; margin-top: 0">
+          <svg width="1em" height="1em" viewBox="6 8 28 24" style="vertical-align: middle; margin-right: 5px;"><g fill="#9E9E9E" stroke="#FFFFFF" stroke-width="0.3"><circle cx="17" cy="11.6" r="1.6"/><circle cx="20" cy="11.6" r="1.6"/><circle cx="23" cy="11.6" r="1.6"/><circle cx="14" cy="14.4" r="1.6"/><circle cx="17" cy="14.4" r="1.6"/><circle cx="20" cy="14.4" r="1.6"/><circle cx="23" cy="14.4" r="1.6"/><circle cx="26" cy="14.4" r="1.6"/><circle cx="11" cy="17.2" r="1.6"/><circle cx="14" cy="17.2" r="1.6"/><circle cx="17" cy="17.2" r="1.6"/><circle cx="20" cy="17.2" r="1.6"/><circle cx="23" cy="17.2" r="1.6"/><circle cx="26" cy="17.2" r="1.6"/><circle cx="29" cy="17.2" r="1.6"/><circle cx="9.5" cy="20" r="1.6"/><circle cx="12.5" cy="20" r="1.6"/><circle cx="15.5" cy="20" r="1.6"/><circle cx="18.5" cy="20" r="1.6"/><circle cx="21.5" cy="20" r="1.6"/><circle cx="24.5" cy="20" r="1.6"/><circle cx="27.5" cy="20" r="1.6"/><circle cx="30.5" cy="20" r="1.6"/><circle cx="11" cy="22.8" r="1.6"/><circle cx="14" cy="22.8" r="1.6"/><circle cx="17" cy="22.8" r="1.6"/><circle cx="20" cy="22.8" r="1.6"/><circle cx="23" cy="22.8" r="1.6"/><circle cx="26" cy="22.8" r="1.6"/><circle cx="29" cy="22.8" r="1.6"/><circle cx="14" cy="25.6" r="1.6"/><circle cx="17" cy="25.6" r="1.6"/><circle cx="20" cy="25.6" r="1.6"/><circle cx="23" cy="25.6" r="1.6"/><circle cx="26" cy="25.6" r="1.6"/><circle cx="17" cy="28.4" r="1.6"/><circle cx="20" cy="28.4" r="1.6"/><circle cx="23" cy="28.4" r="1.6"/></g></svg> KK Yumurta Tespiti
+        </h3>
+        <button
+          id="btnKKYumurtaKonum"
+          onclick="konumAlKKYumurta()"
+          class="action-btn"
+          style="background: #1976d2"
+        >
+          📍 Haritadan Konum Al (GPS)
+        </button>
+        <p
+          id="kkYumurtaKonumDurum"
+          style="font-size: 13px; margin-top: 10px; font-weight: bold"
+        ></p>
+        <div
+          id="mapKKYumurta"
+          style="
+            height: 300px;
+            width: 100%;
+            border-radius: 8px;
+            border: 2px solid #ccc;
+            margin-top: 10px;
+            display: none;
+            z-index: 1;
+          "
+        ></div>
+        <p
+          id="kkYumurtaAltDurum"
+          style="
+            font-size: 13px;
+            font-weight: bold;
+            color: #1976d2;
+            margin-top: 5px;
+            text-align: center;
+          "
+        ></p>
+
+        <div id="kkYumurtaFormAlani" class="hidden" style="margin-top: 20px">
+          <div class="form-group">
+            <label>Koordinatlar</label>
+            <input
+              type="text"
+              id="kkYumurtaGPS"
+              disabled
+              style="background: #e0e0e0; font-weight: bold; text-align: center"
+            />
+          </div>
+          <div class="form-group">
+            <label>Tespit ID (Otomatik Oluşturulur)</label>
+            <input
+              type="text"
+              id="kkYumurtaID"
+              placeholder="Mahalle_Ada_Parsel"
+              readonly
+              style="background-color: #e9ecef; cursor: not-allowed"
+            />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group half-width">
+              <label>İlçe</label>
+              <select
+                id="kkYumurtaIlce"
+                onchange="
+                  mahalleListesiDoldur('kkYumurtaMahalleListesi', this.value);
+                  haritayiManuelOdakla('mapKKYumurta', this.value);
+                "
+              ></select>
+            </div>
+            <div class="form-group half-width">
+              <label>Mahalle</label>
+              <input
+                type="text"
+                id="kkYumurtaMahalle"
+                list="kkYumurtaMahalleListesi"
+                placeholder="Seçin veya yazın..."
+                onchange="
+                  mahalleyeOdakla(
+                    'mapKKYumurta',
+                    document.getElementById('kkYumurtaIlce').value,
+                    this.value,
+                  )
+                "
+              />
+              <datalist id="kkYumurtaMahalleListesi"></datalist>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group half-width">
+              <label>Ada</label>
+              <input type="text" id="kkYumurtaAda" inputmode="numeric" />
+            </div>
+            <div class="form-group half-width">
+              <label>Parsel</label>
+              <input type="text" id="kkYumurtaParsel" inputmode="numeric" />
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label>Rakım (m)</label>
+            <input type="text" id="kkYumurtaRakim" disabled style="background: #e0e0e0;"/>
+          </div>
+
+          <div class="form-group">
+            <label>Parazitlenmiş Yumurta</label>
+            <select id="kkYumurtaParazit">
+              <option value="">Seçiniz...</option>
+              <option value="Var">Var</option>
+              <option value="Yok">Yok</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Fotoğraf</label>
+            <input type="file" id="kkYumurtaFoto" accept="image/*" />
+          </div>
+
+          <button
+            id="btnKKYumurtaKaydet"
+            onclick="veriKaydet('KK Yumurta Tespiti Kaydı')"
+            class="action-btn"
+            style="background: #1976d2; margin-top: 15px"
+          >
+            💾 Tespiti Kaydet
           </button>
         </div>
       </div>
@@ -3126,7 +3260,7 @@
       </button>
       <div class="form-container">
         <h3 style="color: #1976d2; margin-top: 0">
-          🗺️ Samuray Arısı Salım Noktaları Haritası
+          🗺️ Samuray Arısı Etki Alanı
         </h3>
         <select
           id="samurayHaritaFiltreIlce"
@@ -4287,7 +4421,11 @@
               isaretciSamuray = null,
               anlikKoordinatSamuray = "";
             let haritaSamurayGenel = null,
-              katmanSamurayNoktalari = null;
+              katmanSamurayNoktalari = null,
+              geoJsonLayerSamuray = null;
+            let haritaKKYumurta = null,
+              isaretciKKYumurta = null,
+              anlikKoordinatKKYumurta = "";
             let aktifDuzenlenenSurvey = null;
 
             function temizle(str) {
@@ -4712,6 +4850,7 @@
                 "surveyIlce",
                 "yeniPersonelIlce",
                 "samurayIlce",
+                "kkYumurtaIlce",
                 "duzIlce",
               ].forEach((id) => {
                 let select = document.getElementById(id);
@@ -4872,13 +5011,13 @@
 
             async function zekiKonumBul(lat, lng, formTipi) {
               let durumKutusu = document.getElementById(
-                formTipi === "survey" ? "surveyKonumDurum" : (formTipi === "samuray" ? "samurayKonumDurum" : "tuzakKonumDurum")
+                formTipi === "survey" ? "surveyKonumDurum" : (formTipi === "samuray" ? "samurayKonumDurum" : (formTipi === "kkYumurta" ? "kkYumurtaKonumDurum" : "tuzakKonumDurum"))
               );
               let ilceKutu = document.getElementById(
-                formTipi === "survey" ? "surveyIlce" : (formTipi === "samuray" ? "samurayIlce" : "tuzakIlce")
+                formTipi === "survey" ? "surveyIlce" : (formTipi === "samuray" ? "samurayIlce" : (formTipi === "kkYumurta" ? "kkYumurtaIlce" : "tuzakIlce"))
               );
               let mahalleKutu = document.getElementById(
-                formTipi === "survey" ? "surveyMahalle" : (formTipi === "samuray" ? "samurayMahalle" : "tuzakMahalle")
+                formTipi === "survey" ? "surveyMahalle" : (formTipi === "samuray" ? "samurayMahalle" : (formTipi === "kkYumurta" ? "kkYumurtaMahalle" : "tuzakMahalle"))
               );
               let point = turf.point([lng, lat]);
 
@@ -4943,7 +5082,7 @@
                 ilceKutu.value = bulunanIlce;
                 mahalleListesiDoldur(
                   formTipi === "survey" ? "surveyMahalleListesi" : 
-                  (formTipi === "samuray" ? "samurayMahalleListesi" : "tuzakMahalleListesi"),
+                  (formTipi === "samuray" ? "samurayMahalleListesi" : (formTipi === "kkYumurta" ? "kkYumurtaMahalleListesi" : "tuzakMahalleListesi")),
                   bulunanIlce
                 );
 
@@ -5036,7 +5175,7 @@
                 if (gpsKutu) gpsKutu.value = anlikKoordinatSurvey;
                 if (!haritaSurvey && mp) {
                   haritaSurvey = L.map("mapSurvey").setView([e, b], 13);
-                  L.tileLayer("https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}", {
+                  L.tileLayer("https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}", {
                     maxZoom: 20,
                   }).addTo(haritaSurvey);
 
@@ -5076,7 +5215,7 @@
                 if (gpsKutu) gpsKutu.value = anlikKoordinatTuzak;
                 if (!haritaTuzak && mp) {
                   haritaTuzak = L.map("mapTuzak").setView([e, b], 13);
-                  L.tileLayer("https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}", {
+                  L.tileLayer("https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}", {
                     maxZoom: 20,
                   }).addTo(haritaTuzak);
                   haritayaTamEkranEkle(haritaTuzak);
@@ -5113,7 +5252,7 @@
                 if (gpsKutu) gpsKutu.value = anlikKoordinatSamuray;
                 if (!haritaSamuray && mp) {
                   haritaSamuray = L.map("mapSamuray").setView([e, b], 13);
-                  L.tileLayer("https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}", {
+                  L.tileLayer("https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}", {
                     maxZoom: 20,
                   }).addTo(haritaSamuray);
                   haritayaTamEkranEkle(haritaSamuray);
@@ -5136,6 +5275,35 @@
                     haritaSamuray.invalidateSize();
                   }, 200);
                 }
+              } else if (mapId === "mapKKYumurta") {
+                anlikKoordinatKKYumurta = e + ", " + b;
+                let gpsKutu = document.getElementById("kkYumurtaGPS");
+                if (gpsKutu) gpsKutu.value = anlikKoordinatKKYumurta;
+                if (!haritaKKYumurta && mp) {
+                  haritaKKYumurta = L.map("mapKKYumurta").setView([e, b], 13);
+                  L.tileLayer("https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}", {
+                    maxZoom: 20,
+                  }).addTo(haritaKKYumurta);
+                  haritayaTamEkranEkle(haritaKKYumurta);
+                  haritayaKonumButonuEkle(haritaKKYumurta);
+                } else if (haritaKKYumurta) {
+                  haritaKKYumurta.setView([e, b], 13);
+                }
+                if (isaretciKKYumurta && haritaKKYumurta)
+                  haritaKKYumurta.removeLayer(isaretciKKYumurta);
+                if (haritaKKYumurta) {
+                  isaretciKKYumurta = L.marker([e, b], { draggable: true }).addTo(haritaKKYumurta);
+                  isaretciKKYumurta.bindPopup("<b>" + secilenIlce + "</b><br>İğneyi kaydırarak tam konumu belirleyin.").openPopup();
+                  isaretciKKYumurta.on("dragend", function (event) {
+                    let y = event.target.getLatLng();
+                    anlikKoordinatKKYumurta = y.lat + ", " + y.lng;
+                    if (gpsKutu) gpsKutu.value = anlikKoordinatKKYumurta;
+                    zekiKonumBul(y.lat, y.lng, "kkYumurta");
+                  });
+                  setTimeout(() => {
+                    haritaKKYumurta.invalidateSize();
+                  }, 200);
+                }
               }
             }
 
@@ -5144,9 +5312,9 @@
 
               let link = HARITA_LINKLERI[ilce];
               let dId =
-                mapId === "mapSurvey" ? "surveyKonumDurum" : (mapId === "mapSamuray" ? "samurayKonumDurum" : "tuzakKonumDurum");
+                mapId === "mapSurvey" ? "surveyKonumDurum" : (mapId === "mapSamuray" ? "samurayKonumDurum" : (mapId === "mapKKYumurta" ? "kkYumurtaKonumDurum" : "tuzakKonumDurum"));
               let d = document.getElementById(dId);
-              let dAltId = mapId === "mapSurvey" ? "surveyAltDurum" : (mapId === "mapSamuray" ? "samurayAltDurum" : "tuzakAltDurum");
+              let dAltId = mapId === "mapSurvey" ? "surveyAltDurum" : (mapId === "mapSamuray" ? "samurayAltDurum" : (mapId === "mapKKYumurta" ? "kkYumurtaAltDurum" : "tuzakAltDurum"));
               let dAlt = document.getElementById(dAltId);
 
               // Eğer o ilçe için bir harita linki (GIST) girilmemişse işlem yapma
@@ -5209,11 +5377,11 @@
                   let lng = merkez.geometry.coordinates[0];
                   let lat = merkez.geometry.coordinates[1];
 
-                  let harita = mapId === "mapSurvey" ? haritaSurvey : (mapId === "mapSamuray" ? haritaSamuray : haritaTuzak);
+                  let harita = mapId === "mapSurvey" ? haritaSurvey : (mapId === "mapSamuray" ? haritaSamuray : (mapId === "mapKKYumurta" ? haritaKKYumurta : haritaTuzak));
                   let isaretci =
-                    mapId === "mapSurvey" ? isaretciSurvey : (mapId === "mapSamuray" ? isaretciSamuray : isaretciTuzak);
+                    mapId === "mapSurvey" ? isaretciSurvey : (mapId === "mapSamuray" ? isaretciSamuray : (mapId === "mapKKYumurta" ? isaretciKKYumurta : isaretciTuzak));
                   let gpsKutu = document.getElementById(
-                    mapId === "mapSurvey" ? "surveyGPS" : (mapId === "mapSamuray" ? "samurayGPS" : "tuzakGPS")
+                    mapId === "mapSurvey" ? "surveyGPS" : (mapId === "mapSamuray" ? "samurayGPS" : (mapId === "mapKKYumurta" ? "kkYumurtaGPS" : "tuzakGPS"))
                   );
 
                   if (harita) {
@@ -5237,6 +5405,7 @@
                   let anlik = lat + ", " + lng;
                   if (mapId === "mapSurvey") anlikKoordinatSurvey = anlik;
                   else if (mapId === "mapSamuray") anlikKoordinatSamuray = anlik;
+                  else if (mapId === "mapKKYumurta") anlikKoordinatKKYumurta = anlik;
                   else anlikKoordinatTuzak = anlik;
 
                   if (gpsKutu) gpsKutu.value = anlik;
@@ -5284,6 +5453,9 @@
               } else if (tur === "samuray") {
                   dId = "samurayKonumDurum"; gpsKutuId = "samurayGPS"; mapId = "mapSamuray";
                   formAlaniId = "samurayFormAlani"; ilceKutusuId = "samurayIlce";
+              } else if (tur === "kkYumurta") {
+                  dId = "kkYumurtaKonumDurum"; gpsKutuId = "kkYumurtaGPS"; mapId = "mapKKYumurta";
+                  formAlaniId = "kkYumurtaFormAlani"; ilceKutusuId = "kkYumurtaIlce";
               }
 
               const d = document.getElementById(dId);
@@ -5301,29 +5473,31 @@
                           if (tur === "survey") anlikKoordinatSurvey = anlik;
                           else if (tur === "tuzak") anlikKoordinatTuzak = anlik;
                           else if (tur === "samuray") anlikKoordinatSamuray = anlik;
+                          else if (tur === "kkYumurta") anlikKoordinatKKYumurta = anlik;
 
                           if (gpsKutu) gpsKutu.value = anlik;
 
-                          if (tur === "tuzak" || tur === "samuray") {
-                              let rakimKutu = document.getElementById(tur === "tuzak" ? "tuzakRakim" : "samurayRakim");
+                          if (tur === "tuzak" || tur === "samuray" || tur === "kkYumurta") {
+                              let rakimKutu = document.getElementById(tur === "tuzak" ? "tuzakRakim" : (tur === "samuray" ? "samurayRakim" : "kkYumurtaRakim"));
                               if (rakimKutu && rakim !== "") rakimKutu.value = rakim;
                           }
 
                           let mp = document.getElementById(mapId);
                           if (mp) mp.style.display = "block";
 
-                          let h = tur === "survey" ? haritaSurvey : (tur === "tuzak" ? haritaTuzak : haritaSamuray);
-                          let isrt = tur === "survey" ? isaretciSurvey : (tur === "tuzak" ? isaretciTuzak : isaretciSamuray);
+                          let h = tur === "survey" ? haritaSurvey : (tur === "tuzak" ? haritaTuzak : (tur === "samuray" ? haritaSamuray : haritaKKYumurta));
+                          let isrt = tur === "survey" ? isaretciSurvey : (tur === "tuzak" ? isaretciTuzak : (tur === "samuray" ? isaretciSamuray : isaretciKKYumurta));
 
                           if (!h && mp) {
                               h = L.map(mapId).setView([e, b], 18);
-                              L.tileLayer("https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}", { maxZoom: 20 }).addTo(h);
+                              L.tileLayer("https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}", { maxZoom: 20 }).addTo(h);
                               haritayaTamEkranEkle(h);
                               haritayaKonumButonuEkle(h);
                               
                               if (tur === "survey") haritaSurvey = h;
                               else if (tur === "tuzak") haritaTuzak = h;
                               else if (tur === "samuray") haritaSamuray = h;
+                              else if (tur === "kkYumurta") haritaKKYumurta = h;
                           } else if (h) {
                               h.setView([e, b], 18);
                           }
@@ -5338,6 +5512,7 @@
                                   if (tur === "survey") anlikKoordinatSurvey = yeniAnlik;
                                   else if (tur === "tuzak") anlikKoordinatTuzak = yeniAnlik;
                                   else if (tur === "samuray") anlikKoordinatSamuray = yeniAnlik;
+                                  else if (tur === "kkYumurta") anlikKoordinatKKYumurta = yeniAnlik;
                                   if (gpsKutu) gpsKutu.value = yeniAnlik;
                                   zekiKonumBul(y.lat, y.lng, tur);
                               });
@@ -5345,6 +5520,7 @@
                               if (tur === "survey") isaretciSurvey = isrt;
                               else if (tur === "tuzak") isaretciTuzak = isrt;
                               else if (tur === "samuray") isaretciSamuray = isrt;
+                              else if (tur === "kkYumurta") isaretciKKYumurta = isrt;
 
                               setTimeout(() => { h.invalidateSize(); }, 200);
                           }
@@ -5369,12 +5545,27 @@
             function konumAlSurvey() { konumAlGps("survey"); }
             function konumAlTuzak() { konumAlGps("tuzak"); }
             function konumAlSamuray() { konumAlGps("samuray"); }
+            function konumAlKKYumurta() { konumAlGps("kkYumurta"); }
 
             function otomatikSamurayIDOlustur() {
               let mahalle = document.getElementById("samurayMahalle").value;
               let ada = document.getElementById("samurayAda").value;
               let parsel = document.getElementById("samurayParsel").value;
               let idKutusu = document.getElementById("samurayID");
+
+              if (mahalle && ada && parsel) {
+                let temizMahalle = formatKelime(mahalle).replace(/\s+/g, "");
+                idKutusu.value = ada + "_" + parsel + "_" + temizMahalle;
+              } else {
+                idKutusu.value = "";
+              }
+            }
+
+            function otomatikKKYumurtaIDOlustur() {
+              let mahalle = document.getElementById("kkYumurtaMahalle").value;
+              let ada = document.getElementById("kkYumurtaAda").value;
+              let parsel = document.getElementById("kkYumurtaParsel").value;
+              let idKutusu = document.getElementById("kkYumurtaID");
 
               if (mahalle && ada && parsel) {
                 let temizMahalle = formatKelime(mahalle).replace(/\s+/g, "");
@@ -5391,6 +5582,13 @@
               if (smKutu) smKutu.addEventListener("change", otomatikSamurayIDOlustur);
               if (saKutu) saKutu.addEventListener("input", otomatikSamurayIDOlustur);
               if (spKutu) spKutu.addEventListener("input", otomatikSamurayIDOlustur);
+
+              let kkM = document.getElementById("kkYumurtaMahalle");
+              let kkA = document.getElementById("kkYumurtaAda");
+              let kkP = document.getElementById("kkYumurtaParsel");
+              if (kkM) kkM.addEventListener("change", otomatikKKYumurtaIDOlustur);
+              if (kkA) kkA.addEventListener("input", otomatikKKYumurtaIDOlustur);
+              if (kkP) kkP.addEventListener("input", otomatikKKYumurtaIDOlustur);
             });
 
             window.secilenZararlilar = [];
@@ -5898,8 +6096,7 @@
                 paket.koordinat = anlikKoordinatSamuray;
                 paket.yukseklik = document.getElementById("samurayRakim").value;
                 paket.alan = alanDegeri;
-                paket.bahceYasi = document.getElementById("samurayYas").value;
-                paket.findikCesidi = document.getElementById("samurayCesit").value;
+
 
                 if (!paket.samurayID || !paket.ilce || !paket.mahalle || !paket.ada || !paket.parsel || !paket.ariSayisi) {
                   alert("⚠️ İlçe, Mahalle, Ada, Parsel, Salım Noktası ID ve Arı Sayısı alanlarını doldurun!");
@@ -5907,6 +6104,31 @@
                 }
                 if (!paket.koordinat) {
                   alert("⚠️ Lütfen haritadan veya iğneyi kaydırarak konumu belirleyin!");
+                  return;
+                }
+              } else if (tur === "KK Yumurta Tespiti Kaydı") {
+                btn = document.getElementById("btnKKYumurtaKaydet");
+
+                paket.kkID = document.getElementById("kkYumurtaID").value;
+                paket.ilce = document.getElementById("kkYumurtaIlce").value;
+                paket.mahalle = formatKelime(document.getElementById("kkYumurtaMahalle").value);
+                paket.ada = document.getElementById("kkYumurtaAda").value;
+                paket.parsel = document.getElementById("kkYumurtaParsel").value;
+                paket.koordinat = anlikKoordinatKKYumurta;
+                paket.yukseklik = document.getElementById("kkYumurtaRakim").value;
+                paket.parazit = document.getElementById("kkYumurtaParazit").value;
+
+                if (!paket.kkID || !paket.ilce || !paket.mahalle || !paket.ada || !paket.parsel || !paket.parazit) {
+                  alert("⚠️ İlçe, Mahalle, Ada, Parsel ve Parazit durumunu doldurun!");
+                  return;
+                }
+                if (!paket.koordinat) {
+                  alert("⚠️ Lütfen haritadan veya iğneyi kaydırarak konumu belirleyin!");
+                  return;
+                }
+                let fInp = document.getElementById("kkYumurtaFoto");
+                if (!fInp || fInp.files.length === 0) {
+                  alert("⚠️ Lütfen bir fotoğraf seçin!");
                   return;
                 }
               } else if (tur === "Sayım") {
@@ -5965,7 +6187,12 @@
                   paket.sapmaMesafesi = 0;
                 }
               }
-              fotoveGonder(paket, btn, (tur === "Tuzak Kaydı" || tur === "Samuray Kaydı") ? null : "sayimFoto");
+              
+              let fotoKutuId = "sayimFoto";
+              if (tur === "Tuzak Kaydı" || tur === "Samuray Kaydı") fotoKutuId = null;
+              else if (tur === "KK Yumurta Tespiti Kaydı") fotoKutuId = "kkYumurtaFoto";
+
+              fotoveGonder(paket, btn, fotoKutuId);
             }
 
             function fotoveGonder(paket, btn, fotoId) {
@@ -6005,7 +6232,7 @@
                   setTimeout(() => {
                       if (paket.islemTipi === "Genel Survey Kaydi") modulAc("dashboardSurvey");
                       else if (paket.islemTipi === "Tuzak Kaydı" || paket.islemTipi === "Sayım") modulAc("dashboardKokarca");
-                      else if (paket.islemTipi === "Samuray Kaydı") modulAc("dashboardSamuray");
+                      else if (paket.islemTipi === "Samuray Kaydı" || paket.islemTipi === "KK Yumurta Tespiti Kaydı") modulAc("dashboardSamuray");
                       else modulAc("anaMenu");
                   }, 1500);
 
@@ -6057,7 +6284,7 @@
                             modulAc("dashboardSurvey"); // Sürvey ana panosuna dön
                         } else if (paket.islemTipi === "Tuzak Kaydı" || paket.islemTipi === "Sayım") {
                             modulAc("dashboardKokarca"); // Kokarca ana panosuna dön
-                        } else if (paket.islemTipi === "Samuray Kaydı") {
+                        } else if (paket.islemTipi === "Samuray Kaydı" || paket.islemTipi === "KK Yumurta Tespiti Kaydı") {
                             modulAc("dashboardSamuray");
                         } else {
                             modulAc("anaMenu"); // Diğer durumlarda genel Ana Menüye dön
@@ -7501,19 +7728,37 @@
 
               if (!haritaSamurayGenel && mapDiv) {
                 haritaSamurayGenel = L.map("mapSamurayHarita").setView([40.85, 39.75], 9);
-                L.tileLayer("https://mt1.google.com/vt/lyrs=y&x={x}&y={y}&z={z}", { maxZoom: 20 }).addTo(haritaSamurayGenel);
+                L.tileLayer("https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}", { maxZoom: 20 }).addTo(haritaSamurayGenel);
                 haritayaTamEkranEkle(haritaSamurayGenel);
+                
+                let legend = L.control({position: 'topright'});
+                legend.onAdd = function (map) {
+                    let div = L.DomUtil.create('div', 'info legend');
+                    div.style.background = "rgba(255, 255, 255, 0.95)";
+                    div.style.padding = "10px";
+                    div.style.borderRadius = "8px";
+                    div.style.boxShadow = "0 2px 10px rgba(0,0,0,0.3)";
+                    div.style.border = "1px solid #aaa";
+                    div.innerHTML += '<strong style="font-size: 14px; color: #333; margin-bottom: 8px; display: block; border-bottom: 1px solid #ddd; padding-bottom: 4px;">📌 İşaret Anlamları</strong>';
+                    div.innerHTML += '<div style="display:flex; align-items:center; margin-bottom:6px; font-size: 13px;"><div style="width: 14px; height: 14px; background: black; border: 1px solid white; box-shadow: 0 0 3px rgba(0,0,0,0.8); border-radius: 2px; margin-right: 8px;"></div> Samuray Arısı Salım Noktası</div>';
+                    div.innerHTML += '<div style="display:flex; align-items:center; margin-bottom:6px; font-size: 13px;"><div style="width: 14px; height: 14px; background: #4CAF50; border: 1px solid white; box-shadow: 0 0 3px rgba(0,0,0,0.8); border-radius: 2px; margin-right: 8px;"></div> P. Yumurta Var</div>';
+                    div.innerHTML += '<div style="display:flex; align-items:center; font-size: 13px;"><div style="width: 14px; height: 14px; background: white; border: 1px solid black; box-shadow: 0 0 3px rgba(0,0,0,0.8); border-radius: 2px; margin-right: 8px;"></div> P. Yumurta Yok</div>';
+                    return div;
+                };
+                legend.addTo(haritaSamurayGenel);
               }
 
               if (btn) { btn.innerText = "⏳ Yükleniyor..."; btn.disabled = true; }
               if (d) { d.innerText = "⏳ Veriler sunucudan çekiliyor..."; d.style.color = "#1976d2"; }
 
-              fetch(GOOGLE_SCRIPT_URL + "?istek=samuray_raporu&token=" + localStorage.getItem("kktp_token"))
-                .then(res => res.json())
-                .then(data => {
-                  if (data.hata) {
+              Promise.all([
+                fetch(GOOGLE_SCRIPT_URL + "?istek=samuray_raporu&token=" + localStorage.getItem("kktp_token")).then(res => res.json()),
+                fetch(GOOGLE_SCRIPT_URL + "?istek=kk_yumurta_raporu&token=" + localStorage.getItem("kktp_token")).then(res => res.json())
+              ])
+                .then(([samurayData, yumurtaData]) => {
+                  if (samurayData.hata || yumurtaData.hata) {
                     if (btn) { btn.innerText = "🔄 Haritayı Güncelle"; btn.disabled = false; }
-                    if(d) d.innerText = "Hata: " + data.hata;
+                    if(d) d.innerText = "Hata: " + (samurayData.hata || yumurtaData.hata);
                     return;
                   }
 
@@ -7572,12 +7817,12 @@
                         }).addTo(haritaSamurayGenel);
 
                         haritaSamurayGenel.fitBounds(geoJsonLayerSamuray.getBounds());
-                        samurayNoktalariniHaritayaEkle(data, secim, d, btn);
+                        samurayNoktalariniHaritayaEkle(samurayData, yumurtaData, secim, d, btn);
                      }).catch(() => {
-                        samurayNoktalariniHaritayaEkle(data, secim, d, btn);
+                        samurayNoktalariniHaritayaEkle(samurayData, yumurtaData, secim, d, btn);
                      });
                   } else {
-                     samurayNoktalariniHaritayaEkle(data, secim, d, btn);
+                     samurayNoktalariniHaritayaEkle(samurayData, yumurtaData, secim, d, btn);
                   }
                 }).catch(err => {
                   if (btn) { btn.innerText = "🔄 Haritayı Güncelle"; btn.disabled = false; }
@@ -7585,7 +7830,7 @@
                 });
             }
 
-            function samurayNoktalariniHaritayaEkle(data, secim, d, btn) {
+            function samurayNoktalariniHaritayaEkle(samurayData, yumurtaData, secim, d, btn) {
                 if (btn) { btn.innerText = "🔄 Haritayı Güncelle"; btn.disabled = false; }
 
                 if (katmanSamurayNoktalari && haritaSamurayGenel) {
@@ -7593,29 +7838,88 @@
                 }
                 katmanSamurayNoktalari = L.layerGroup().addTo(haritaSamurayGenel);
 
-                let sayac = 0;
-                let maviIkon = L.divIcon({
+                let sayacSamuray = 0;
+                let sayacYumurta = 0;
+
+                // Siyah Kare (Samuray Salım Noktası)
+                let iconSamuray = L.divIcon({
                   className: "custom-icon",
-                  html: '<div style="background-color: #1976d2; width: 14px; height: 14px; border: 2px solid white; border-radius: 50%; box-shadow: 0 0 4px rgba(0,0,0,0.5);"></div>',
-                  iconSize: [18, 18],
-                  iconAnchor: [9, 9]
+                  html: '<div style="background-color: black; width: 12px; height: 12px; border: 1px solid white; box-shadow: 0 0 3px rgba(0,0,0,0.8); border-radius: 2px;"></div>',
+                  iconSize: [14, 14],
+                  iconAnchor: [7, 7]
+                });
+                
+                // Beyaz Kare (Yumurta Tespiti Yok)
+                let iconYumurtaYok = L.divIcon({
+                  className: "custom-icon",
+                  html: '<div style="background-color: white; width: 12px; height: 12px; border: 1px solid black; box-shadow: 0 0 3px rgba(0,0,0,0.8); border-radius: 2px;"></div>',
+                  iconSize: [14, 14],
+                  iconAnchor: [7, 7]
+                });
+                
+                // Yeşil Kare (Yumurta Tespiti Var)
+                let iconYumurtaVar = L.divIcon({
+                  className: "custom-icon",
+                  html: '<div style="background-color: #4CAF50; width: 12px; height: 12px; border: 1px solid white; box-shadow: 0 0 3px rgba(0,0,0,0.8); border-radius: 2px;"></div>',
+                  iconSize: [14, 14],
+                  iconAnchor: [7, 7]
                 });
 
                 let bounds = [];
 
-                data.forEach(x => {
+                // Samuray Verileri
+                samurayData.forEach(x => {
                   if (secim === "TÜM İL" || temizle(x.ilce) === temizle(secim)) {
                     if (x.koordinat && x.koordinat.includes(",")) {
                       let kor = x.koordinat.split(",");
                       let lat = parseFloat(kor[0]);
                       let lng = parseFloat(kor[1]);
                       if (!isNaN(lat) && !isNaN(lng)) {
-                        let tooltipTxt = `<b>ID:</b> ${guvenliMetin(x.id)}<br><b>İlçe/Mahalle:</b> ${guvenliMetin(x.ilce)} / ${guvenliMetin(x.mahalle)}<br><b>Salınan Arı:</b> <span style="color:#1976d2;font-weight:bold;">${guvenliMetin(x.ariSayisi)}</span>`;
-                        L.marker([lat, lng], { icon: maviIkon })
-                         .bindTooltip(tooltipTxt)
+                        let popupTxt = `
+                          <div style="text-align: center; font-family: sans-serif; font-size: 14px;">
+                            <h4 style="margin: 0 0 5px 0; color: #333;">Samuray Salım Noktası</h4>
+                            <b>İlçe/Mahalle:</b> ${guvenliMetin(x.ilce)} / ${guvenliMetin(x.mahalle)}<br>
+                            <b>Salınan Arı Sayısı:</b> <span style="color: black; font-weight: bold; font-size: 16px;">${guvenliMetin(x.ariSayisi)}</span><br>
+                            <a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}" target="_blank" style="display: inline-block; margin-top: 10px; padding: 6px 12px; background: #1976d2; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">Yol Tarifi Al</a>
+                          </div>
+                        `;
+                        L.marker([lat, lng], { icon: iconSamuray })
+                         .bindPopup(popupTxt)
                          .addTo(katmanSamurayNoktalari);
                         bounds.push([lat, lng]);
-                        sayac++;
+                        sayacSamuray++;
+                      }
+                    }
+                  }
+                });
+
+                // Yumurta Tespiti Verileri
+                yumurtaData.forEach(x => {
+                  if (secim === "TÜM İL" || temizle(x.ilce) === temizle(secim)) {
+                    if (x.koordinat && x.koordinat.includes(",")) {
+                      let kor = x.koordinat.split(",");
+                      let lat = parseFloat(kor[0]);
+                      let lng = parseFloat(kor[1]);
+                      if (!isNaN(lat) && !isNaN(lng)) {
+                        let isVar = guvenliMetin(x.parazit) === "Var";
+                        let fotoUrl = guvenliMetin(x.fotoUrl);
+                        let fileIdMatch = fotoUrl.match(/[-\w]{25,}/);
+                        let imgSrc = fileIdMatch ? "https://drive.google.com/thumbnail?id=" + fileIdMatch[0] + "&sz=w400" : fotoUrl;
+                        let fotoLink = x.fotoUrl && x.fotoUrl !== "Yok" ? `<br><div style="position: relative; display: inline-block; margin-top: 5px;"><a href="${fotoUrl}" target="_blank" style="display: inline-block; padding: 6px 12px; background: #ff9800; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;" onmouseover="this.nextElementSibling.style.display='block'" onmouseout="this.nextElementSibling.style.display='none'">📷 Resmi Göster</a><img src="${imgSrc}" style="display: none; position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%); width: 250px; height: 250px; object-fit: cover; border: 2px solid #ff9800; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 9999; background: white; padding: 3px; margin-bottom: 8px;" onerror="this.src='https://via.placeholder.com/250x250?text=Resim+Yuklenemedi'" /></div>` : "";
+                        let popupTxt = `
+                          <div style="text-align: center; font-family: sans-serif; font-size: 14px;">
+                            <h4 style="margin: 0 0 5px 0; color: #333;">KK Yumurta Tespiti</h4>
+                            <b>İlçe/Mahalle:</b> ${guvenliMetin(x.ilce)} / ${guvenliMetin(x.mahalle)}<br>
+                            <b>Parazit Durumu:</b> <span style="color: ${isVar ? '#4CAF50' : '#d32f2f'}; font-weight: bold;">${guvenliMetin(x.parazit)}</span><br>
+                            <a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}" target="_blank" style="display: inline-block; margin-top: 10px; padding: 6px 12px; background: #1976d2; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">Yol Tarifi Al</a>
+                            ${fotoLink}
+                          </div>
+                        `;
+                        L.marker([lat, lng], { icon: isVar ? iconYumurtaVar : iconYumurtaYok })
+                         .bindPopup(popupTxt)
+                         .addTo(katmanSamurayNoktalari);
+                        bounds.push([lat, lng]);
+                        sayacYumurta++;
                       }
                     }
                   }
@@ -7625,7 +7929,7 @@
                    haritaSamurayGenel.fitBounds(bounds);
                 }
 
-                if (d) { d.innerText = `✅ Haritaya ${sayac} adet salım noktası eklendi.`; d.style.color = "green"; }
+                if (d) { d.innerText = `✅ Haritaya ${sayacSamuray} Samuray noktası, ${sayacYumurta} Yumurta tespiti eklendi.`; d.style.color = "green"; }
             }
 
             async function yukseklikHaritasiniCiz() {
