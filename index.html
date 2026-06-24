@@ -707,7 +707,7 @@
       </ul>
       <div class="footer-imza">
         © <span id="footerYil">2026</span> STP | Cloud Sürümü
-        <b id="appVersiyon" style="color: var(--bakanlik-kirmizi)">v26</b
+        <b id="appVersiyon" style="color: var(--bakanlik-kirmizi)">v27</b
         ><br />Geliştirici:
         <a
           href="mailto:mustafa.cavdar@tarimorman.gov.tr"
@@ -3060,13 +3060,13 @@
             "
           >
             <label style="color: #1976d2"
-              >Samuray Arısı Sayısı (Adet)
+              >Salımı Yapılan Tüp Sayısı (Adet)
               <span style="color: red">*</span></label
             >
             <input
               type="number"
               id="samuraySayisi"
-              placeholder="Örn: 200"
+              placeholder="Örn: 10"
               style="
                 border: 2px solid #1976d2;
                 font-weight: bold;
@@ -7735,14 +7735,41 @@
                 legend.onAdd = function (map) {
                     let div = L.DomUtil.create('div', 'info legend');
                     div.style.background = "rgba(255, 255, 255, 0.95)";
-                    div.style.padding = "10px";
+                    div.style.padding = "8px";
                     div.style.borderRadius = "8px";
                     div.style.boxShadow = "0 2px 10px rgba(0,0,0,0.3)";
                     div.style.border = "1px solid #aaa";
-                    div.innerHTML += '<strong style="font-size: 14px; color: #333; margin-bottom: 8px; display: block; border-bottom: 1px solid #ddd; padding-bottom: 4px;">📌 İşaret Anlamları</strong>';
-                    div.innerHTML += '<div style="display:flex; align-items:center; margin-bottom:6px; font-size: 13px;"><div style="width: 14px; height: 14px; background: black; border: 1px solid white; box-shadow: 0 0 3px rgba(0,0,0,0.8); border-radius: 2px; margin-right: 8px;"></div> Samuray Arısı Salım Noktası</div>';
-                    div.innerHTML += '<div style="display:flex; align-items:center; margin-bottom:6px; font-size: 13px;"><div style="width: 14px; height: 14px; background: #4CAF50; border: 1px solid white; box-shadow: 0 0 3px rgba(0,0,0,0.8); border-radius: 2px; margin-right: 8px;"></div> P. Yumurta Var</div>';
-                    div.innerHTML += '<div style="display:flex; align-items:center; font-size: 13px;"><div style="width: 14px; height: 14px; background: white; border: 1px solid black; box-shadow: 0 0 3px rgba(0,0,0,0.8); border-radius: 2px; margin-right: 8px;"></div> P. Yumurta Yok</div>';
+                    div.style.cursor = "pointer";
+                    div.title = "Tıkla Aç/Kapat";
+                    
+                    div.innerHTML = `
+                        <div style="display: flex; align-items: center; justify-content: space-between;">
+                            <strong style="font-size: 14px; color: #333; margin: 0;">📌 Açıklamalar</strong>
+                            <span id="samurayLegendIcon" style="font-size: 12px; margin-left: 10px;">▼</span>
+                        </div>
+                        <div id="samurayLegendContent" style="display: none; margin-top: 8px; border-top: 1px solid #ddd; padding-top: 8px;">
+                            <div style="display:flex; align-items:center; margin-bottom:6px; font-size: 13px;"><div style="width: 14px; height: 14px; background: black; border: 1px solid white; box-shadow: 0 0 3px rgba(0,0,0,0.8); border-radius: 2px; margin-right: 8px;"></div> Samuray Arısı Salım Noktası</div>
+                            <div style="display:flex; align-items:center; margin-bottom:6px; font-size: 13px;"><div style="width: 14px; height: 14px; background: #4CAF50; border: 1px solid white; box-shadow: 0 0 3px rgba(0,0,0,0.8); border-radius: 2px; margin-right: 8px;"></div> P. Yumurta Var</div>
+                            <div style="display:flex; align-items:center; font-size: 13px;"><div style="width: 14px; height: 14px; background: white; border: 1px solid black; box-shadow: 0 0 3px rgba(0,0,0,0.8); border-radius: 2px; margin-right: 8px;"></div> P. Yumurta Yok</div>
+                        </div>
+                    `;
+                    
+                    div.onclick = function(e) {
+                        e.stopPropagation();
+                        let contentDiv = document.getElementById("samurayLegendContent");
+                        let icon = document.getElementById("samurayLegendIcon");
+                        if (contentDiv && icon) {
+                            if (contentDiv.style.display === "none") {
+                                contentDiv.style.display = "block";
+                                icon.innerText = "▲";
+                            } else {
+                                contentDiv.style.display = "none";
+                                icon.innerText = "▼";
+                            }
+                        }
+                    };
+                    
+                    L.DomEvent.disableClickPropagation(div);
                     return div;
                 };
                 legend.addTo(haritaSamurayGenel);
@@ -7876,11 +7903,11 @@
                       let lng = parseFloat(kor[1]);
                       if (!isNaN(lat) && !isNaN(lng)) {
                         let popupTxt = `
-                          <div style="text-align: center; font-family: sans-serif; font-size: 14px;">
-                            <h4 style="margin: 0 0 5px 0; color: #333;">Samuray Salım Noktası</h4>
-                            <b>İlçe/Mahalle:</b> ${guvenliMetin(x.ilce)} / ${guvenliMetin(x.mahalle)}<br>
-                            <b>Salınan Arı Sayısı:</b> <span style="color: black; font-weight: bold; font-size: 16px;">${guvenliMetin(x.ariSayisi)}</span><br>
-                            <a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}" target="_blank" style="display: inline-block; margin-top: 10px; padding: 6px 12px; background: #1976d2; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">Yol Tarifi Al</a>
+                          <div style="text-align: center; font-family: sans-serif; font-size: 11px;">
+                            <h4 style="margin: 0 0 5px 0; color: #333; font-size: 13px;">S.A. Salım Noktası</h4>
+                            ${guvenliMetin(x.ilce)} / ${guvenliMetin(x.mahalle)}<br>
+                            <b>Tüp Sayısı:</b> <span style="color: black; font-weight: bold; font-size: 13px;">${guvenliMetin(x.ariSayisi)}</span><br>
+                            <a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}" target="_blank" style="display: inline-block; margin-top: 8px; padding: 4px 10px; background: #1976d2; color: white; text-decoration: none; border-radius: 4px; font-weight: bold;">Yol Tarifi Al</a>
                           </div>
                         `;
                         L.marker([lat, lng], { icon: iconSamuray })
