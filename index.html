@@ -9248,10 +9248,10 @@
         }
 
         function gpsSorunSunucuyaGonder(paket, btn, msj) {
-            let token = localStorage.getItem("stp_token");
+            let token = localStorage.getItem("kktp_token");
             if (token) paket.token = token;
             
-            fetch(SCRIPT_URL, {
+            fetch(GOOGLE_SCRIPT_URL, {
                 method: "POST",
                 body: JSON.stringify(paket)
             })
