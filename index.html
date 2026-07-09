@@ -713,7 +713,7 @@
         </ul>
         <div class="footer-imza">
             © <span id="footerYil">2026</span> STP | Cloud Sürümü
-            <b id="appVersiyon" style="color: var(--bakanlik-kirmizi)">v30</b><br />Geliştirici:
+            <b id="appVersiyon" style="color: var(--bakanlik-kirmizi)">v30.1</b><br />Geliştirici:
             <a href="mailto:mustafa.cavdar@tarimorman.gov.tr" style="
             color: var(--bakanlik-kirmizi);
             font-weight: bold;
@@ -724,7 +724,8 @@
 
     <div id="gpsSorunModal" class="sidebar-overlay" style="z-index: 4000">
         <div class="duzenle-modal-icerik">
-            <h3 style="color: var(--bakanlik-kirmizi); margin-top: 0; border-bottom: 1px solid #ccc; padding-bottom: 5px;">
+            <h3
+                style="color: var(--bakanlik-kirmizi); margin-top: 0; border-bottom: 1px solid #ccc; padding-bottom: 5px;">
                 🐞 GPS Sorunu Bildir
             </h3>
             <p style="font-size: 13px; color: #555;">Karşılaştığınız GPS sorununu bize bildirin.</p>
@@ -2535,10 +2536,12 @@
                     <select id="samurayRaporIlceSecim" onchange="samurayRaporCekveCiz()"></select>
                 </div>
                 <div style="display: flex; gap: 10px; margin-top: 10px">
-                    <button onclick="samurayRaporCekveCiz()" class="action-btn" style="width: auto; padding: 10px 15px; background: #1976d2">
+                    <button onclick="samurayRaporCekveCiz()" class="action-btn"
+                        style="width: auto; padding: 10px 15px; background: #1976d2">
                         🔄 Yenile
                     </button>
-                    <button id="btnSamurayExcelAktar" onclick="samurayExcelIndir()" class="action-btn hidden" style="width: auto; padding: 10px 15px; background: #2e7d32">
+                    <button id="btnSamurayExcelAktar" onclick="samurayExcelIndir()" class="action-btn hidden"
+                        style="width: auto; padding: 10px 15px; background: #2e7d32">
                         📥 Excel İndir
                     </button>
                 </div>
@@ -2797,18 +2800,19 @@
                 </div>
 
                 <div class="form-group">
-                <div class="form-group">
                     <label>Rakım (m)</label>
                     <input type="text" id="kkYumurtaRakim" disabled style="background: #e0e0e0;" />
                 </div>
 
                 <div class="form-group">
                     <label>Konukçu Bitki</label>
-                    <select id="kkYumurtaKonukcu" onchange="if(this.value==='Diğer') { document.getElementById('kkYumurtaKonukcuDiger').style.display='block'; } else { document.getElementById('kkYumurtaKonukcuDiger').style.display='none'; }">
+                    <select id="kkYumurtaKonukcu"
+                        onchange="if(this.value==='Diğer') { document.getElementById('kkYumurtaKonukcuDiger').style.display='block'; } else { document.getElementById('kkYumurtaKonukcuDiger').style.display='none'; }">
                         <option value="Fındık" selected>Fındık</option>
                         <option value="Diğer">Diğer</option>
                     </select>
-                    <input type="text" id="kkYumurtaKonukcuDiger" placeholder="Lütfen bitki adını yazınız..." style="display:none; margin-top:5px;" />
+                    <input type="text" id="kkYumurtaKonukcuDiger" placeholder="Lütfen bitki adını yazınız..."
+                        style="display:none; margin-top:5px;" />
                 </div>
 
                 <div class="form-group">
@@ -3174,14 +3178,14 @@
           if (url === GOOGLE_SCRIPT_URL || url.includes("script.google.com")) {
               return new Promise((resolve, reject) => {
                   let paket = { metod: options ? options.method || "GET" : "GET", veri: null };
-
+ 
                   if (options && options.body) {
                       paket.veri = JSON.parse(options.body);
                   } else if (url.includes("?")) {
                       let params = new URLSearchParams(url.split("?")[1]);
                       paket.veri = Object.fromEntries(params.entries());
                   }
-
+ 
                   google.script.run
                       .withSuccessHandler(cevap => {
                           resolve({
@@ -3198,11 +3202,11 @@
               return orijinalFetch.apply(this, arguments);
           }
       };
-
-
-
+ 
+ 
+ 
           // --- BURDAN SONRASI gİST KISMINDA UNUTMA!
-
+ 
        // --- SİHİRLİ BULUT KURYEYİ (TRUVA ATI) ---
           // Bu kod, sistemdeki tüm fetch isteklerini yakalayıp Google'ın dahili hattına (google.script.run) çevirir.
           // Böylece 1500 satırlık kodu değiştirmene gerek kalmaz!
@@ -3212,7 +3216,7 @@
               if (!url.toString().includes("gist.github")) {
                   return new Promise((resolve, reject) => {
                       let paket = { metod: "GET", veri: {} };
-
+ 
                       if (options && options.method === 'POST') {
                           paket.metod = "POST";
                           paket.veri = JSON.parse(options.body);
@@ -3226,7 +3230,7 @@
                               }
                           }
                       }
-
+ 
                       // Google'ın dahili telefonunu çalıştır
                       google.script.run
                           .withSuccessHandler(strData => {
@@ -5029,13 +5033,13 @@
                     function (error) {
                         document.getElementById(formAlaniId).classList.remove("hidden");
                         let ilceKutusu = document.getElementById(ilceKutusuId);
-                        
-                        let hataSebebi = "Bilinmeyen hata";
-                        if(error.code === 1) hataSebebi = "İzin reddedildi";
-                        else if(error.code === 2) hataSebebi = "Konum bulunamadı";
-                        else if(error.code === 3) hataSebebi = "Zaman aşımı (20 sn)";
 
-                        if(typeof sonGpsHataDetayi !== "undefined") {
+                        let hataSebebi = "Bilinmeyen hata";
+                        if (error.code === 1) hataSebebi = "İzin reddedildi";
+                        else if (error.code === 2) hataSebebi = "Konum bulunamadı";
+                        else if (error.code === 3) hataSebebi = "Zaman aşımı (20 sn)";
+
+                        if (typeof sonGpsHataDetayi !== "undefined") {
                             sonGpsHataDetayi = `Hata Kodu: ${error.code} | Mesaj: ${error.message} | Çevrimiçi: ${navigator.onLine}`;
                         }
 
@@ -5687,8 +5691,8 @@
                         },
                         function (error) {
                             let msj = "Konum alınamadı";
-                            if(error && error.code === 3) msj = "Zaman aşımı";
-                            if(error && typeof sonGpsHataDetayi !== "undefined") {
+                            if (error && error.code === 3) msj = "Zaman aşımı";
+                            if (error && typeof sonGpsHataDetayi !== "undefined") {
                                 sonGpsHataDetayi = `Sayım Hata Kodu: ${error.code} | Mesaj: ${error.message} | Çevrimiçi: ${navigator.onLine}`;
                             }
                             paket.koordinat = aktifSayim.enlem + "," + aktifSayim.boylam;
@@ -9200,7 +9204,7 @@
             document.getElementById("gpsSorunModal").classList.add("show");
             document.getElementById("gpsSorunAciklama").value = "";
             let fotoInput = document.getElementById("gpsSorunFoto");
-            if(fotoInput) fotoInput.value = "";
+            if (fotoInput) fotoInput.value = "";
             document.getElementById("gpsSorunMesaj").innerText = "";
         }
 
@@ -9230,7 +9234,7 @@
                     let battery = await navigator.getBattery();
                     pilBilgisi = `%${Math.round(battery.level * 100)} (${battery.charging ? 'Şarjda' : 'Pilde'})`;
                 }
-            } catch(e) {}
+            } catch (e) { }
 
             let detay = (typeof sonGpsHataDetayi !== 'undefined') ? sonGpsHataDetayi : "Bilgi Yok";
             detay += ` | Pil: ${pilBilgisi}`;
@@ -9250,64 +9254,64 @@
         function gpsSorunSunucuyaGonder(paket, btn, msj) {
             let token = localStorage.getItem("kktp_token");
             if (token) paket.token = token;
-            
+
             fetch(GOOGLE_SCRIPT_URL, {
                 method: "POST",
                 body: JSON.stringify(paket)
             })
-            .then(r => r.json())
-            .then(res => {
-                btn.disabled = false;
-                btn.innerText = "Gönder";
-                if (res.durum === "basarili") {
-                    msj.style.color = "green";
-                    msj.innerText = "Teşekkürler, sorun başarıyla bildirildi!";
-                    setTimeout(() => gpsSorunModalKapat(), 2000);
-                } else {
+                .then(r => r.json())
+                .then(res => {
+                    btn.disabled = false;
+                    btn.innerText = "Gönder";
+                    if (res.durum === "basarili") {
+                        msj.style.color = "green";
+                        msj.innerText = "Teşekkürler, sorun başarıyla bildirildi!";
+                        setTimeout(() => gpsSorunModalKapat(), 2000);
+                    } else {
+                        msj.style.color = "red";
+                        msj.innerText = res.mesaj || "Hata oluştu!";
+                    }
+                })
+                .catch(err => {
+                    btn.disabled = false;
+                    btn.innerText = "Gönder";
                     msj.style.color = "red";
-                    msj.innerText = res.mesaj || "Hata oluştu!";
-                }
-            })
-            .catch(err => {
-                btn.disabled = false;
-                btn.innerText = "Gönder";
-                msj.style.color = "red";
-                msj.innerText = "Bağlantı hatası!";
-            });
+                    msj.innerText = "Bağlantı hatası!";
+                });
         }
 
         // --- HARİTA ÜZERİNDEN KAYIT SİLME ---
         function haritadanSil(tur, id) {
             if (!confirm("Bu kaydı silmek istediğinize emin misiniz? Bu işlem geri alınamaz!")) return;
-            
+
             let btn = document.getElementById("btnSamurayHaritaCiz");
             if (btn) { btn.innerText = "⏳ Siliniyor..."; btn.disabled = true; }
-            
+
             let paket = {
                 islemTipi: "HaritaNoktaSil",
                 tur: tur,
                 id: id,
                 token: localStorage.getItem("kktp_token")
             };
-            
+
             fetch(GOOGLE_SCRIPT_URL, {
                 method: "POST",
                 body: JSON.stringify(paket)
             })
-            .then(r => r.json())
-            .then(res => {
-                if (res.durum === "basarili") {
-                    vipBildirim("✅ Kayıt başarıyla silindi.", "basarili");
-                    samurayHaritasiniCiz();
-                } else {
+                .then(r => r.json())
+                .then(res => {
+                    if (res.durum === "basarili") {
+                        vipBildirim("✅ Kayıt başarıyla silindi.", "basarili");
+                        samurayHaritasiniCiz();
+                    } else {
+                        if (btn) { btn.innerText = "🔄 Haritayı Güncelle"; btn.disabled = false; }
+                        alert("Hata: " + res.mesaj);
+                    }
+                })
+                .catch(err => {
                     if (btn) { btn.innerText = "🔄 Haritayı Güncelle"; btn.disabled = false; }
-                    alert("Hata: " + res.mesaj);
-                }
-            })
-            .catch(err => {
-                if (btn) { btn.innerText = "🔄 Haritayı Güncelle"; btn.disabled = false; }
-                alert("Bağlantı hatası!");
-            });
+                    alert("Bağlantı hatası!");
+                });
         }
 
         // --- SAMURAY ARISI & KK YUMURTA RAPORLARI ---
@@ -9315,19 +9319,19 @@
             let rs = document.getElementById("samurayRaporIlceSecim");
             if (!rs) return;
             rs.innerHTML = '';
-            
+
             let ilceKilidiAcik = false;
             let syetki = document.getElementById("sideYetki") ? document.getElementById("sideYetki").innerText.toLowerCase() : "";
             if (syetki.includes("yönetici") || syetki.includes("il yetkilisi")) {
                 ilceKilidiAcik = true;
             }
-            
+
             if (ilceKilidiAcik) {
                 rs.innerHTML += `<option value="TÜM İL" style="font-weight:bold; color:red;">Tüm İl</option>`;
                 TRABZON_ILCELER.forEach((i) => { rs.innerHTML += `<option value="${i}">${i}</option>`; });
                 rs.disabled = false;
             } else {
-                let aktifIlce = document.getElementById("sideIlce") ? document.getElementById("sideIlce").innerText : "";
+                let aktifIlce = localStorage.getItem("kktp_ilce") || "";
                 if (aktifIlce && aktifIlce !== "Yok" && aktifIlce !== "Bilinmiyor") {
                     rs.innerHTML += `<option value="${aktifIlce}">${aktifIlce}</option>`;
                 } else {
@@ -9340,46 +9344,46 @@
         function samurayRaporCekveCiz() {
             let rTipi = document.getElementById("samurayRaporTipi").value;
             let rIlce = document.getElementById("samurayRaporIlceSecim").value;
-            
+
             if (!rIlce) return;
-            
+
             let btnExcel = document.getElementById("btnSamurayExcelAktar");
             let durumP = document.getElementById("samurayRaporDurum");
             let tablo = document.getElementById("samurayRaporTable");
-            
+
             tablo.classList.add("hidden");
             btnExcel.classList.add("hidden");
             durumP.innerText = "Yükleniyor, lütfen bekleyin...";
             durumP.style.color = "#1976d2";
-            
+
             let token = localStorage.getItem("kktp_token");
             let istekAd = rTipi === "Samuray" ? "samuray_raporu" : "kk_yumurta_raporu";
-            
+
             fetch(GOOGLE_SCRIPT_URL + "?istek=" + istekAd + "&token=" + token)
-            .then(r => r.json())
-            .then(res => {
-                if (res && res.hata) {
-                    durumP.innerText = "Oturum süresi dolmuş veya yetkisiz işlem.";
+                .then(r => r.json())
+                .then(res => {
+                    if (res && res.hata) {
+                        durumP.innerText = "Oturum süresi dolmuş veya yetkisiz işlem.";
+                        durumP.style.color = "red";
+                    } else {
+                        samurayRaporCiz(rTipi, rIlce, res);
+                    }
+                }).catch(err => {
+                    durumP.innerText = "Veriler alınırken hata oluştu.";
                     durumP.style.color = "red";
-                } else {
-                    samurayRaporCiz(rTipi, rIlce, res);
-                }
-            }).catch(err => {
-                durumP.innerText = "Veriler alınırken hata oluştu.";
-                durumP.style.color = "red";
-            });
+                });
         }
 
         function tTarihFormatla(tarihStr) {
-            if(!tarihStr) return "-";
+            if (!tarihStr) return "-";
             try {
                 let d = new Date(tarihStr);
-                if(isNaN(d.getTime())) return tarihStr;
+                if (isNaN(d.getTime())) return tarihStr;
                 let day = d.getDate().toString().padStart(2, '0');
                 let month = (d.getMonth() + 1).toString().padStart(2, '0');
                 let year = d.getFullYear();
                 return `${day}/${month}/${year}`;
-            } catch(e) { return tarihStr; }
+            } catch (e) { return tarihStr; }
         }
 
         function samurayRaporCiz(rTipi, rIlce, dataListe) {
@@ -9388,22 +9392,22 @@
             let thead = document.getElementById("samurayRaporThead");
             let tbody = document.getElementById("samurayRaporTbody");
             let tablo = document.getElementById("samurayRaporTable");
-            
+
             let filtered = dataListe.filter(x => {
-                if(rIlce === "TÜM İL") return true;
-                if(temizle(x.ilce) === temizle(rIlce)) return true;
+                if (rIlce === "TÜM İL") return true;
+                if (temizle(x.ilce) === temizle(rIlce)) return true;
                 return false;
             });
-            
-            if(filtered.length === 0) {
+
+            if (filtered.length === 0) {
                 durumP.innerText = "Seçili ilçeye ait kayıt bulunamadı.";
                 durumP.style.color = "#f57c00";
                 return;
             }
-            
+
             thead.innerHTML = "";
             tbody.innerHTML = "";
-            
+
             if (rTipi === "Samuray") {
                 thead.innerHTML = `<tr style="background-color: var(--bakanlik-kirmizi, #b71c1c); color: white;">
                     <th>Tarih</th><th>Personel</th><th>İlçe</th><th>Mahalle</th><th>Ada / Parsel</th>
@@ -9441,7 +9445,7 @@
                     </tr>`;
                 });
             }
-            
+
             durumP.innerText = "";
             tablo.classList.remove("hidden");
             btnExcel.classList.remove("hidden");
@@ -9456,7 +9460,7 @@
             let a = document.createElement("a");
             a.href = URL.createObjectURL(blob);
             let ds = new Date();
-            let dsF = ds.getDate() + "-" + (ds.getMonth()+1) + "-" + ds.getFullYear();
+            let dsF = ds.getDate() + "-" + (ds.getMonth() + 1) + "-" + ds.getFullYear();
             a.download = rTipi + "_Raporu_" + rIlce + "_" + dsF + ".xls";
             a.click();
         }
