@@ -697,6 +697,9 @@
                 <li onclick="modulAc('modulSamurayHarita')">
                     🗺️ Samuray Arısı Etki Alanı
                 </li>
+                <li onclick="modulAc('modulSamurayRapor')">
+                    📊 Samuray Arısı Raporları
+                </li>
             </ul>
 
             <li id="menuPersonel" class="hidden" onclick="modulAc('modulPersonel')">
@@ -2544,6 +2547,25 @@
                         style="width: auto; padding: 10px 15px; background: #2e7d32">
                         📥 Excel İndir
                     </button>
+                </div>
+            </div>
+            <!-- YENİ EKLENEN TARİH FİLTRESİ -->
+            <div class="form-row" style="align-items: flex-end; margin-bottom: 15px; flex-wrap: wrap; background: #e3f2fd; padding: 10px; border-radius: 8px; border: 1px solid #bbdefb;">
+                <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 100px">
+                    <label>Yıl</label>
+                    <select id="samurayFiltreYil" onchange="samurayYilDegisti()"></select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 150px">
+                    <label>Hafta Seçimi</label>
+                    <select id="samurayFiltreHafta" onchange="samurayHaftaDegisti()"></select>
+                </div>
+                <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 140px">
+                    <label>Başlangıç Tarihi</label>
+                    <input type="date" id="samurayFiltreBasTarih" onchange="samurayTarihManuelDegisti()">
+                </div>
+                <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 140px">
+                    <label>Bitiş Tarihi</label>
+                    <input type="date" id="samurayFiltreBitTarih" onchange="samurayTarihManuelDegisti()">
                 </div>
             </div>
             <div class="table-container" style="max-height: 400px; overflow-y: auto">
@@ -4491,6 +4513,10 @@
                 if (rs && rs.value && rs.disabled) raporCekveCiz();
             }
             if (hedefID === "modulSamurayRapor") {
+                let ySecim = document.getElementById("samurayFiltreYil");
+                if (ySecim && ySecim.options.length === 0) {
+                    samurayTarihleriAyarla();
+                }
                 samurayRaporIlceDoldur();
                 let rs2 = document.getElementById("samurayRaporIlceSecim");
                 if (rs2 && rs2.value && rs2.disabled) samurayRaporCekveCiz();
@@ -9314,6 +9340,80 @@
                 });
         }
 
+        // --- SAMURAY TARİH/HAFTA FİLTRESİ ---
+        function getISOWeek(date) {
+            let d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+            let dayNum = d.getUTCDay() || 7;
+            d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+            let yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+            return Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
+        }
+
+        function getDateOfISOWeek(w, y) {
+            let simple = new Date(y, 0, 1 + (w - 1) * 7);
+            let dow = simple.getDay();
+            let ISOweekStart = simple;
+            if (dow <= 4) ISOweekStart.setDate(simple.getDate() - simple.getDay() + 1);
+            else ISOweekStart.setDate(simple.getDate() + 8 - simple.getDay());
+            return ISOweekStart;
+        }
+
+        function samurayTarihleriAyarla() {
+            let yilSecim = document.getElementById("samurayFiltreYil");
+            let haftaSecim = document.getElementById("samurayFiltreHafta");
+            if(!yilSecim || !haftaSecim) return;
+            
+            // Yılları doldur
+            let guncelYil = new Date().getFullYear();
+            yilSecim.innerHTML = '<option value="Tümü">Tüm Yıllar</option>';
+            for(let y = 2024; y <= guncelYil + 1; y++) {
+                yilSecim.innerHTML += `<option value="${y}">${y}</option>`;
+            }
+            yilSecim.value = guncelYil;
+
+            // Haftaları doldur
+            haftaSecim.innerHTML = '<option value="Tümü">Tüm Haftalar</option><option value="Özel">Özel Aralık</option>';
+            for(let h = 1; h <= 53; h++) {
+                haftaSecim.innerHTML += `<option value="${h}">${h}. Hafta</option>`;
+            }
+
+            // Şu anki haftayı bul
+            let bugun = new Date();
+            let suAnkiHafta = getISOWeek(bugun);
+            haftaSecim.value = suAnkiHafta;
+
+            samurayHaftaDegisti();
+        }
+
+        function samurayYilDegisti() {
+            samurayHaftaDegisti();
+        }
+
+        function samurayHaftaDegisti() {
+            let yil = document.getElementById("samurayFiltreYil").value;
+            let hafta = document.getElementById("samurayFiltreHafta").value;
+            let bas = document.getElementById("samurayFiltreBasTarih");
+            let bit = document.getElementById("samurayFiltreBitTarih");
+
+            if (yil === "Tümü" || hafta === "Tümü") {
+                bas.value = "";
+                bit.value = "";
+                return;
+            }
+            if (hafta === "Özel") return;
+
+            let pzt = getDateOfISOWeek(parseInt(hafta), parseInt(yil));
+            let pzr = new Date(pzt);
+            pzr.setDate(pzr.getDate() + 6);
+
+            bas.value = pzt.toISOString().split('T')[0];
+            bit.value = pzr.toISOString().split('T')[0];
+        }
+
+        function samurayTarihManuelDegisti() {
+            document.getElementById("samurayFiltreHafta").value = "Özel";
+        }
+
         // --- SAMURAY ARISI & KK YUMURTA RAPORLARI ---
         function samurayRaporIlceDoldur() {
             let rs = document.getElementById("samurayRaporIlceSecim");
@@ -9331,7 +9431,7 @@
                 TRABZON_ILCELER.forEach((i) => { rs.innerHTML += `<option value="${i}">${i}</option>`; });
                 rs.disabled = false;
             } else {
-                let aktifIlce = localStorage.getItem("kktp_ilce") || "";
+                let aktifIlce = personelinIlcesi || localStorage.getItem("kktp_ilce") || "";
                 if (aktifIlce && aktifIlce !== "Yok" && aktifIlce !== "Bilinmiyor") {
                     rs.innerHTML += `<option value="${aktifIlce}">${aktifIlce}</option>`;
                 } else {
@@ -9356,10 +9456,16 @@
             durumP.innerText = "Yükleniyor, lütfen bekleyin...";
             durumP.style.color = "#1976d2";
 
+            let bas = document.getElementById("samurayFiltreBasTarih") ? document.getElementById("samurayFiltreBasTarih").value : "";
+            let bit = document.getElementById("samurayFiltreBitTarih") ? document.getElementById("samurayFiltreBitTarih").value : "";
+
             let token = localStorage.getItem("kktp_token");
             let istekAd = rTipi === "Samuray" ? "samuray_raporu" : "kk_yumurta_raporu";
+            let url = GOOGLE_SCRIPT_URL + "?istek=" + istekAd + "&token=" + token;
+            if(bas) url += "&basTarih=" + bas;
+            if(bit) url += "&bitTarih=" + bit;
 
-            fetch(GOOGLE_SCRIPT_URL + "?istek=" + istekAd + "&token=" + token)
+            fetch(url)
                 .then(r => r.json())
                 .then(res => {
                     if (res && res.hata) {
@@ -9422,7 +9528,7 @@
                         <td>${guvenliMetin(x.ada)} / ${guvenliMetin(x.parsel)}</td>
                         <td>${guvenliMetin(x.koordinat)}</td>
                         <td>${guvenliMetin(x.ariSayisi)}</td>
-                        <td>${guvenliMetin(x.alan)}</td>
+                        <td>${guvenliMetin(x.alan ? String(x.alan).replace(/\./g, ',') : "")}</td>
                     </tr>`;
                 });
             } else {
@@ -9455,14 +9561,11 @@
             let tablo = document.getElementById("samurayRaporTable");
             let rTipi = document.getElementById("samurayRaporTipi").value;
             let rIlce = document.getElementById("samurayRaporIlceSecim").value;
-            let html = tablo.outerHTML;
-            let blob = new Blob(['\\uFEFF' + html], { type: "application/vnd.ms-excel" });
-            let a = document.createElement("a");
-            a.href = URL.createObjectURL(blob);
             let ds = new Date();
             let dsF = ds.getDate() + "-" + (ds.getMonth() + 1) + "-" + ds.getFullYear();
-            a.download = rTipi + "_Raporu_" + rIlce + "_" + dsF + ".xls";
-            a.click();
+            let dosyaAdi = rTipi + "_Raporu_" + rIlce + "_" + dsF + ".xlsx";
+            let wb = XLSX.utils.table_to_book(tablo, { sheet: "Rapor", raw: true });
+            XLSX.writeFile(wb, dosyaAdi);
         }
     </script>
 </body>
