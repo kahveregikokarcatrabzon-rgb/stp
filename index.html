@@ -26,6 +26,9 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Turf.js/6.5.0/turf.min.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
     <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
@@ -716,7 +719,7 @@
         </ul>
         <div class="footer-imza">
             © <span id="footerYil">2026</span> STP | Cloud Sürümü
-            <b id="appVersiyon" style="color: var(--bakanlik-kirmizi)">v33</b><br />Geliştirici:
+            <b id="appVersiyon" style="color: var(--bakanlik-kirmizi)">v36</b><br />Geliştirici:
             <a href="mailto:mustafa.cavdar@tarimorman.gov.tr" style="
             color: var(--bakanlik-kirmizi);
             font-weight: bold;
@@ -1222,6 +1225,9 @@
             margin-top: 15px;
             font-weight: bold;
           "></small>
+            <div style="text-align: center; margin-top: 20px; font-size: 12px; color: #888;">
+                STP | Cloud Sürümü <b style="color: var(--bakanlik-kirmizi)">v36</b>
+            </div>
         </div>
     </div>
 
@@ -1435,6 +1441,11 @@
                     <label>İlçe Seçin</label><select id="sayimFiltreIlce" onchange="sayimHaritasiDoldur()"></select>
                 </div>
                 <div class="form-group half-width">
+                    <label>Yıl Seçin</label><select id="sayimFiltreYil" class="yil-filtresi" onchange="sayimHaritasiDoldur()"></select>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="width: 100%;">
                     <label>Mahalle Seçin (Filtrele)</label><input type="text" id="sayimFiltreMahalle"
                         list="sayimFiltreMahalleListesi" onchange="sayimHaritasiFiltrele()"
                         placeholder="Tümü" /><datalist id="sayimFiltreMahalleListesi"></datalist>
@@ -1595,6 +1606,14 @@
                 </option>
                 <option value="TÜM İL">Tüm Trabzon (İlçe Bazlı)</option>
             </select>
+            <select id="yogunlukFiltreYil" onchange="isiHaritasiniCiz()" class="yil-filtresi" style="
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            margin-bottom: 15px;
+          "></select>
             <p style="font-size: 13px; color: #666; margin-bottom: 15px">
                 Bu harita, ilçelerden gelen tüm sayım verilerini toplayarak Trabzon
                 sınırlarına yansıtır. Güncel verileri görmek için butona basın.
@@ -1658,6 +1677,14 @@
                 </option>
                 <option value="TÜM İL">Tüm Trabzon (İlçe Bazlı)</option>
             </select>
+            <select id="yukseklikFiltreYil" onchange="yukseklikHaritasiniCiz()" class="yil-filtresi" style="
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            margin-bottom: 15px;
+          "></select>
             <div id="istatistikPanosuYukseklik" class="form-row" style="margin-bottom: 20px">
                 <div class="istatistik-kutu" style="border-color: #ffb300">
                     <div class="istatistik-sayi" id="istSahil" style="color: #ffb300">
@@ -2881,6 +2908,14 @@
                 </option>
                 <option value="TÜM İL">Tüm Trabzon (İlçe Bazlı)</option>
             </select>
+            <select id="samurayHaritaFiltreYil" onchange="samurayHaritasiniCiz()" class="yil-filtresi" style="
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 16px;
+            margin-bottom: 15px;
+          "></select>
             <p style="font-size: 13px; color: #666; margin-bottom: 15px">
                 Haritadaki mavi noktalar Samuray Arısı salımı yapılan alanları temsil
                 eder. Üzerine tıklayarak veya fare ile üzerine gelerek detayları ve
@@ -3477,7 +3512,7 @@
         function tokenGecerlilikKontrolu(data) {
             if (!data) return true;
             if ((data.hata && data.hata.includes("Yetkisiz Erişim")) || (data.mesaj && (data.mesaj.includes("Oturum süresi dolmuş") || data.mesaj.includes("Güvenlik İhlali")))) {
-                
+
                 let hatirlananKul = localStorage.getItem("kktp_hatirla_kul");
                 let hatirlananSifre = localStorage.getItem("kktp_hatirla_sifre");
 
@@ -3944,8 +3979,23 @@
             isaretciSamuray = null,
             anlikKoordinatSamuray = "";
         let haritaSamurayGenel = null,
-            katmanSamurayNoktalari = null,
+            katmanSamurayCluster = null,
+            katmanYumurtaVarCluster = null,
+            katmanYumurtaYokCluster = null,
             geoJsonLayerSamuray = null;
+
+        window.toggleSamurayKatman = function (chk, tip) {
+            if (!haritaSamurayGenel) return;
+            let t = null;
+            if (tip === "samuray") t = katmanSamurayCluster;
+            if (tip === "yumurtaVar") t = katmanYumurtaVarCluster;
+            if (tip === "yumurtaYok") t = katmanYumurtaYokCluster;
+
+            if (t) {
+                if (chk) haritaSamurayGenel.addLayer(t);
+                else haritaSamurayGenel.removeLayer(t);
+            }
+        };
         let haritaKKYumurta = null,
             isaretciKKYumurta = null,
             anlikKoordinatKKYumurta = "";
@@ -6162,6 +6212,11 @@
 
         function sayimHaritasiDoldur() {
             let ilce = document.getElementById("sayimFiltreIlce").value;
+            let yilElement = document.getElementById("sayimFiltreYil");
+            let y = yilElement ? yilElement.value : new Date().getFullYear();
+            let bTarih = y + "-01-01";
+            let bTarihSon = y + "-12-31";
+            
             let d = document.getElementById("sayimHaritaBilgi");
             if (!ilce) return;
             document.getElementById("sayimFormAlani").classList.add("hidden");
@@ -6173,7 +6228,7 @@
                 d.style.color = "#f57c00";
                 d.innerText = "İlçe verileri çekiliyor...";
             }
-            fetch(GOOGLE_SCRIPT_URL + "?ilce=" + ilce + "&token=" + localStorage.getItem("kktp_token"))
+            fetch(GOOGLE_SCRIPT_URL + "?ilce=" + ilce + "&token=" + localStorage.getItem("kktp_token") + "&basTarih=" + bTarih + "&bitTarih=" + bTarihSon)
                 .then((res) => res.json())
                 .then((data) => {
                     if (!tokenGecerlilikKontrolu(data)) return;
@@ -6216,7 +6271,11 @@
                 haritayaKonumButonuEkle(haritaSayim);
             }
             if (isaretciGrup && haritaSayim) haritaSayim.removeLayer(isaretciGrup);
-            isaretciGrup = L.layerGroup().addTo(haritaSayim);
+            isaretciGrup = L.markerClusterGroup({ maxClusterRadius: 50, spiderfyOnMaxZoom: true, showCoverageOnHover: false, zoomToBoundsOnClick: true,
+                iconCreateFunction: function(cluster) {
+                    return L.divIcon({ html: '<div style="background-color: #d32f2f; color: white; width: 34px; height: 34px; border-radius: 17px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.8);"><span>' + cluster.getChildCount() + '</span></div>', className: 'custom-cluster', iconSize: [34, 34] });
+                }
+            }).addTo(haritaSayim);
             let s = 0;
             let bounds = [];
             let ikon = L.divIcon({
@@ -6948,7 +7007,11 @@
                 d.style.color = "#1976d2";
                 d.innerText = "⏳ Veriler sunucudan çekiliyor...";
             }
-            fetch(GOOGLE_SCRIPT_URL + "?istek=il_raporu&token=" + localStorage.getItem("kktp_token"))
+            let y = document.getElementById("yogunlukFiltreYil") ? document.getElementById("yogunlukFiltreYil").value : new Date().getFullYear();
+            let bTarih = y + "-01-01";
+            let bTarihSon = y + "-12-31";
+
+            fetch(GOOGLE_SCRIPT_URL + "?istek=il_raporu&token=" + localStorage.getItem("kktp_token") + "&basTarih=" + bTarih + "&bitTarih=" + bTarihSon)
                 .then((res) => res.json())
                 .then((data) => {
                     if (data.hata) {
@@ -7068,6 +7131,7 @@
                             if (geoJsonLayer && haritaYogunluk)
                                 haritaYogunluk.removeLayer(geoJsonLayer);
                             geoJsonLayer = L.geoJSON(geoData, {
+                                filter: function (feature) { return feature.geometry.type !== "Point" && feature.geometry.type !== "MultiPoint"; },
                                 style: function () {
                                     return {
                                         fillColor: "#ececec",
@@ -7123,10 +7187,12 @@
                                 haritaYogunluk.fitBounds(geoJsonLayer.getBounds());
                             }
 
-                            if (katmanYogunlukTuzaklar && haritaYogunluk) {
-                                haritaYogunluk.removeLayer(katmanYogunlukTuzaklar);
-                            }
-                            katmanYogunlukTuzaklar = L.layerGroup().addTo(haritaYogunluk);
+                            if (katmanYogunlukTuzaklar) haritaYogunluk.removeLayer(katmanYogunlukTuzaklar);
+                            katmanYogunlukTuzaklar = L.markerClusterGroup({ maxClusterRadius: 50, spiderfyOnMaxZoom: true, showCoverageOnHover: false, zoomToBoundsOnClick: true,
+                                iconCreateFunction: function(cluster) {
+                                    return L.divIcon({ html: '<div style="background-color: #d32f2f; color: white; width: 34px; height: 34px; border-radius: 17px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.8);"><span>' + cluster.getChildCount() + '</span></div>', className: 'custom-cluster', iconSize: [34, 34] });
+                                }
+                            }).addTo(haritaYogunluk);
 
                             let kucukKareIkon = L.divIcon({
                                 className: "custom-icon",
@@ -7297,9 +7363,18 @@
                             <span id="samurayLegendIcon" style="font-size: 12px; margin-left: 10px;">▼</span>
                         </div>
                         <div id="samurayLegendContent" style="display: none; margin-top: 8px; border-top: 1px solid #ddd; padding-top: 8px;">
-                            <div style="display:flex; align-items:center; margin-bottom:6px; font-size: 13px;"><div style="width: 14px; height: 14px; background: black; border: 1px solid white; box-shadow: 0 0 3px rgba(0,0,0,0.8); border-radius: 2px; margin-right: 8px;"></div> Samuray Arısı Salım Noktası</div>
-                            <div style="display:flex; align-items:center; margin-bottom:6px; font-size: 13px;"><div style="width: 14px; height: 14px; background: #4CAF50; border: 1px solid white; box-shadow: 0 0 3px rgba(0,0,0,0.8); border-radius: 2px; margin-right: 8px;"></div> P. Yumurta Var</div>
-                            <div style="display:flex; align-items:center; font-size: 13px;"><div style="width: 14px; height: 14px; background: white; border: 1px solid black; box-shadow: 0 0 3px rgba(0,0,0,0.8); border-radius: 2px; margin-right: 8px;"></div> P. Yumurta Yok</div>
+                            <div style="display:flex; align-items:center; margin-bottom:6px; font-size: 13px;">
+                                <input type="checkbox" id="chkSamuray" checked onchange="toggleSamurayKatman(this.checked, 'samuray')" style="margin-right:8px; cursor:pointer;" title="Haritada göster/gizle">
+                                <div style="width: 14px; height: 14px; background: black; border: 1px solid white; box-shadow: 0 0 3px rgba(0,0,0,0.8); border-radius: 2px; margin-right: 8px;"></div> Salım Noktası
+                            </div>
+                            <div style="display:flex; align-items:center; margin-bottom:6px; font-size: 13px;">
+                                <input type="checkbox" id="chkYumurtaVar" checked onchange="toggleSamurayKatman(this.checked, 'yumurtaVar')" style="margin-right:8px; cursor:pointer;" title="Haritada göster/gizle">
+                                <div style="width: 14px; height: 14px; background: #4CAF50; border: 1px solid white; box-shadow: 0 0 3px rgba(0,0,0,0.8); border-radius: 2px; margin-right: 8px;"></div> P. Yumurta Var
+                            </div>
+                            <div style="display:flex; align-items:center; font-size: 13px;">
+                                <input type="checkbox" id="chkYumurtaYok" checked onchange="toggleSamurayKatman(this.checked, 'yumurtaYok')" style="margin-right:8px; cursor:pointer;" title="Haritada göster/gizle">
+                                <div style="width: 14px; height: 14px; background: white; border: 1px solid black; box-shadow: 0 0 3px rgba(0,0,0,0.8); border-radius: 2px; margin-right: 8px;"></div> P. Yumurta Yok
+                            </div>
                         </div>
                     `;
 
@@ -7327,9 +7402,13 @@
             if (btn) { btn.innerText = "⏳ Yükleniyor..."; btn.disabled = true; }
             if (d) { d.innerText = "⏳ Veriler sunucudan çekiliyor..."; d.style.color = "#1976d2"; }
 
+            let secilenYil = document.getElementById("samurayHaritaFiltreYil") ? document.getElementById("samurayHaritaFiltreYil").value : new Date().getFullYear();
+            let bTarih = secilenYil + "-01-01";
+            let bTarihSon = secilenYil + "-12-31";
+
             Promise.all([
-                fetch(GOOGLE_SCRIPT_URL + "?istek=samuray_raporu&token=" + localStorage.getItem("kktp_token")).then(res => res.json()),
-                fetch(GOOGLE_SCRIPT_URL + "?istek=kk_yumurta_raporu&token=" + localStorage.getItem("kktp_token")).then(res => res.json())
+                fetch(GOOGLE_SCRIPT_URL + "?istek=samuray_raporu&token=" + localStorage.getItem("kktp_token") + "&basTarih=" + bTarih + "&bitTarih=" + bTarihSon).then(res => res.json()),
+                fetch(GOOGLE_SCRIPT_URL + "?istek=kk_yumurta_raporu&token=" + localStorage.getItem("kktp_token") + "&basTarih=" + bTarih + "&bitTarih=" + bTarihSon).then(res => res.json())
             ])
                 .then(([samurayData, yumurtaData]) => {
                     if (samurayData.hata || yumurtaData.hata) {
@@ -7357,6 +7436,7 @@
                                 haritaSamurayGenel.removeLayer(geoJsonLayerSamuray);
                             }
                             geoJsonLayerSamuray = L.geoJSON(geoData, {
+                                filter: function (feature) { return feature.geometry.type !== "Point" && feature.geometry.type !== "MultiPoint"; },
                                 style: function () {
                                     return {
                                         fillColor: "#e3f2fd",
@@ -7409,10 +7489,37 @@
         function samurayNoktalariniHaritayaEkle(samurayData, yumurtaData, secim, d, btn) {
             if (btn) { btn.innerText = "🔄 Haritayı Güncelle"; btn.disabled = false; }
 
-            if (katmanSamurayNoktalari && haritaSamurayGenel) {
-                haritaSamurayGenel.removeLayer(katmanSamurayNoktalari);
-            }
-            katmanSamurayNoktalari = L.layerGroup().addTo(haritaSamurayGenel);
+            if (katmanSamurayCluster) haritaSamurayGenel.removeLayer(katmanSamurayCluster);
+            if (katmanYumurtaVarCluster) haritaSamurayGenel.removeLayer(katmanYumurtaVarCluster);
+            if (katmanYumurtaYokCluster) haritaSamurayGenel.removeLayer(katmanYumurtaYokCluster);
+
+            let baseClusterOpts = { maxClusterRadius: 50, spiderfyOnMaxZoom: true, showCoverageOnHover: false, zoomToBoundsOnClick: true };
+            katmanSamurayCluster = L.markerClusterGroup({
+                ...baseClusterOpts,
+                iconCreateFunction: function(cluster) {
+                    return L.divIcon({ html: '<div style="background-color: black; color: white; width: 34px; height: 34px; border-radius: 17px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.8);"><span>' + cluster.getChildCount() + '</span></div>', className: 'custom-cluster', iconSize: [34, 34] });
+                }
+            });
+            katmanYumurtaVarCluster = L.markerClusterGroup({
+                ...baseClusterOpts,
+                iconCreateFunction: function(cluster) {
+                    return L.divIcon({ html: '<div style="background-color: #4CAF50; color: white; width: 34px; height: 34px; border-radius: 17px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.8);"><span>' + cluster.getChildCount() + '</span></div>', className: 'custom-cluster', iconSize: [34, 34] });
+                }
+            });
+            katmanYumurtaYokCluster = L.markerClusterGroup({
+                ...baseClusterOpts,
+                iconCreateFunction: function(cluster) {
+                    return L.divIcon({ html: '<div style="background-color: white; color: black; width: 34px; height: 34px; border-radius: 17px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid black; box-shadow: 0 0 5px rgba(0,0,0,0.8);"><span>' + cluster.getChildCount() + '</span></div>', className: 'custom-cluster', iconSize: [34, 34] });
+                }
+            });
+
+            let cs = document.getElementById("chkSamuray");
+            let cv = document.getElementById("chkYumurtaVar");
+            let cy = document.getElementById("chkYumurtaYok");
+
+            if (!cs || cs.checked) katmanSamurayCluster.addTo(haritaSamurayGenel);
+            if (!cv || cv.checked) katmanYumurtaVarCluster.addTo(haritaSamurayGenel);
+            if (!cy || cy.checked) katmanYumurtaYokCluster.addTo(haritaSamurayGenel);
 
             let sayacSamuray = 0;
             let sayacYumurta = 0;
@@ -7468,7 +7575,7 @@
                         `;
                             L.marker([lat, lng], { icon: iconSamuray })
                                 .bindPopup(popupTxt)
-                                .addTo(katmanSamurayNoktalari);
+                                .addTo(katmanSamurayCluster);
                             bounds.push([lat, lng]);
                             sayacSamuray++;
                         }
@@ -7507,7 +7614,7 @@
                         `;
                             L.marker([lat, lng], { icon: isVar ? iconYumurtaVar : iconYumurtaYok })
                                 .bindPopup(popupTxt)
-                                .addTo(katmanSamurayNoktalari);
+                                .addTo(isVar ? katmanYumurtaVarCluster : katmanYumurtaYokCluster);
                             bounds.push([lat, lng]);
                             sayacYumurta++;
                         }
@@ -7519,7 +7626,7 @@
                 haritaSamurayGenel.fitBounds(bounds);
             }
 
-            if (d) { d.innerText = `✅ Haritaya ${sayacSamuray} Samuray noktası, ${sayacYumurta} Yumurta tespiti eklendi.`; d.style.color = "green"; }
+            if (d) { d.innerText = `✅ Haritaya ${sayacSamuray} Samuray Arısı Salım Noktası, ${sayacYumurta} Yumurta tespiti eklendi.`; d.style.color = "green"; }
         }
 
         async function yukseklikHaritasiniCiz() {
@@ -7540,7 +7647,10 @@
             }
 
             try {
-                const response = await fetch(GOOGLE_SCRIPT_URL + "?istek=il_raporu&token=" + localStorage.getItem("kktp_token"));
+                let y = document.getElementById("yukseklikFiltreYil") ? document.getElementById("yukseklikFiltreYil").value : new Date().getFullYear();
+                let bTarih = y + "-01-01";
+                let bTarihSon = y + "-12-31";
+                const response = await fetch(GOOGLE_SCRIPT_URL + "?istek=il_raporu&token=" + localStorage.getItem("kktp_token") + "&basTarih=" + bTarih + "&bitTarih=" + bTarihSon);
                 const data = await response.json();
                 if (data.hata) return;
 
@@ -7598,7 +7708,11 @@
 
                 if (katmanYukseklikGrup && haritaYukseklik)
                     haritaYukseklik.removeLayer(katmanYukseklikGrup);
-                katmanYukseklikGrup = L.layerGroup().addTo(haritaYukseklik);
+                katmanYukseklikGrup = L.markerClusterGroup({ maxClusterRadius: 50, spiderfyOnMaxZoom: true, showCoverageOnHover: false, zoomToBoundsOnClick: true,
+                    iconCreateFunction: function(cluster) {
+                        return L.divIcon({ html: '<div style="background-color: #d32f2f; color: white; width: 34px; height: 34px; border-radius: 17px; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white; box-shadow: 0 0 5px rgba(0,0,0,0.8);"><span>' + cluster.getChildCount() + '</span></div>', className: 'custom-cluster', iconSize: [34, 34] });
+                    }
+                }).addTo(haritaYukseklik);
 
                 const gruplariCiz = (grupTuzaklari, grupAdi, toplamBocek) => {
                     if (grupTuzaklari.length === 0) return;
@@ -9570,6 +9684,21 @@
             let wb = XLSX.utils.table_to_book(tablo, { sheet: "Rapor", raw: true });
             XLSX.writeFile(wb, dosyaAdi);
         }
+        function dinamikYillariDoldur() {
+            let yilFiltreleri = document.querySelectorAll('.yil-filtresi');
+            let suAnkiYil = new Date().getFullYear();
+            yilFiltreleri.forEach(selectBox => {
+                selectBox.innerHTML = "";
+                for (let y = 2026; y <= suAnkiYil; y++) {
+                    let opt = document.createElement("option");
+                    opt.value = y;
+                    opt.text = y + " Yılı Verileri";
+                    if (y === suAnkiYil) opt.selected = true;
+                    selectBox.appendChild(opt);
+                }
+            });
+        }
+        document.addEventListener('DOMContentLoaded', dinamikYillariDoldur);
     </script>
 </body>
 
