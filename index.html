@@ -3494,7 +3494,8 @@
                         .then(resData => {
                             if (resData.durum === "basarili") {
                                 localStorage.setItem("kktp_token", resData.token);
-                                vipBildirim("✅ Oturum başarıyla yenilendi! Lütfen işleminizi (Kaydet/Veri Çek) tekrar ediniz.", "basarili");
+                                vipBildirim("✅ Oturum başarıyla yenilendi! Sayfa yenileniyor...", "basarili");
+                                setTimeout(() => { location.reload(); }, 1500);
                             } else {
                                 alert("Oturum süreniz dolmuştur. Lütfen güvenliğiniz için tekrar giriş yapın.");
                                 oturumuKapatVeCik();
