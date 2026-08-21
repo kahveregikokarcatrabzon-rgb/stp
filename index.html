@@ -716,7 +716,7 @@
         </ul>
         <div class="footer-imza">
             © <span id="footerYil">2026</span> STP | Cloud Sürümü
-            <b id="appVersiyon" style="color: var(--bakanlik-kirmizi)">v30.3</b><br />Geliştirici:
+            <b id="appVersiyon" style="color: var(--bakanlik-kirmizi)">v32</b><br />Geliştirici:
             <a href="mailto:mustafa.cavdar@tarimorman.gov.tr" style="
             color: var(--bakanlik-kirmizi);
             font-weight: bold;
@@ -2550,7 +2550,8 @@
                 </div>
             </div>
             <!-- YENİ EKLENEN TARİH FİLTRESİ -->
-            <div class="form-row" style="align-items: flex-end; margin-bottom: 15px; flex-wrap: wrap; background: #e3f2fd; padding: 10px; border-radius: 8px; border: 1px solid #bbdefb;">
+            <div class="form-row"
+                style="align-items: flex-end; margin-bottom: 15px; flex-wrap: wrap; background: #e3f2fd; padding: 10px; border-radius: 8px; border: 1px solid #bbdefb;">
                 <div class="form-group" style="margin-bottom: 0; flex: 1; min-width: 100px">
                     <label>Yıl</label>
                     <select id="samurayFiltreYil" onchange="samurayYilDegisti()"></select>
@@ -3476,10 +3477,7 @@
         function tokenGecerlilikKontrolu(data) {
             if (!data) return true;
             if ((data.hata && data.hata.includes("Yetkisiz Erişim")) || (data.mesaj && (data.mesaj.includes("Oturum süresi dolmuş") || data.mesaj.includes("Güvenlik İhlali")))) {
-                alert("Oturum süreniz dolmuştur. Lütfen güvenliğiniz için tekrar giriş yapın.");
-                localStorage.clear();
-                location.reload();
-
+                
                 let hatirlananKul = localStorage.getItem("kktp_hatirla_kul");
                 let hatirlananSifre = localStorage.getItem("kktp_hatirla_sifre");
 
@@ -3498,9 +3496,13 @@
                                 localStorage.setItem("kktp_token", resData.token);
                                 vipBildirim("✅ Oturum başarıyla yenilendi! Lütfen işleminizi (Kaydet/Veri Çek) tekrar ediniz.", "basarili");
                             } else {
+                                alert("Oturum süreniz dolmuştur. Lütfen güvenliğiniz için tekrar giriş yapın.");
                                 oturumuKapatVeCik();
                             }
-                        }).catch(() => oturumuKapatVeCik());
+                        }).catch(() => {
+                            alert("Oturum süreniz dolmuştur. Lütfen güvenliğiniz için tekrar giriş yapın.");
+                            oturumuKapatVeCik();
+                        });
                 } else {
                     alert("Oturum süreniz dolmuştur. Lütfen güvenliğiniz için tekrar giriş yapın.");
                     oturumuKapatVeCik();
@@ -5076,7 +5078,7 @@
                             if (d) { d.style.color = "red"; d.innerText = `📍 GPS alınamadı (${hataSebebi}). Haritayı açmak için lütfen aşağıdaki formdan 'İlçe' seçiniz.`; }
                         }
                     },
-                    { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+                    { enableHighAccuracy: true, timeout: 10000, maximumAge: 10000 }
                 );
             }
         }
@@ -5725,7 +5727,7 @@
                             paket.sapmaMesafesi = 0;
                             fotoveGonder(paket, btn, "sayimFoto");
                         },
-                        { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 }
+                        { enableHighAccuracy: true, timeout: 10000, maximumAge: 10000 }
                     );
                     return;
                 } else {
@@ -9361,19 +9363,19 @@
         function samurayTarihleriAyarla() {
             let yilSecim = document.getElementById("samurayFiltreYil");
             let haftaSecim = document.getElementById("samurayFiltreHafta");
-            if(!yilSecim || !haftaSecim) return;
-            
+            if (!yilSecim || !haftaSecim) return;
+
             // Yılları doldur
             let guncelYil = new Date().getFullYear();
             yilSecim.innerHTML = '<option value="Tümü">Tüm Yıllar</option>';
-            for(let y = 2024; y <= guncelYil + 1; y++) {
+            for (let y = 2024; y <= guncelYil + 1; y++) {
                 yilSecim.innerHTML += `<option value="${y}">${y}</option>`;
             }
             yilSecim.value = guncelYil;
 
             // Haftaları doldur
             haftaSecim.innerHTML = '<option value="Tümü">Tüm Haftalar</option><option value="Özel">Özel Aralık</option>';
-            for(let h = 1; h <= 53; h++) {
+            for (let h = 1; h <= 53; h++) {
                 haftaSecim.innerHTML += `<option value="${h}">${h}. Hafta</option>`;
             }
 
@@ -9462,8 +9464,8 @@
             let token = localStorage.getItem("kktp_token");
             let istekAd = rTipi === "Samuray" ? "samuray_raporu" : "kk_yumurta_raporu";
             let url = GOOGLE_SCRIPT_URL + "?istek=" + istekAd + "&token=" + token;
-            if(bas) url += "&basTarih=" + bas;
-            if(bit) url += "&bitTarih=" + bit;
+            if (bas) url += "&basTarih=" + bas;
+            if (bit) url += "&bitTarih=" + bit;
 
             fetch(url)
                 .then(r => r.json())
